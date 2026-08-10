@@ -580,7 +580,7 @@
   </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet-rotate-map@0.3.2/leaflet-src.js"></script>
 <script>
 /* ===================== DATA ===================== */
 const LANDS = {
@@ -837,7 +837,7 @@ function singleRiderInfoHtml(ride){
 }
 
 /* ===================== MAP INIT ===================== */
-const map = L.map('map', {scrollWheelZoom:true, zoomControl:true}).setView([28.448, -81.458], 15);
+const map = L.map('map', {scrollWheelZoom:true, zoomControl:true, rotate:true, touchRotate:true}).setView([28.448, -81.458], 15);
 /* Original Universal park basemap retained; our attractions and land overlays remain independent. */
 const mapOfficial = L.tileLayer('https://services.universalorlando.com/assets/MapTiles/Production/10255/512/{z}_{x}_{y}.jpg', {
   attribution: 'Universal Orlando', minZoom: 12, maxZoom: 18, tileSize: 512, zoomOffset: -1, tms: false
@@ -900,37 +900,11 @@ function updateUserMarkerIcon(){
 }
 let mapBearing = 0;
 let compassMapMode = false;
-let touchRotate = null;
 function setMapBearing(degrees){
   mapBearing = ((degrees % 360) + 360) % 360;
-  const pane = document.querySelector('#map .leaflet-map-pane');
-  if (pane) pane.style.transform = `rotate(${-mapBearing}deg)`;
+  if (typeof map.setBearing === 'function') map.setBearing(mapBearing);
   document.getElementById('map-compass-btn')?.classList.toggle('map-compass-active', compassMapMode);
 }
-function touchAngle(a,b){ return Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX)*180/Math.PI; }
-function beginTouchRotate(e){
-  if (e.touches.length !== 2) return;
-  const [a,b] = e.touches;
-  touchRotate = {startAngle:touchAngle(a,b), startBearing:mapBearing};
-  map.dragging.disable();
-  e.preventDefault();
-}
-function moveTouchRotate(e){
-  if (!touchRotate || e.touches.length !== 2) return;
-  const [a,b] = e.touches;
-  setMapBearing(touchRotate.startBearing + touchAngle(a,b) - touchRotate.startAngle);
-  e.preventDefault();
-}
-function endTouchRotate(){
-  if (!touchRotate) return;
-  touchRotate = null;
-  map.dragging.enable();
-}
-const mapTouchTarget = document.getElementById('map');
-mapTouchTarget.addEventListener('touchstart', beginTouchRotate, {passive:false});
-mapTouchTarget.addEventListener('touchmove', moveTouchRotate, {passive:false});
-mapTouchTarget.addEventListener('touchend', endTouchRotate, {passive:false});
-mapTouchTarget.addEventListener('touchcancel', endTouchRotate, {passive:false});
 function setCompassMapMode(enabled){
   compassMapMode = enabled;
   if (enabled && !('DeviceOrientationEvent' in window)) {
