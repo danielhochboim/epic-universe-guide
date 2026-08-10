@@ -830,11 +830,11 @@ function singleRiderInfoHtml(ride){
 
 /* ===================== MAP INIT ===================== */
 const map = L.map('map', {scrollWheelZoom:true, zoomControl:true}).setView([28.448, -81.458], 15);
-/* Clean, independent OpenStreetMap base layer; attraction/land overlays are owned by this guide. */
-const mapBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
+/* Original Universal park basemap retained; our attractions and land overlays remain independent. */
+const mapOfficial = L.tileLayer('https://services.universalorlando.com/assets/MapTiles/Production/10255/512/{z}_{x}_{y}.jpg', {
+  attribution: 'Universal Orlando', minZoom: 12, maxZoom: 18, tileSize: 512, zoomOffset: -1, tms: false
 });
-mapBase.addTo(map);
+mapOfficial.addTo(map);
 const rideLayer = L.layerGroup().addTo(map);
 const landLayer = L.layerGroup().addTo(map);
 const landmarkLayer = L.layerGroup().addTo(map);
