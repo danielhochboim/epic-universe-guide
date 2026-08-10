@@ -234,8 +234,9 @@
   .map-search input{width:100%;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:inherit;font-size:12.5px;padding:5px}
   .map-search input::placeholder{color:var(--muted)}
   .map-zoom-hint{position:absolute;bottom:12px;inset-inline-start:12px;z-index:500;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:10px;padding:6px 9px;color:var(--muted);font-size:11px;box-shadow:0 4px 14px rgba(0,0,0,.12);pointer-events:none}
-  .map-ride-label{background:var(--head-bg);border:1px solid var(--border-strong);border-radius:6px;color:var(--text);font-size:10px;font-weight:800;padding:2px 4px;box-shadow:0 2px 8px rgba(0,0,0,.18);white-space:nowrap;pointer-events:none}
+  .map-ride-label{background:transparent!important;border:0!important;border-radius:0!important;color:#fff;font-size:10.5px;font-weight:800;padding:0;margin-top:4px;box-shadow:none!important;white-space:nowrap;pointer-events:auto;cursor:pointer;text-shadow:0 1px 2px #000,1px 0 2px #000,-1px 0 2px #000;line-height:1.25}
   .map-ride-label:before{display:none}
+  .map-land-label{background:transparent;border:0;color:#fff;font-size:11px;font-weight:800;padding:0;box-shadow:none;text-shadow:0 1px 2px #000,1px 0 2px #000,-1px 0 2px #000;pointer-events:none}
   .leaflet-control-zoom{border:1px solid var(--border-strong)!important;box-shadow:0 4px 14px rgba(0,0,0,.14)!important}
   .leaflet-control-zoom a{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}
   .leaflet-control-attribution{background:var(--head-bg)!important;color:var(--muted)!important}
@@ -852,7 +853,7 @@ L.polyline([HOTEL, PARK_ENTRANCE], {color:'#ffcf5c', weight:3, dashArray:'6,8', 
 
 Object.entries(LANDS).forEach(([key, land]) => {
   L.polygon(land.bounds, {color: land.color, weight: 2, fillColor: land.color, fillOpacity: 0.18})
-    .addTo(landLayer).bindTooltip(land.name, {permanent:true, direction:'center', opacity:0.9, className:'map-ride-label'});
+    .addTo(landLayer).bindTooltip(land.name, {permanent:true, direction:'center', opacity:0.9, className:'map-land-label'});
 });
 const legendEl = document.getElementById('map-legend');
 Object.values(LANDS).forEach(land => {
@@ -882,10 +883,20 @@ RIDES.forEach(r => {
   const color = TIER_MARKER_COLOR[r.tier];
   const icon = L.divIcon({className:'', html:`<div style="background:${color};width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.3)"></div>`, iconSize:[10,10]});
   const marker = L.marker([r.lat, r.lng], {icon}).addTo(rideLayer);
-  marker.bindTooltip(r.name, {direction:'top', offset:[0,-5], className:'map-ride-label', sticky:true, opacity:.95});
+  marker.bindTooltip(r.name, {direction:'bottom', offset:[0,7], className:'map-ride-label', sticky:true, opacity:.95, interactive:true});
   marker.on('mouseover', () => { if (map.getZoom() >= 16) marker.openTooltip(); });
   marker.on('mouseout', () => marker.closeTooltip());
   marker.bindPopup(mapPopupHtml(r));
+  marker.on('tooltipopen', e => {
+    const tip = e.tooltip.getElement();
+    if (tip) {
+      tip.setAttribute('role','button');
+      tip.setAttribute('tabindex','0');
+      tip.setAttribute('aria-label',`פתיחת פרטי ${r.name}`);
+      tip.onclick = () => marker.openPopup();
+      tip.onkeydown = ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); marker.openPopup(); } };
+    }
+  });
   rideMarkers[r.id] = marker;
 });
 let userMarker = null;
