@@ -63,6 +63,14 @@
   .tab-panel{display:none;padding:18px 0 40px;animation:fadein .18s ease}
   .tab-panel.active{display:block}
   @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  @media(max-width:600px){
+    #map{height:440px}
+    .map-toolbar{top:8px;inset-inline-start:8px;inset-inline-end:8px;align-items:stretch;flex-wrap:wrap}
+    .map-search{order:1;max-width:none;flex-basis:100%}
+    .map-maptype,.map-base{order:2;overflow-x:auto;max-width:100%}
+    .map-maptype .map-type-btn,.map-base .map-type-btn{padding-inline:8px}
+    .map-official-link{order:3;padding-inline:8px}
+  }
 
   h2{font-size:21px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
   .lead{color:var(--muted);margin:0 0 16px;font-size:14.5px;max-width:760px}
@@ -81,6 +89,8 @@
   .wchip .time{color:var(--muted);font-size:11px}
   .wchip .t{font-size:17px;font-weight:800;margin:2px 0}
   .wchip .rain{color:#7fd0ff;font-size:10.5px}
+  .weather-source{font-size:11px;color:var(--muted);margin-top:9px}
+  .weather-source strong{color:var(--text)}
 
   .next-list{display:flex;flex-direction:column;gap:8px;margin-top:8px;min-width:0}
   .next-item{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border-radius:12px;padding:10px 13px;font-size:13.5px;min-width:0;gap:8px}
@@ -116,12 +126,10 @@
   .tier-badge.show{background:rgba(124,92,255,.18);color:#b4a4ff;border:1px solid rgba(124,92,255,.4)}
   .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:14px;align-items:start}
   .ride{background:var(--panel);border-radius:16px;overflow:hidden;border:1px solid var(--border);
-        transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;position:relative;min-width:0}
+        transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;position:relative;min-width:0;cursor:pointer}
   .ride.visited{opacity:.55}
   .ride:hover{transform:translateY(-3px)}
-  .ride[open]{border-color:var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.12)}
-  .ride[open] .ride-summary{border-bottom:1px solid var(--border);background:var(--surface-soft)}
-  .ride-summary{display:flex;align-items:center;gap:10px;min-width:0;padding:12px 52px 12px 13px;cursor:pointer;list-style:none;position:relative}
+  .ride-summary{display:flex;align-items:center;gap:10px;min-width:0;padding:12px 52px 12px 13px;list-style:none;position:relative}
   .ride-summary::-webkit-details-marker{display:none}
   .ride-summary::marker{display:none}
   .ride-summary-media{width:76px;height:64px;flex:0 0 76px;overflow:hidden;border-radius:11px}
@@ -131,8 +139,7 @@
   .ride-summary-main .land{color:var(--muted);font-size:12px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .summary-badges{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
   .summary-badges > span{font-size:10.5px}
-  .ride-chevron{color:var(--muted);font-size:22px;line-height:1;transition:transform .15s ease;flex:0 0 auto}
-  .ride[open] .ride-chevron{transform:rotate(180deg);color:var(--accent)}
+  .ride-chevron{color:var(--muted);font-size:22px;line-height:1;flex:0 0 auto}
   .visit-toggle{position:absolute;top:10px;inset-inline-end:10px;background:var(--overlay);border:1.5px solid var(--border-strong);
      color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;z-index:1}
   .visit-toggle.on{background:var(--green);border-color:var(--green);color:#08351f}
@@ -159,6 +166,28 @@
   .single-rider-copy{min-width:0}
   .single-rider-title{font-weight:800;font-size:13px;color:var(--text)}
   .single-rider-text{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .ride-modal{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(3,7,18,.68);backdrop-filter:blur(5px)}
+  .ride-modal.open{display:flex}
+  .ride-modal-dialog{position:relative;width:min(680px,100%);max-height:min(88vh,760px);overflow:auto;background:var(--panel);border:1px solid var(--border-strong);border-radius:20px;box-shadow:0 22px 70px rgba(0,0,0,.38);padding:18px}
+  .ride-modal-close{position:absolute;top:10px;inset-inline-end:10px;width:36px;height:36px;border-radius:50%;border:1px solid var(--border-strong);background:var(--overlay);color:var(--text);font-size:22px;line-height:1;cursor:pointer;z-index:2}
+  .ride-modal-close:hover{background:var(--surface-hover)}
+  .ride-modal-hero{display:flex;gap:14px;align-items:center;padding-inline-end:40px;margin-bottom:12px}
+  .ride-modal-hero img{width:118px;height:88px;object-fit:cover;border-radius:13px;flex:0 0 auto}
+  .ride-modal-hero h3{margin:0 0 3px;font-size:21px;line-height:1.3}
+  .ride-modal-hero .land{color:var(--muted);font-size:13px}
+  .ride-modal-content .scores{margin-top:4px}
+  .ride-modal-content .link-row{margin-top:14px}
+  .ride-modal-content .single-rider-panel{margin-top:10px}
+  .ride-modal-content .note{font-size:14px}
+  .ride-modal-content .crowd-caption{margin-top:2px}
+  body.modal-open{overflow:hidden}
+  @media(max-width:600px){
+    .ride-modal{padding:9px}
+    .ride-modal-dialog{max-height:92vh;border-radius:17px;padding:15px}
+    .ride-modal-hero{align-items:flex-start;gap:10px}
+    .ride-modal-hero img{width:92px;height:72px}
+    .ride-modal-hero h3{font-size:17px}
+  }
   .badge-wait{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px}
   .badge-wait.low{background:rgba(61,220,151,.18);color:var(--green)}
   .badge-wait.mid{background:rgba(255,207,92,.18);color:var(--gold)}
@@ -175,8 +204,27 @@
   .link-btn:hover{background:var(--panel3)}
 
   /* Map tab */
-  #map{height:420px;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+  #map-shell{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--border);background:var(--panel2);box-shadow:0 10px 28px rgba(0,0,0,.16)}
+  #map{height:500px;border:0}
+  .map-toolbar{position:absolute;top:12px;inset-inline-start:12px;inset-inline-end:12px;z-index:500;display:flex;align-items:center;gap:8px;pointer-events:none}
+  .map-toolbar > *{pointer-events:auto}
+  .map-maptype,.map-base{display:flex;gap:5px;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:12px;padding:4px;box-shadow:0 4px 14px rgba(0,0,0,.14)}
+  .map-type-btn{background:transparent;border:0;color:var(--muted);padding:7px 10px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .map-type-btn.active{background:var(--accent);color:#fff}
+  .map-official-link{background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:12px;padding:8px 10px;color:var(--text);font-size:11.5px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.14)}
+  .map-official-link:hover{background:var(--surface-hover)}
+  .map-search{display:flex;align-items:center;gap:6px;min-width:0;flex:1;max-width:310px;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:12px;padding:4px 9px;box-shadow:0 4px 14px rgba(0,0,0,.14)}
+  .map-search input{width:100%;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:inherit;font-size:12.5px;padding:5px}
+  .map-search input::placeholder{color:var(--muted)}
+  .map-zoom-hint{position:absolute;bottom:12px;inset-inline-start:12px;z-index:500;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:10px;padding:6px 9px;color:var(--muted);font-size:11px;box-shadow:0 4px 14px rgba(0,0,0,.12);pointer-events:none}
+  .leaflet-control-zoom{border:1px solid var(--border-strong)!important;box-shadow:0 4px 14px rgba(0,0,0,.14)!important}
+  .leaflet-control-zoom a{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}
+  .leaflet-control-attribution{background:var(--head-bg)!important;color:var(--muted)!important}
+  .leaflet-control-attribution a{color:var(--gold)!important}
   .maplegend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)}
+  .map-legend-section{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .map-legend-section .legend-title{font-weight:800;color:var(--text);font-size:12px}
+  .map-legend-section .legend-chip{background:var(--surface-soft);border:1px solid var(--border);padding:4px 8px;border-radius:999px;font-size:11.5px}
   .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-inline-end:5px;vertical-align:middle}
   .zdot{display:inline-block;width:12px;height:12px;border-radius:4px;margin-inline-end:5px;vertical-align:middle;opacity:.55}
   #locate-status{font-size:13px;color:var(--muted);margin-top:8px}
@@ -317,16 +365,9 @@
     <div class="ov-grid">
       <div class="card">
         <h2>☀️ מזג אוויר</h2>
-        <p class="lead">°C · שיא חום 13:00–17:00</p>
-        <div class="weather-strip">
-          <div class="wchip"><div class="time">08:00</div><div class="t">26°</div><div class="rain">☔0%</div></div>
-          <div class="wchip"><div class="time">10:00</div><div class="t">29°</div><div class="rain">☔0%</div></div>
-          <div class="wchip"><div class="time">12:00</div><div class="t">32°</div><div class="rain">☔1%</div></div>
-          <div class="wchip"><div class="time">14:00</div><div class="t">35°</div><div class="rain">☔3%</div></div>
-          <div class="wchip"><div class="time">16:00</div><div class="t">36°</div><div class="rain">☔6%</div></div>
-          <div class="wchip"><div class="time">18:00</div><div class="t">30°</div><div class="rain">☔9%</div></div>
-          <div class="wchip"><div class="time">20:00</div><div class="t">27°</div><div class="rain">☔14%</div></div>
-        </div>
+        <p class="lead" id="weather-summary">מזג אוויר חי נטען...</p>
+        <div class="weather-strip" id="weather-strip"><div class="wchip"><div class="time">...</div><div class="t">--</div><div class="rain">טוען</div></div></div>
+        <div class="weather-source" id="weather-source">מקור: Open-Meteo · בודק עדכון...</div>
       </div>
       <div class="card">
         <h2>🔥 הבא בתור</h2>
@@ -363,11 +404,38 @@
     <div id="locate-status"></div>
     <div id="nearby-panel"></div>
     <div style="height:14px"></div>
-    <div id="map"></div>
+    <div id="map-shell">
+      <div class="map-toolbar">
+        <div class="map-search" role="search">
+          <span aria-hidden="true">🔎</span>
+          <input id="map-search-input" type="search" placeholder="חיפוש מתקן או אזור במפה..." aria-label="חיפוש מתקן או אזור במפה">
+        </div>
+        <div class="map-maptype" role="group" aria-label="מה להציג במפה">
+          <button class="map-type-btn active" type="button" data-map-mode="rides">🎢 מתקנים</button>
+          <button class="map-type-btn" type="button" data-map-mode="lands">🌎 אזורים</button>
+          <button class="map-type-btn" type="button" data-map-mode="all">✨ הכול</button>
+        </div>
+        <div class="map-base" role="group" aria-label="סגנון מפה">
+          <button class="map-type-btn active" type="button" data-map-base="standard">🗺️ רגילה</button>
+          <button class="map-type-btn" type="button" data-map-base="satellite">🛰️ לוויין</button>
+        </div>
+        <a class="map-official-link" href="https://www.universalorlando.com/web/en/us/plan-your-visit/resort-maps/interactive-map-eu.html" target="_blank" rel="noopener">↗️ מפה רשמית</a>
+      </div>
+      <div id="map"></div>
+      <div class="map-zoom-hint">🖐️ גררו · pinch לזום · לחצו על סמן לפרטים</div>
+    </div>
     <div class="maplegend" id="map-legend">
       <span><span class="dot" style="background:#ff5c8a"></span>Epic Universe (כניסה)</span>
       <span><span class="dot" style="background:#7c5cff"></span>המלון שלכם</span>
       <span><span class="dot" style="background:#3ddc97"></span>המיקום שלכם</span>
+    </div>
+    <div class="map-legend-section">
+      <span class="legend-title">אזורים:</span>
+      <span class="legend-chip">🔵 Celestial Park</span>
+      <span class="legend-chip">🔴 Super Nintendo World</span>
+      <span class="legend-chip">🟣 Dark Universe</span>
+      <span class="legend-chip">⚫ Ministry of Magic</span>
+      <span class="legend-chip">🟠 Isle of Berk</span>
     </div>
   </section>
 
@@ -454,6 +522,13 @@
 
 <div class="toast" id="toast"></div>
 
+<div class="ride-modal" id="ride-modal" role="dialog" aria-modal="true" aria-labelledby="ride-modal-title" aria-hidden="true">
+  <div class="ride-modal-dialog" role="document">
+    <button class="ride-modal-close" id="ride-modal-close" type="button" aria-label="סגירת פרטי המתקן">×</button>
+    <div id="ride-modal-content"></div>
+  </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* ===================== DATA ===================== */
@@ -523,21 +598,44 @@ document.getElementById('tabs').addEventListener('click', e => {
   if (btn) switchTab(btn.dataset.tab);
 });
 
-/* Jump from map popup / nearby card to the ride's card in the Rides tab */
-function goToRide(id){
-  activeLand='all'; activeTier='all'; searchText='';
-  const si = document.getElementById('search-input'); if (si) si.value='';
-  document.querySelectorAll('#land-chips .chip').forEach(c => c.classList.toggle('active', c.dataset.land==='all'));
-  document.querySelectorAll('#tier-chips .chip').forEach(c => c.classList.toggle('active', c.dataset.tier==='all'));
-  switchTab('rides');
-  renderRides();
-  requestAnimationFrame(() => {
-    const card = document.querySelector(`.ride[data-id="${id}"]`);
-    if (!card) return;
-    card.scrollIntoView({behavior:'smooth', block:'center'});
-    card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
-  });
+/* Open complete ride details in an in-page modal — never navigate away. */
+let lastModalTrigger = null;
+function rideDetailsHtml(r){
+  const dist = userLatLng ? haversine(userLatLng[0], userLatLng[1], r.lat, r.lng) : null;
+  const distBadge = dist != null ? `<span class="badge-dist">🚶 ${fmtDist(dist)} · ${walkMinutes(dist)} דק'</span>` : '';
+  const extremeRow = r.tier === 'show' ? '' : `<div class="score">אקסטרים<b>${r.extreme}/5</b><div class="bars">${bars(r.extreme,5,'extreme')}</div></div>`;
+  const srBadge = r.qtSR != null ? '<span class="badge-sr">🎫 יש Single Rider</span>' : '<span class="badge-sr no">🚫 אין Single Rider</span>';
+  return `<div class="ride-modal-content">
+    <div class="ride-modal-hero">
+      <img src="${r.img}" alt="${r.name}">
+      <div><h3 id="ride-modal-title">${r.name}</h3><div class="land">${LANDS[r.land].name}</div><div class="summary-badges">${waitBadgeHtml(r)} ${srBadge}</div></div>
+    </div>
+    <div class="scores">${extremeRow}<div class="score">חוויה<b>${r.exp}/5</b><div class="bars">${bars(Math.round(r.exp),5,'exp')}</div></div></div>
+    <p class="note">${r.desc}</p>
+    ${singleRiderInfoHtml(r)}
+    ${crowdChartHtml(r.tier)}
+    <div class="badge-row">${waitBadgeHtml(r)} ${srBadge} ${distBadge}</div>
+    <div class="link-row"><a class="link-btn" href="${tpLink(r.slug)}" target="_blank" rel="noopener">ℹ️ מידע נוסף</a><a class="link-btn" href="${gmapsLink(r.lat,r.lng)}" target="_blank" rel="noopener">🧭 ניווט</a></div>
+  </div>`;
 }
+function openRideModal(id, trigger){
+  const ride = RIDES.find(r => r.id === id);
+  if (!ride) return;
+  lastModalTrigger = trigger || document.activeElement;
+  const modal = document.getElementById('ride-modal');
+  document.getElementById('ride-modal-content').innerHTML = rideDetailsHtml(ride);
+  modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open');
+  document.getElementById('ride-modal-close').focus();
+}
+function closeRideModal(){
+  const modal = document.getElementById('ride-modal');
+  modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.body.classList.remove('modal-open');
+  if (lastModalTrigger && document.contains(lastModalTrigger)) lastModalTrigger.focus();
+  lastModalTrigger = null;
+}
+document.getElementById('ride-modal-close').addEventListener('click', closeRideModal);
+document.getElementById('ride-modal').addEventListener('click', e => { if (e.target.id === 'ride-modal') closeRideModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('ride-modal').classList.contains('open')) closeRideModal(); });
 
 /* ===================== HELPERS ===================== */
 function haversine(lat1, lon1, lat2, lon2){
@@ -640,10 +738,18 @@ function singleRiderInfoHtml(ride){
 }
 
 /* ===================== MAP INIT ===================== */
-const map = L.map('map', {scrollWheelZoom:false}).setView([28.448, -81.458], 15);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+const map = L.map('map', {scrollWheelZoom:false, zoomControl:true}).setView([28.448, -81.458], 15);
+const mapBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
-}).addTo(map);
+});
+const mapSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles &copy; Esri', maxZoom: 19
+});
+mapBase.addTo(map);
+let currentMapMode = 'rides';
+const rideLayer = L.layerGroup().addTo(map);
+const landLayer = L.layerGroup().addTo(map);
+const landmarkLayer = L.layerGroup().addTo(map);
 
 const entranceIcon = L.divIcon({className:'', html:'<div style="background:#ff5c8a;width:20px;height:20px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 3px rgba(255,92,138,.35)"></div>', iconSize:[20,20]});
 const hotelIcon = L.divIcon({className:'', html:'<div style="background:#7c5cff;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 3px rgba(124,92,255,.35)"></div>', iconSize:[18,18]});
@@ -655,7 +761,7 @@ L.polyline([HOTEL, PARK_ENTRANCE], {color:'#ffcf5c', weight:3, dashArray:'6,8', 
 
 Object.entries(LANDS).forEach(([key, land]) => {
   L.circle([land.lat, land.lng], {radius: land.radius, color: land.color, weight: 2, fillColor: land.color, fillOpacity: 0.10})
-    .addTo(map).bindTooltip(land.name, {permanent:true, direction:'center', opacity:0.85});
+    .addTo(landLayer).bindTooltip(land.name, {permanent:true, direction:'center', opacity:0.85});
 });
 const legendEl = document.getElementById('map-legend');
 Object.values(LANDS).forEach(land => {
@@ -671,24 +777,51 @@ function miniStatsHtml(r){
   return `<div class="mini-stats"><span class="mini-stat">🔥 ${r.extreme}/5</span><span class="mini-stat">✨ ${r.exp}/5</span></div>`;
 }
 function mapPopupHtml(r){
-  return `<div class="map-pop" onclick="goToRide('${r.id}')">
+  return `<div class="map-pop" onclick="openRideModal('${r.id}')">
     <img src="${r.img}" alt="${r.name}" loading="lazy">
     <div class="mp-body">
       <b>${r.name}</b>
       <div class="mp-land">${LANDS[r.land].name}</div>
       ${miniStatsHtml(r)}
-      <div class="mp-cta">👆 לכרטיס המלא</div>
+      <div class="mp-cta">👆 לפתיחת popup עם כל הפרטים</div>
     </div>
   </div>`;
 }
 RIDES.forEach(r => {
   const color = TIER_MARKER_COLOR[r.tier];
   const icon = L.divIcon({className:'', html:`<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.25)"></div>`, iconSize:[14,14]});
-  const marker = L.marker([r.lat, r.lng], {icon}).addTo(map);
+  const marker = L.marker([r.lat, r.lng], {icon}).addTo(rideLayer);
   marker.bindPopup(mapPopupHtml(r));
   rideMarkers[r.id] = marker;
 });
 let userMarker = null;
+
+function setMapMode(mode){
+  currentMapMode = mode;
+  const showRides = mode === 'rides' || mode === 'all';
+  const showLands = mode === 'lands' || mode === 'all';
+  if (showRides) map.addLayer(rideLayer); else map.removeLayer(rideLayer);
+  if (showLands) map.addLayer(landLayer); else map.removeLayer(landLayer);
+  document.querySelectorAll('[data-map-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.mapMode === mode));
+}
+document.querySelectorAll('[data-map-mode]').forEach(btn => btn.addEventListener('click', () => setMapMode(btn.dataset.mapMode)));
+document.querySelectorAll('[data-map-base]').forEach(btn => btn.addEventListener('click', () => {
+  const satellite = btn.dataset.mapBase === 'satellite';
+  if (satellite){ map.removeLayer(mapBase); mapSatellite.addTo(map); }
+  else { map.removeLayer(mapSatellite); mapBase.addTo(map); }
+  document.querySelectorAll('[data-map-base]').forEach(item => item.classList.toggle('active', item.dataset.mapBase === btn.dataset.mapBase));
+}));
+document.getElementById('map-search-input').addEventListener('input', e => {
+  const query = e.target.value.trim().toLowerCase();
+  if (!query){ setMapMode(currentMapMode); return; }
+  const matches = RIDES.filter(r => `${r.name} ${LANDS[r.land].name}`.toLowerCase().includes(query));
+  RIDES.forEach(r => rideMarkers[r.id].setOpacity(matches.includes(r) ? 1 : .12));
+  if (matches.length === 1){
+    map.setView([matches[0].lat, matches[0].lng], 17);
+    rideMarkers[matches[0].id].openPopup();
+  }
+});
+setMapMode('rides');
 
 /* ===================== RIDES RENDER ===================== */
 function ridePasses(r){
@@ -701,42 +834,23 @@ function ridePasses(r){
   return true;
 }
 function rideCardHtml(r){
-  const dist = userLatLng ? haversine(userLatLng[0], userLatLng[1], r.lat, r.lng) : null;
-  const distBadge = dist != null ? `<span class="badge-dist">🚶 ${fmtDist(dist)} · ${walkMinutes(dist)} דק'</span>` : '';
-  const extremeRow = r.tier === 'show' ? '' : `<div class="score">אקסטרים<b>${r.extreme}/5</b><div class="bars">${bars(r.extreme,5,'extreme')}</div></div>`;
   const isVisited = visited.has(r.id);
   const srBadge = r.qtSR != null ? '<span class="badge-sr">🎫 יש Single Rider</span>' : '<span class="badge-sr no">🚫 אין Single Rider</span>';
   return `
-  <details class="ride ${isVisited?'visited':''}" data-id="${r.id}">
+  <article class="ride ${isVisited?'visited':''}" data-id="${r.id}" role="button" tabindex="0" aria-label="פתיחת פרטי ${r.name}"
+      onclick="openRideModal('${r.id}', this)"
+      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRideModal('${r.id}', this)}">
     <button class="visit-toggle ${isVisited?'on':''}" onclick="event.preventDefault();event.stopPropagation();toggleVisited('${r.id}')" title="סמנו הייתי כאן">${isVisited?'✓':'⭕'}</button>
-    <summary class="ride-summary">
+    <div class="ride-summary">
       <span class="ride-summary-media"><img src="${r.img}" alt="${r.name}" loading="lazy"></span>
       <span class="ride-summary-main">
         <h3>${r.name}</h3>
         <span class="land">${LANDS[r.land].name}</span>
         <span class="summary-badges">${waitBadgeHtml(r)} ${srBadge}</span>
       </span>
-      <span class="ride-chevron" aria-hidden="true">⌄</span>
-    </summary>
-    <div class="body">
-      <div class="scores">
-        ${extremeRow}
-        <div class="score">חוויה<b>${r.exp}/5</b><div class="bars">${bars(Math.round(r.exp),5,'exp')}</div></div>
-      </div>
-      <p class="note">${r.desc}</p>
-      ${singleRiderInfoHtml(r)}
-      ${crowdChartHtml(r.tier)}
-      <div class="badge-row">
-        ${waitBadgeHtml(r)}
-        ${srBadge}
-        ${distBadge}
-      </div>
-      <div class="link-row">
-        <a class="link-btn" href="${tpLink(r.slug)}" target="_blank" rel="noopener">ℹ️ מידע נוסף</a>
-        <a class="link-btn" href="${gmapsLink(r.lat,r.lng)}" target="_blank" rel="noopener">🧭 ניווט</a>
-      </div>
+      <span class="ride-chevron" aria-hidden="true">＋</span>
     </div>
-  </details>`;
+  </article>`;
 }
 function renderRides(){
   const container = document.getElementById('rides-container');
@@ -763,9 +877,9 @@ function renderNearby(){
   if (!userLatLng){ panel.innerHTML=''; return; }
   const withDist = RIDES.map(r => ({r, d: haversine(userLatLng[0], userLatLng[1], r.lat, r.lng)}));
   withDist.sort((a,b) => a.d - b.d);
-  let html = '<div class="lead" style="margin-bottom:6px">🚶 המתקנים הקרובים אליכם (לחיצה = כרטיס מלא):</div><div class="nearby-list">';
+  let html = '<div class="lead" style="margin-bottom:6px">🚶 המתקנים הקרובים אליכם (לחיצה = popup עם כל הפרטים):</div><div class="nearby-list">';
   withDist.slice(0,6).forEach(({r,d}) => {
-    html += `<div class="nearby-item" onclick="goToRide('${r.id}')">
+    html += `<div class="nearby-item" onclick="openRideModal('${r.id}', this)">
       <img src="${r.img}" alt="${r.name}" loading="lazy">
       <div class="nb-body">
         <b>${r.name}</b>
@@ -842,6 +956,35 @@ async function fetchWithTimeout(url, ms){
   try { return await fetch(url, {signal: controller.signal, cache:'no-store'}); }
   finally { clearTimeout(t); }
 }
+/* ===================== LIVE WEATHER ===================== */
+const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=28.448&longitude=-81.458&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,apparent_temperature,precipitation_probability,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York&forecast_days=1';
+const WEATHER_CODES = {0:'בהיר',1:'בהיר ברובו',2:'מעונן חלקית',3:'מעונן',45:'ערפל',48:'ערפל',51:'טפטוף קל',53:'טפטוף',55:'טפטוף חזק',61:'גשם קל',63:'גשם',65:'גשם חזק',80:'ממטרים קלים',81:'ממטרים',82:'ממטרים חזקים',95:'סופות רעמים',96:'סופות רעמים וברד',99:'סופות רעמים וברד'};
+const WEATHER_ICONS = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌦️',63:'🌧️',65:'🌧️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
+function weatherHourLabel(iso){ return new Date(iso).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'}); }
+function weatherCardHtml(time, temp, rain, code, apparent){
+  const icon = WEATHER_ICONS[code] || '🌡️';
+  return `<div class="wchip" title="מרגיש כמו ${Math.round(apparent)}°F"><div class="time">${weatherHourLabel(time)}</div><div class="t">${Math.round(temp)}°F</div><div class="rain">${icon} ${rain}%</div></div>`;
+}
+async function fetchLiveWeather(){
+  const summary = document.getElementById('weather-summary');
+  const strip = document.getElementById('weather-strip');
+  const source = document.getElementById('weather-source');
+  try {
+    const res = await fetchWithTimeout(WEATHER_URL, 9000);
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    const c = data.current, h = data.hourly;
+    const now = new Date(c.time);
+    const slots = h.time.map((t,i) => ({t,i})).filter(x => new Date(x.t) >= now).filter((x,n) => n % 2 === 0).slice(0,8);
+    strip.innerHTML = slots.map(({t,i}) => weatherCardHtml(t,h.temperature_2m[i],h.precipitation_probability[i],h.weather_code[i],h.apparent_temperature[i])).join('');
+    summary.textContent = `${WEATHER_ICONS[c.weather_code]||'🌡️'} עכשיו ${Math.round(c.temperature_2m)}°F · מרגיש כמו ${Math.round(c.apparent_temperature)}°F · ${WEATHER_CODES[c.weather_code]||'מזג אוויר משתנה'}`;
+    source.innerHTML = `מקור: <strong>Open-Meteo</strong> · עדכון ${weatherHourLabel(c.time)} (שעון אורלנדו) · לחות ${c.relative_humidity_2m}% · רוח ${Math.round(c.wind_speed_10m)} mph`;
+  } catch (err) {
+    summary.textContent = 'לא הצלחתי לטעון מזג אוויר חי כרגע';
+    source.textContent = 'מקור: Open-Meteo · נסו לרענן את העמוד';
+  }
+}
+
 async function fetchLiveQueue(){
   const statusEl = document.getElementById('live-status');
   const dot = document.getElementById('live-dot');
@@ -1030,7 +1173,9 @@ function renderAll(){
 buildChips();
 renderAll();
 fetchLiveQueue();
+fetchLiveWeather();
 setInterval(fetchLiveQueue, 120000);
+setInterval(fetchLiveWeather, 900000);
 setInterval(updateStatusBar, 30000);
 
 const savedTab = localStorage.getItem('epicActiveTab');
