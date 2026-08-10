@@ -39,6 +39,10 @@
   .title-strip > div:first-child{min-width:0}
   .title-strip h1{font-size:16.5px;margin:0;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .title-strip .kicker{color:var(--gold);font-size:11.5px;font-weight:700}
+  .title-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .global-map-btn{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:0;color:#fff;padding:7px 10px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:800;white-space:nowrap}
+  .global-map-btn:hover{filter:brightness(1.08)}
+  .global-map-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   .theme-toggle{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;background:var(--surface-soft);border:1px solid var(--border-strong);
      color:var(--text);padding:7px 10px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap}
   .theme-toggle:hover{background:var(--surface-hover)}
@@ -64,12 +68,15 @@
   .tab-panel.active{display:block}
   @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
   @media(max-width:600px){
-    #map{height:440px}
+    .title-actions{gap:4px}
+    .global-map-btn,.theme-toggle{padding:7px 8px}
+    .global-map-btn{font-size:11px}
+    .global-map-btn span,.theme-toggle .theme-label{display:none}
+    #map{height:560px;min-height:0}
     .map-toolbar{top:8px;inset-inline-start:8px;inset-inline-end:8px;align-items:stretch;flex-wrap:wrap}
     .map-search{order:1;max-width:none;flex-basis:100%}
-    .map-maptype,.map-base{order:2;overflow-x:auto;max-width:100%;margin-inline-start:0}
-    .map-maptype .map-type-btn,.map-base .map-type-btn,.map-all-status{padding-inline:8px}
-    .map-official-link{order:3;padding-inline:8px}
+    .map-toolbar-actions{order:2;margin-inline-start:auto}
+    .map-toolbar-actions button span{display:none}
   }
 
   h2{font-size:21px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
@@ -98,23 +105,23 @@
   .next-item .n-land{color:var(--muted);font-size:12px;white-space:nowrap}
 
   /* Toolbar (Rides tab) */
-  .toolbar{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;
-           display:flex;flex-direction:column;gap:12px;margin-bottom:18px;position:sticky;top:118px;z-index:10}
-  .search-row{display:flex;gap:8px;flex-wrap:wrap}
-  .search-row input[type=text]{flex:1;min-width:180px;background:var(--panel2);border:1px solid var(--border-strong);
-       color:var(--text);padding:10px 14px;border-radius:11px;font-size:14.5px}
+  .toolbar{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:8px 10px;
+           display:flex;flex-direction:column;gap:6px;margin-bottom:12px;position:sticky;top:118px;z-index:10}
+  .search-row{display:flex;gap:5px;flex-wrap:wrap}
+  .search-row input[type=text]{flex:1;min-width:150px;background:var(--panel2);border:1px solid var(--border-strong);
+       color:var(--text);padding:7px 10px;border-radius:9px;font-size:13px}
   .search-row input[type=text]:focus{outline:2px solid var(--accent)}
   .btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-weight:700;
-       padding:10px 16px;border-radius:11px;cursor:pointer;font-size:13.5px;white-space:nowrap}
+       padding:9px 14px;border-radius:10px;cursor:pointer;font-size:13px;white-space:nowrap}
   .btn:hover{filter:brightness(1.08)}
   .btn.secondary{background:var(--panel2);border:1px solid var(--border-strong);color:var(--text)}
-  .btn.small{padding:6px 11px;font-size:12.5px;border-radius:9px}
+  .btn.small{padding:5px 9px;font-size:11.5px;border-radius:8px}
   .btn:disabled{opacity:.5;cursor:not-allowed}
-  .chip-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+  .chip-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
   .chip{background:var(--panel2);border:1px solid var(--border-strong);color:var(--muted);
-        padding:6px 13px;border-radius:999px;font-size:13px;cursor:pointer;user-select:none}
+        padding:4px 9px;border-radius:999px;font-size:11.5px;cursor:pointer;user-select:none}
   .chip.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
-  .chip-group-label{font-size:11.5px;color:var(--muted);margin-inline-end:2px;align-self:center}
+  .chip-group-label{font-size:10.5px;color:var(--muted);margin-inline-end:1px;align-self:center}
 
   .count-note{color:var(--muted);font-size:13px;margin-bottom:12px}
   .tier{margin-bottom:28px}
@@ -202,23 +209,33 @@
   .link-btn{flex:1;text-align:center;background:var(--panel2);border:1px solid var(--border-strong);
       color:var(--text);text-decoration:none;padding:7px 8px;border-radius:9px;font-size:12px}
   .link-btn:hover{background:var(--panel3)}
+  .nav-card{max-width:760px}
+  .nav-form-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(150px,1fr);gap:12px}
+  .field select{background:var(--panel2);border:1px solid var(--border-strong);color:var(--text);padding:9px 12px;border-radius:10px;font-size:14px;width:100%;min-width:0}
+  .nav-selected{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--surface-soft);color:var(--text);font-size:13px;min-height:42px}
+  .nav-location-status{margin-top:8px;color:var(--muted);font-size:12.5px}
+  .muted{color:var(--muted)}
+  @media(max-width:600px){.nav-form-row{grid-template-columns:minmax(0,1fr)}.nav-mode-field{max-width:220px}}
 
   /* Map tab */
   #map-shell{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--border);background:var(--panel2);box-shadow:0 10px 28px rgba(0,0,0,.16)}
-  #map{height:500px;border:0}
+  #map-shell:fullscreen{border-radius:0;border:0;background:#111}
+  #map-shell:fullscreen{height:100vh}
+  #map-shell:fullscreen #map{height:100vh}
+  #map-shell.map-fullscreen-fallback{position:fixed;inset:0;z-index:1100;border-radius:0;border:0}
+  #map-shell.map-fullscreen-fallback #map{height:100vh}
+  #map{height:calc(100vh - 270px);min-height:560px;border:0}
   .map-toolbar{position:absolute;top:12px;inset-inline-start:12px;inset-inline-end:12px;z-index:500;display:flex;align-items:center;gap:8px;pointer-events:none}
   .map-toolbar > *{pointer-events:auto}
-  .map-maptype,.map-base{display:flex;gap:5px;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:12px;padding:4px;box-shadow:0 4px 14px rgba(0,0,0,.14)}
-  .map-base{margin-inline-start:auto}
-  .map-all-status{align-items:center;color:var(--text);font-size:12px;font-weight:800;padding:8px 10px;white-space:nowrap}
-  .map-type-btn{background:transparent;border:0;color:var(--muted);padding:7px 10px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
-  .map-type-btn.active{background:var(--accent);color:#fff}
-  .map-official-link{background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:12px;padding:8px 10px;color:var(--text);font-size:11.5px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.14)}
-  .map-official-link:hover{background:var(--surface-hover)}
+  .map-toolbar-actions{display:flex;align-items:center;gap:5px;margin-inline-start:auto}
+  .map-action-btn{background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:10px;padding:7px 9px;color:var(--text);font-size:11.5px;font-weight:700;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.14);cursor:pointer}
+  .map-action-btn:hover{background:var(--surface-hover)}
   .map-search{display:flex;align-items:center;gap:6px;min-width:0;flex:1;max-width:310px;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:12px;padding:4px 9px;box-shadow:0 4px 14px rgba(0,0,0,.14)}
   .map-search input{width:100%;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:inherit;font-size:12.5px;padding:5px}
   .map-search input::placeholder{color:var(--muted)}
   .map-zoom-hint{position:absolute;bottom:12px;inset-inline-start:12px;z-index:500;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:10px;padding:6px 9px;color:var(--muted);font-size:11px;box-shadow:0 4px 14px rgba(0,0,0,.12);pointer-events:none}
+  .map-ride-label{background:var(--head-bg);border:1px solid var(--border-strong);border-radius:6px;color:var(--text);font-size:10px;font-weight:800;padding:2px 4px;box-shadow:0 2px 8px rgba(0,0,0,.18);white-space:nowrap;pointer-events:none}
+  .map-ride-label:before{display:none}
   .leaflet-control-zoom{border:1px solid var(--border-strong)!important;box-shadow:0 4px 14px rgba(0,0,0,.14)!important}
   .leaflet-control-zoom a{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}
   .leaflet-control-attribution{background:var(--head-bg)!important;color:var(--muted)!important}
@@ -229,7 +246,10 @@
   .map-legend-section .legend-chip{background:var(--surface-soft);border:1px solid var(--border);padding:4px 8px;border-radius:999px;font-size:11.5px}
   .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-inline-end:5px;vertical-align:middle}
   .zdot{display:inline-block;width:12px;height:12px;border-radius:4px;margin-inline-end:5px;vertical-align:middle;opacity:.55}
-  #locate-status{font-size:13px;color:var(--muted);margin-top:8px}
+  .map-status-line{display:flex;align-items:center;gap:8px;min-height:25px;color:var(--muted);font-size:12.5px}
+  .map-inline-btn{background:var(--surface-soft);border:1px solid var(--border-strong);color:var(--text);border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer}
+  .map-inline-btn:hover{background:var(--surface-hover)}
+  #locate-status{font-size:12.5px;color:var(--muted)}
   .nearby-list{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
   .nearby-item{background:var(--panel2);border-radius:14px;padding:9px;font-size:13px;min-width:180px;max-width:240px;
       display:flex;gap:10px;align-items:center;cursor:pointer;border:1px solid transparent;transition:border-color .15s ease,transform .15s ease}
@@ -242,7 +262,9 @@
   .nearby-item .mini-stats{display:flex;gap:6px;margin:3px 0}
   .nearby-item .mini-stat{font-size:11px;background:var(--surface-soft);border-radius:6px;padding:1px 6px}
   .nearby-item .dist{color:var(--gold);font-size:11.5px;white-space:nowrap}
-  .sr-explainer{margin:8px 0 14px;padding:10px 12px;background:var(--surface-soft);border:1px solid var(--border);border-inline-start:3px solid var(--accent2);border-radius:10px;color:var(--muted);font-size:12.5px;line-height:1.5}
+  .sr-explainer{margin:8px 0 14px;padding:8px 10px;background:var(--surface-soft);border:1px solid var(--border);border-inline-start:3px solid var(--accent2);border-radius:10px;color:var(--muted);font-size:12px;line-height:1.45}
+  .sr-explainer summary{cursor:pointer;color:var(--text);font-weight:800}
+  .note-dismiss{margin-top:7px;background:transparent;border:0;color:var(--muted);font:inherit;font-size:11px;text-decoration:underline;cursor:pointer;padding:0}
 
   /* Map popup ride card */
   .map-pop{display:flex;gap:9px;align-items:center;cursor:pointer;min-width:190px;padding:2px}
@@ -334,9 +356,12 @@
       <div class="kicker">🎢 UNIVERSAL EPIC UNIVERSE</div>
       <h1>מדריך חי — שני, 10.8.2026</h1>
     </div>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="החלפת ערכת צבעים" aria-pressed="false">
-      <span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-label">מצב בהיר</span>
-    </button>
+    <div class="title-actions">
+      <button class="global-map-btn" id="global-map-btn" type="button" aria-label="פתיחת המפה במסך מלא">🗺️ <span>מפה</span></button>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="החלפת ערכת צבעים" aria-pressed="false">
+        <span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-label">מצב בהיר</span>
+      </button>
+    </div>
   </div>
   <div class="status-row">
     <span class="status-chip">🕐 אורלנדו: <b id="orlando-clock">--:--</b></span>
@@ -350,6 +375,7 @@
     <button class="tab-btn active" data-tab="overview">📋 סקירה</button>
     <button class="tab-btn" data-tab="rides">🎢 מתקנים</button>
     <button class="tab-btn" data-tab="map">🗺️ מפה</button>
+    <button class="tab-btn" data-tab="navigation">🧭 ניווט</button>
     <button class="tab-btn" data-tab="planner">🧭 מתכנן מסלול</button>
     <button class="tab-btn" data-tab="gallery">📸 גלריה</button>
   </div>
@@ -385,7 +411,7 @@
   <section class="tab-panel" id="tab-rides">
     <h2>🎢 כל האטרקציות</h2>
     <p class="lead">אקסטרים וחוויה בסולם 1–5. 🎫 SR = Single Rider אפשרי לפי המיפוי; הוא יכול להיפתח ולהיסגר במהלך היום. תג הצבע = זמן המתנה חי.</p>
-    <div class="sr-explainer"><b>איך לקרוא את ה־SR:</b> “Single Rider אפשרי” מבוסס על מיפוי של מתקנים נבחרים; “פתוח/סגור עכשיו” מבוסס על נתון חי נפרד. Universal כותבת רשמית שהאפשרות תלויה בזמינות, במתקנים נבחרים, ויכולה להשתנות ללא הודעה — לכן האפליקציה הרשמית והשלט בכניסה גוברים על כל מקור חיצוני. <a href="https://www.universalorlando.com/web/en/us/faqs/rides-and-attractions" target="_blank" rel="noopener">מקור רשמי</a></div>
+    <details class="sr-explainer" id="sr-explainer"><summary>🎫 איך לקרוא את ה־Single Rider?</summary><div>“Single Rider אפשרי” מבוסס על מיפוי של מתקנים נבחרים; “פתוח/סגור עכשיו” מבוסס על נתון חי נפרד. Universal כותבת רשמית שהאפשרות תלויה בזמינות, במתקנים נבחרים, ויכולה להשתנות ללא הודעה — לכן האפליקציה הרשמית והשלט בכניסה גוברים על כל מקור חיצוני. <a href="https://www.universalorlando.com/web/en/us/faqs/rides-and-attractions" target="_blank" rel="noopener">מקור רשמי</a><br><button class="note-dismiss" id="sr-explainer-dismiss" type="button">× הסתרה לצמיתות</button></div></details>
     <div class="toolbar">
       <div class="search-row">
         <input type="text" id="search-input" placeholder="חיפוש מתקן... (Stardust, קרוסלה, דרקון)">
@@ -403,9 +429,8 @@
   <!-- ===== MAP TAB ===== -->
   <section class="tab-panel" id="tab-map">
     <h2>🗺️ המפה — כל המתקנים והאזורים</h2>
-    <p class="lead">מפת הפארק הרשמית כרקע + הכרטיסיות והסמנים שלנו מעליה. מוצגים כברירת מחדל גם האזורים וגם המתקנים; אפשר לעבור לרקע גאוגרפי אם המפה הרשמית לא נטענת.</p>
-    <button class="btn" id="locate-btn">📍 מצא אותי</button>
-    <div id="locate-status"></div>
+    <p class="lead">מפת הפארק עם אזורים צבעוניים ושמות מתקנים שמופיעים כשמתקרבים. המיקום מתעדכן אוטומטית כשהדפדפן מאפשר זאת.</p>
+    <div class="map-status-line"><span id="locate-status">📍 בודק מיקום אוטומטית…</span><button class="map-inline-btn" id="locate-btn" type="button">עדכון</button></div>
     <div id="nearby-panel"></div>
     <div style="height:14px"></div>
     <div id="map-shell">
@@ -414,29 +439,46 @@
           <span aria-hidden="true">🔎</span>
           <input id="map-search-input" type="search" placeholder="חיפוש מתקן או אזור במפה..." aria-label="חיפוש מתקן או אזור במפה">
         </div>
-        <div class="map-maptype map-all-status" role="status" aria-label="תצוגת המפה">✨ מתקנים + אזורים</div>
-        <div class="map-base" role="group" aria-label="רקע המפה">
-          <button class="map-type-btn active" type="button" data-map-base="official">🎢 מפת הפארק</button>
-          <button class="map-type-btn" type="button" data-map-base="standard">🗺️ גאוגרפית</button>
-          <button class="map-type-btn" type="button" data-map-base="satellite">🛰️ לוויין</button>
+        <div class="map-toolbar-actions">
+          <button class="map-action-btn" id="map-fullscreen-btn" type="button" aria-label="פתיחת המפה במסך מלא">⛶ <span>מסך מלא</span></button>
+          <button class="map-action-btn" id="map-nav-btn" type="button" aria-label="ניווט למתקן שנבחר">🧭 <span>ניווט</span></button>
         </div>
-        <a class="map-official-link" href="https://www.universalorlando.com/web/en/us/plan-your-visit/resort-maps/interactive-map-eu.html" target="_blank" rel="noopener">↗️ פתיחה באתר Universal</a>
       </div>
       <div id="map"></div>
-      <div class="map-zoom-hint">🖐️ גררו · pinch לזום · לחצו על סמן לפרטים</div>
+      <div class="map-zoom-hint">🖐️ גררו · pinch לזום · שמות מופיעים בהתקרבות</div>
     </div>
     <div class="maplegend" id="map-legend">
       <span><span class="dot" style="background:#ff5c8a"></span>Epic Universe (כניסה)</span>
       <span><span class="dot" style="background:#7c5cff"></span>המלון שלכם</span>
       <span><span class="dot" style="background:#3ddc97"></span>המיקום שלכם</span>
     </div>
-    <div class="map-legend-section">
-      <span class="legend-title">אזורים:</span>
-      <span class="legend-chip">🔵 Celestial Park</span>
-      <span class="legend-chip">🔴 Super Nintendo World</span>
-      <span class="legend-chip">🟣 Dark Universe</span>
-      <span class="legend-chip">⚫ Ministry of Magic</span>
-      <span class="legend-chip">🟠 Isle of Berk</span>
+  </section>
+
+  <!-- ===== NAVIGATION TAB ===== -->
+  <section class="tab-panel" id="tab-navigation">
+    <h2>🧭 ניווט למתקנים</h2>
+    <p class="lead">בחרו מתקן וקבלו ניווט חי. הניווט עצמו נפתח ב־Google Maps כדי לקבל מסלול והכוונה מעודכנים; האתר מספק את בחירת היעד והמיקום הנוכחי.</p>
+    <div class="card nav-card">
+      <div class="nav-form-row">
+        <div class="field">
+          <label for="nav-ride-select">לאיזה מתקן?</label>
+          <select id="nav-ride-select"></select>
+        </div>
+        <div class="field nav-mode-field">
+          <label for="nav-mode">אופן הגעה</label>
+          <select id="nav-mode">
+            <option value="walking">🚶 הליכה</option>
+            <option value="driving">🚗 רכב</option>
+          </select>
+        </div>
+      </div>
+      <div class="nav-selected" id="nav-selected-info"></div>
+      <div class="nav-location-status" id="nav-location-status">📍 בודק מיקום אוטומטית…</div>
+      <div class="planner-actions">
+        <a class="btn" id="nav-google-link" href="#" target="_blank" rel="noopener">🧭 פתח ניווט ב־Google Maps</a>
+        <button class="btn secondary" id="nav-map-link" type="button">🗺️ הראה במפה</button>
+        <button class="btn secondary" id="nav-location-btn" type="button">📍 עדכון מיקום</button>
+      </div>
     </div>
   </section>
 
@@ -534,11 +576,11 @@
 <script>
 /* ===================== DATA ===================== */
 const LANDS = {
-  celestial:      {name:"Celestial Park",        color:'#ffcf5c', lat:28.4407925, lng:-81.4467624, radius:230},
-  'dark-universe':{name:"Dark Universe",         color:'#b48cff', lat:28.4401287, lng:-81.4504735, radius:150},
-  berk:           {name:"Isle of Berk",          color:'#3ddc97', lat:28.4405521, lng:-81.4451793, radius:170},
-  nintendo:       {name:"Super Nintendo World",  color:'#ff8a5c', lat:28.4386925, lng:-81.4484706, radius:150},
-  ministry:       {name:"Ministry of Magic",     color:'#5cc9ff', lat:28.4432085, lng:-81.4477313, radius:150},
+  celestial:      {name:"Celestial Park",       color:'#ffcf5c', lat:28.4407925, lng:-81.4467624, bounds:[[28.43915,-81.44865],[28.43915,-81.44505],[28.44235,-81.44505],[28.44235,-81.44865]]},
+  'dark-universe':{name:"Dark Universe",        color:'#b48cff', lat:28.4401287, lng:-81.4504735, bounds:[[28.43865,-81.45205],[28.43865,-81.44865],[28.44205,-81.44865],[28.44205,-81.45205]]},
+  berk:           {name:"Isle of Berk",         color:'#3ddc97', lat:28.4405521, lng:-81.4451793, bounds:[[28.43905,-81.44630],[28.43905,-81.44355],[28.44295,-81.44355],[28.44295,-81.44630]]},
+  nintendo:       {name:"Super Nintendo World", color:'#ff8a5c', lat:28.4386925, lng:-81.4484706, bounds:[[28.43705,-81.44995],[28.43705,-81.44675],[28.44025,-81.44675],[28.44025,-81.44995]]},
+  ministry:       {name:"Ministry of Magic",    color:'#5cc9ff', lat:28.4432085, lng:-81.4477313, bounds:[[28.44180,-81.44915],[28.44180,-81.44600],[28.44465,-81.44600],[28.44465,-81.44915]]},
 };
 
 const RIDES = [
@@ -644,6 +686,12 @@ function closeRideModal(){
 document.getElementById('ride-modal-close').addEventListener('click', closeRideModal);
 document.getElementById('ride-modal').addEventListener('click', e => { if (e.target.id === 'ride-modal') closeRideModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('ride-modal').classList.contains('open')) closeRideModal(); });
+const srExplainer = document.getElementById('sr-explainer');
+if (localStorage.getItem('epicSrExplainerDismissed') === '1') srExplainer?.remove();
+document.getElementById('sr-explainer-dismiss')?.addEventListener('click', () => {
+  localStorage.setItem('epicSrExplainerDismissed','1');
+  srExplainer?.remove();
+});
 
 /* ===================== HELPERS ===================== */
 function haversine(lat1, lon1, lat2, lon2){
@@ -659,8 +707,39 @@ function fmtClock(mins){
   const h = Math.floor(mins/60), m = Math.round(mins%60);
   return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
 }
-function gmapsLink(lat,lng){ return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`; }
+function gmapsLink(lat,lng,mode='walking'){
+  const origin = userLatLng ? `&origin=${userLatLng[0]},${userLatLng[1]}` : '';
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${mode}${origin}`;
+}
 function tpLink(slug){ return `https://touringplans.com/epic-universe/attractions/${slug}`; }
+function openMapForRide(ride, zoom=17){
+  if (!ride) return;
+  switchTab('map');
+  setTimeout(() => {
+    map.invalidateSize();
+    map.setView([ride.lat, ride.lng], zoom);
+    rideMarkers[ride.id]?.openPopup();
+  }, 80);
+}
+function updateNavUI(){
+  const ride = RIDES.find(r => r.id === selectedNavRideId) || RIDES[0];
+  const mode = document.getElementById('nav-mode')?.value || 'walking';
+  if (!ride) return;
+  const selected = document.getElementById('nav-selected-info');
+  if (selected) selected.innerHTML = `<b>${ride.name}</b><br><span class="muted">${LANDS[ride.land].name} · ${userLatLng ? 'מיקום נוכחי יתווסף לניווט' : 'המסלול יתחיל מהמיקום שיבחר Google Maps'}</span>`;
+  const link = document.getElementById('nav-google-link');
+  if (link) link.href = gmapsLink(ride.lat, ride.lng, mode);
+}
+function initNavigation(){
+  const select = document.getElementById('nav-ride-select');
+  if (!select) return;
+  select.innerHTML = RIDES.map(r => `<option value="${r.id}">${r.name} · ${LANDS[r.land].name}</option>`).join('');
+  select.value = selectedNavRideId;
+  select.addEventListener('change', () => { selectedNavRideId = select.value; updateNavUI(); });
+  document.getElementById('nav-mode').addEventListener('change', updateNavUI);
+  document.getElementById('nav-map-link').addEventListener('click', () => openMapForRide(RIDES.find(r => r.id === selectedNavRideId)));
+  updateNavUI();
+}
 function bars(value, max, cls){
   let html=''; for(let i=1;i<=max;i++) html += `<span class="bar ${i<=value?'on '+cls:''}"></span>`;
   return html;
@@ -750,20 +829,12 @@ function singleRiderInfoHtml(ride){
 }
 
 /* ===================== MAP INIT ===================== */
-const map = L.map('map', {scrollWheelZoom:false, zoomControl:true}).setView([28.448, -81.458], 15);
+const map = L.map('map', {scrollWheelZoom:true, zoomControl:true}).setView([28.448, -81.458], 15);
+/* Clean, independent OpenStreetMap base layer; attraction/land overlays are owned by this guide. */
 const mapBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
 });
-const mapSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  attribution: 'Tiles &copy; Esri', maxZoom: 19
-});
-/* Official Universal Epic Universe map tiles: official background only; our markers/cards remain independent. */
-const mapOfficial = L.tileLayer('https://services.universalorlando.com/assets/MapTiles/Production/10255/512/{z}_{x}_{y}.jpg', {
-  attribution: '<a href="https://www.universalorlando.com/web/en/us/plan-your-visit/resort-maps/interactive-map-eu.html" target="_blank" rel="noopener">Universal Orlando</a>',
-  minZoom: 12, maxZoom: 18, tileSize: 512, zoomOffset: -1, tms: false
-});
-mapOfficial.addTo(map);
-let currentMapMode = 'all';
+mapBase.addTo(map);
 const rideLayer = L.layerGroup().addTo(map);
 const landLayer = L.layerGroup().addTo(map);
 const landmarkLayer = L.layerGroup().addTo(map);
@@ -771,14 +842,17 @@ const landmarkLayer = L.layerGroup().addTo(map);
 const entranceIcon = L.divIcon({className:'', html:'<div style="background:#ff5c8a;width:20px;height:20px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 3px rgba(255,92,138,.35)"></div>', iconSize:[20,20]});
 const hotelIcon = L.divIcon({className:'', html:'<div style="background:#7c5cff;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 3px rgba(124,92,255,.35)"></div>', iconSize:[18,18]});
 const userIcon = L.divIcon({className:'', html:'<div style="background:#3ddc97;width:20px;height:20px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 4px rgba(61,220,151,.4)"></div>', iconSize:[20,20]});
+let selectedNavRideId = RIDES[0]?.id || null;
+let locationWatchId = null;
+let locationRequestInFlight = false;
 
 L.marker(PARK_ENTRANCE, {icon: entranceIcon}).addTo(map).bindPopup('<b>Universal Epic Universe</b><br>כניסה ראשית — 1001 Epic Boulevard');
 L.marker(HOTEL, {icon: hotelIcon}).addTo(map).bindPopup('<b>המלון שלכם</b><br>7601 Canada Avenue, Orlando, FL');
 L.polyline([HOTEL, PARK_ENTRANCE], {color:'#ffcf5c', weight:3, dashArray:'6,8', opacity:.8}).addTo(map);
 
 Object.entries(LANDS).forEach(([key, land]) => {
-  L.circle([land.lat, land.lng], {radius: land.radius, color: land.color, weight: 2, fillColor: land.color, fillOpacity: 0.10})
-    .addTo(landLayer).bindTooltip(land.name, {permanent:true, direction:'center', opacity:0.85});
+  L.polygon(land.bounds, {color: land.color, weight: 2, fillColor: land.color, fillOpacity: 0.18})
+    .addTo(landLayer).bindTooltip(land.name, {permanent:true, direction:'center', opacity:0.9, className:'map-ride-label'});
 });
 const legendEl = document.getElementById('map-legend');
 Object.values(LANDS).forEach(land => {
@@ -806,20 +880,29 @@ function mapPopupHtml(r){
 }
 RIDES.forEach(r => {
   const color = TIER_MARKER_COLOR[r.tier];
-  const icon = L.divIcon({className:'', html:`<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.25)"></div>`, iconSize:[14,14]});
+  const icon = L.divIcon({className:'', html:`<div style="background:${color};width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.3)"></div>`, iconSize:[10,10]});
   const marker = L.marker([r.lat, r.lng], {icon}).addTo(rideLayer);
+  marker.bindTooltip(r.name, {direction:'top', offset:[0,-5], className:'map-ride-label', sticky:true, opacity:.95});
+  marker.on('mouseover', () => { if (map.getZoom() >= 16) marker.openTooltip(); });
+  marker.on('mouseout', () => marker.closeTooltip());
   marker.bindPopup(mapPopupHtml(r));
   rideMarkers[r.id] = marker;
 });
 let userMarker = null;
 
+function updateRideLabels(){
+  const show = map.getZoom() >= 16;
+  RIDES.forEach(r => {
+    const marker = rideMarkers[r.id];
+    if (!marker) return;
+    if (show) marker.openTooltip();
+    else marker.closeTooltip();
+  });
+}
+map.on('zoomend', updateRideLabels);
+setTimeout(updateRideLabels, 0);
 
-document.querySelectorAll('[data-map-base]').forEach(btn => btn.addEventListener('click', () => {
-  const selected = btn.dataset.mapBase;
-  [mapOfficial, mapBase, mapSatellite].forEach(layer => { if (map.hasLayer(layer)) map.removeLayer(layer); });
-  (selected === 'satellite' ? mapSatellite : selected === 'standard' ? mapBase : mapOfficial).addTo(map);
-  document.querySelectorAll('[data-map-base]').forEach(b => b.classList.toggle('active', b === btn));
-}));
+
 document.getElementById('map-search-input').addEventListener('input', e => {
   const query = e.target.value.trim().toLowerCase();
   if (!query){ RIDES.forEach(r => rideMarkers[r.id].setOpacity(1)); return; }
@@ -832,6 +915,50 @@ document.getElementById('map-search-input').addEventListener('input', e => {
 });
 map.addLayer(rideLayer);
 map.addLayer(landLayer);
+
+function syncFullscreenButton(){
+  const shell = document.getElementById('map-shell');
+  const button = document.getElementById('map-fullscreen-btn');
+  const active = document.fullscreenElement === shell || shell.classList.contains('map-fullscreen-fallback');
+  if (button){
+    button.innerHTML = active ? '⛶ <span>יציאה ממסך מלא</span>' : '⛶ <span>מסך מלא</span>';
+    button.setAttribute('aria-label', active ? 'יציאה ממסך מלא' : 'פתיחת המפה במסך מלא');
+  }
+}
+function toggleMapFullscreen(){
+  const shell = document.getElementById('map-shell');
+  if (document.fullscreenElement === shell){
+    document.exitFullscreen?.();
+  } else if (shell.requestFullscreen){
+    shell.requestFullscreen().catch(() => {
+      shell.classList.add('map-fullscreen-fallback');
+      syncFullscreenButton();
+    });
+  } else {
+    shell.classList.toggle('map-fullscreen-fallback');
+    syncFullscreenButton();
+  }
+  setTimeout(() => map.invalidateSize(), 100);
+}
+function closeMapFullscreenFallback(){
+  const shell = document.getElementById('map-shell');
+  if (!document.fullscreenElement) shell.classList.remove('map-fullscreen-fallback');
+  syncFullscreenButton();
+  setTimeout(() => map.invalidateSize(), 100);
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('map-shell').classList.contains('map-fullscreen-fallback')) closeMapFullscreenFallback();
+});
+document.getElementById('map-fullscreen-btn').addEventListener('click', toggleMapFullscreen);
+document.addEventListener('fullscreenchange', closeMapFullscreenFallback);
+document.getElementById('global-map-btn').addEventListener('click', () => {
+  switchTab('map');
+  toggleMapFullscreen();
+});
+document.getElementById('map-nav-btn').addEventListener('click', () => {
+  switchTab('navigation');
+  document.getElementById('nav-ride-select')?.focus();
+});
 
 /* ===================== RIDES RENDER ===================== */
 function ridePasses(r){
@@ -1026,23 +1153,42 @@ async function fetchLiveQueue(){
 }
 
 /* ===================== GEOLOCATION ===================== */
-function locateMe(){
-  const statusEl = document.getElementById('locate-status');
-  if (!navigator.geolocation){ statusEl.textContent = '⚠️ הדפדפן לא תומך באיתור מיקום.'; return; }
-  statusEl.textContent = '📍 מאתר מיקום...';
-  navigator.geolocation.getCurrentPosition(pos => {
-    userLatLng = [pos.coords.latitude, pos.coords.longitude];
-    statusEl.textContent = '✅ מיקום אותר — מרחקים וזמני הליכה מוצגים למטה ובכרטיסי המתקנים.';
-    if (userMarker) map.removeLayer(userMarker);
-    userMarker = L.marker(userLatLng, {icon:userIcon}).addTo(map).bindPopup('📍 אתם כאן').openPopup();
-    map.setView(userLatLng, 16);
-    document.getElementById('pl-uselocation').checked = true;
-    renderAll();
-  }, err => {
-    statusEl.textContent = '⚠️ לא הצלחנו לאתר מיקום (' + (err.message||'הרשאה נדחתה') + ').';
-  }, {enableHighAccuracy:true, timeout:12000});
+function setLocationStatus(text){
+  const ids = ['locate-status','nav-location-status'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = text; });
 }
-document.getElementById('locate-btn').addEventListener('click', locateMe);
+function applyLocation(pos, center=false){
+  userLatLng = [pos.coords.latitude, pos.coords.longitude];
+  setLocationStatus('✅ מיקום מעודכן — מרחקים וניווט משתמשים במיקום הנוכחי.');
+  if (userMarker) map.removeLayer(userMarker);
+  userMarker = L.marker(userLatLng, {icon:userIcon}).addTo(map).bindPopup('📍 אתם כאן');
+  if (center) { map.setView(userLatLng, 16); userMarker.openPopup(); }
+  const plannerLocation = document.getElementById('pl-uselocation');
+  if (plannerLocation) plannerLocation.checked = true;
+  updateNavUI();
+  renderAll();
+}
+function handleLocationError(err){
+  const message = err?.code === 1 ? 'הרשאת מיקום נדחתה' : (err?.message || 'לא זמין כרגע');
+  setLocationStatus('⚠️ מיקום לא זמין — ' + message + '. אפשר להמשיך עם Google Maps.');
+  const navLink = document.getElementById('nav-google-link');
+  if (navLink) navLink.href = gmapsLink(RIDES.find(r => r.id === selectedNavRideId)?.lat || PARK_ENTRANCE[0], RIDES.find(r => r.id === selectedNavRideId)?.lng || PARK_ENTRANCE[1], document.getElementById('nav-mode')?.value || 'walking');
+}
+function locateMe(center=false){
+  if (!navigator.geolocation){ handleLocationError({message:'הדפדפן לא תומך באיתור מיקום'}); return; }
+  if (locationRequestInFlight) return;
+  locationRequestInFlight = true;
+  setLocationStatus('📍 מאתר מיקום…');
+  navigator.geolocation.getCurrentPosition(pos => { locationRequestInFlight = false; applyLocation(pos, center); }, err => { locationRequestInFlight = false; handleLocationError(err); }, {enableHighAccuracy:true, timeout:12000, maximumAge:30000});
+}
+function startLocationWatch(){
+  if (!navigator.geolocation){ handleLocationError({message:'הדפדפן לא תומך באיתור מיקום'}); return; }
+  if (locationWatchId !== null) return;
+  locationWatchId = navigator.geolocation.watchPosition(pos => applyLocation(pos, false), handleLocationError, {enableHighAccuracy:true, maximumAge:30000, timeout:20000});
+}
+document.getElementById('locate-btn').addEventListener('click', () => locateMe(true));
+document.getElementById('nav-location-btn').addEventListener('click', () => locateMe(false));
+startLocationWatch();
 
 /* ===================== ROUTE PLANNER ===================== */
 function normalize(v,max){ return Math.max(0, Math.min(1, v/max)); }
@@ -1180,6 +1326,7 @@ document.getElementById('view-land-btn').addEventListener('click', () => { viewM
 function renderAll(){
   renderRides(); renderNearby(); renderNextUp(); renderVisitedChips(); updateStatusBar();
 }
+initNavigation();
 buildChips();
 renderAll();
 fetchLiveQueue();
