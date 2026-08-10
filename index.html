@@ -957,13 +957,13 @@ async function fetchWithTimeout(url, ms){
   finally { clearTimeout(t); }
 }
 /* ===================== LIVE WEATHER ===================== */
-const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=28.448&longitude=-81.458&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,apparent_temperature,precipitation_probability,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York&forecast_days=1';
+const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=28.448&longitude=-81.458&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,apparent_temperature,precipitation_probability,weather_code&temperature_unit=celsius&wind_speed_unit=kmh&timezone=America%2FNew_York&forecast_days=1';
 const WEATHER_CODES = {0:'בהיר',1:'בהיר ברובו',2:'מעונן חלקית',3:'מעונן',45:'ערפל',48:'ערפל',51:'טפטוף קל',53:'טפטוף',55:'טפטוף חזק',61:'גשם קל',63:'גשם',65:'גשם חזק',80:'ממטרים קלים',81:'ממטרים',82:'ממטרים חזקים',95:'סופות רעמים',96:'סופות רעמים וברד',99:'סופות רעמים וברד'};
 const WEATHER_ICONS = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌦️',63:'🌧️',65:'🌧️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',96:'⛈️',99:'⛈️'};
 function weatherHourLabel(iso){ return new Date(iso).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'}); }
 function weatherCardHtml(time, temp, rain, code, apparent){
   const icon = WEATHER_ICONS[code] || '🌡️';
-  return `<div class="wchip" title="מרגיש כמו ${Math.round(apparent)}°F"><div class="time">${weatherHourLabel(time)}</div><div class="t">${Math.round(temp)}°F</div><div class="rain">${icon} ${rain}%</div></div>`;
+  return `<div class="wchip" title="מרגיש כמו ${Math.round(apparent)}°C"><div class="time">${weatherHourLabel(time)}</div><div class="t">${Math.round(temp)}°C</div><div class="rain">${icon} ${rain}%</div></div>`;
 }
 async function fetchLiveWeather(){
   const summary = document.getElementById('weather-summary');
@@ -977,8 +977,8 @@ async function fetchLiveWeather(){
     const now = new Date(c.time);
     const slots = h.time.map((t,i) => ({t,i})).filter(x => new Date(x.t) >= now).filter((x,n) => n % 2 === 0).slice(0,8);
     strip.innerHTML = slots.map(({t,i}) => weatherCardHtml(t,h.temperature_2m[i],h.precipitation_probability[i],h.weather_code[i],h.apparent_temperature[i])).join('');
-    summary.textContent = `${WEATHER_ICONS[c.weather_code]||'🌡️'} עכשיו ${Math.round(c.temperature_2m)}°F · מרגיש כמו ${Math.round(c.apparent_temperature)}°F · ${WEATHER_CODES[c.weather_code]||'מזג אוויר משתנה'}`;
-    source.innerHTML = `מקור: <strong>Open-Meteo</strong> · עדכון ${weatherHourLabel(c.time)} (שעון אורלנדו) · לחות ${c.relative_humidity_2m}% · רוח ${Math.round(c.wind_speed_10m)} mph`;
+    summary.textContent = `${WEATHER_ICONS[c.weather_code]||'🌡️'} עכשיו ${Math.round(c.temperature_2m)}°C · מרגיש כמו ${Math.round(c.apparent_temperature)}°C · ${WEATHER_CODES[c.weather_code]||'מזג אוויר משתנה'}`;
+    source.innerHTML = `מקור: <strong>Open-Meteo</strong> · עדכון ${weatherHourLabel(c.time)} (שעון אורלנדו) · לחות ${c.relative_humidity_2m}% · רוח ${Math.round(c.wind_speed_10m)} קמ״ש`;
   } catch (err) {
     summary.textContent = 'לא הצלחתי לטעון מזג אוויר חי כרגע';
     source.textContent = 'מקור: Open-Meteo · נסו לרענן את העמוד';
