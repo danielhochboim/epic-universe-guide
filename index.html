@@ -3,217 +3,356 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Epic Universe — מדריך ליום אחד | דניאל וחברים</title>
+<title>Epic Universe — מדריך חי | דניאל וחברים</title>
 <link rel="preconnect" href="https://unpkg.com">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
   :root{
-    --bg:#0b1020; --panel:#131a33; --panel2:#1a2340; --accent:#7c5cff; --accent2:#ff5c8a;
+    --bg:#0b1020; --panel:#131a33; --panel2:#1a2340; --panel3:#212b52; --accent:#7c5cff; --accent2:#ff5c8a;
     --gold:#ffcf5c; --text:#eef0ff; --muted:#a7aed6; --green:#3ddc97; --red:#ff5c6a;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:linear-gradient(180deg,#090c1a,#0b1020 400px,#0b1020);color:var(--text);
-       font-family:'Segoe UI',Arial,Helvetica,sans-serif;line-height:1.6}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:#0b1020;color:var(--text);
+       font-family:'Segoe UI',Arial,Helvetica,sans-serif;line-height:1.55}
   a{color:var(--gold)}
-  .wrap{max-width:1100px;margin:0 auto;padding:0 18px}
-  header.hero{position:relative;min-height:52vh;display:flex;align-items:flex-end;
-    background:linear-gradient(180deg,rgba(9,12,26,.15),rgba(9,12,26,.95)),url('assets/img/hero-entrance.jpg') center/cover no-repeat;}
-  header.hero .wrap{padding-bottom:32px;width:100%}
-  .kicker{color:var(--gold);font-weight:700;letter-spacing:.5px;font-size:15px}
-  h1{font-size:38px;margin:6px 0 8px;line-height:1.15}
-  .sub{color:var(--muted);font-size:17px;max-width:700px}
-  .pill-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
-  .pill{background:rgba(255,255,255,.08);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.15);
-        padding:8px 14px;border-radius:999px;font-size:14px;white-space:nowrap}
-  .pill b{color:var(--gold)}
-  section{padding:40px 0}
-  h2{font-size:26px;margin:0 0 6px;display:flex;align-items:center;gap:10px}
-  .lead{color:var(--muted);margin:0 0 22px;font-size:15.5px;max-width:760px}
-  .card{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:20px}
-  .grid-weather{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}
-  .wcard{background:var(--panel2);border-radius:14px;padding:14px;text-align:center}
-  .wcard .t{font-size:22px;font-weight:700}
-  .wcard .time{color:var(--muted);font-size:13px}
-  .wcard .rain{color:#7fd0ff;font-size:13px;margin-top:4px}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+  button{font-family:inherit}
 
-  /* Explore toolbar */
-  .toolbar{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:18px;
-           display:flex;flex-direction:column;gap:14px}
-  .search-row{display:flex;gap:10px;flex-wrap:wrap}
-  .search-row input[type=text]{flex:1;min-width:200px;background:var(--panel2);border:1px solid rgba(255,255,255,.12);
-       color:var(--text);padding:11px 16px;border-radius:12px;font-size:15px}
+  /* ===== Sticky header: title strip + live status + tabs ===== */
+  .sticky-head{position:sticky;top:0;z-index:100;background:rgba(10,14,30,.92);backdrop-filter:blur(10px);
+     border-bottom:1px solid rgba(255,255,255,.08)}
+  .title-strip{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px 6px;max-width:1100px;margin:0 auto}
+  .title-strip h1{font-size:16.5px;margin:0;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .title-strip .kicker{color:var(--gold);font-size:11.5px;font-weight:700}
+  .status-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 16px 8px;max-width:1100px;margin:0 auto;font-size:12.5px;color:var(--muted)}
+  .status-chip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);padding:4px 10px;border-radius:999px;white-space:nowrap}
+  .status-chip b{color:var(--text)}
+  .dotlive{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
+  .dotlive.on{background:var(--green);box-shadow:0 0 0 3px rgba(61,220,151,.25)}
+  .dotlive.off{background:var(--red)}
+  .progress-mini{display:flex;align-items:center;gap:6px}
+  .progress-track{width:60px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+  .tabs{display:flex;gap:4px;padding:0 10px 10px;max-width:1100px;margin:0 auto;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tab-btn{flex:0 0 auto;background:transparent;border:none;color:var(--muted);padding:9px 15px;border-radius:11px;
+     font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+  .tab-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+  .tab-btn:not(.active):hover{background:rgba(255,255,255,.06);color:var(--text)}
+
+  .tab-panel{display:none;padding:18px 0 40px;animation:fadein .18s ease}
+  .tab-panel.active{display:block}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  h2{font-size:21px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+  .lead{color:var(--muted);margin:0 0 16px;font-size:14.5px;max-width:760px}
+  .card{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:18px}
+
+  /* Overview */
+  .ov-grid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:760px){.ov-grid{grid-template-columns:1.3fr 1fr}}
+  .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+  .pill{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+        padding:6px 12px;border-radius:999px;font-size:13px;white-space:nowrap}
+  .pill b{color:var(--gold)}
+
+  .weather-strip{display:flex;gap:8px;overflow-x:auto;padding:4px 2px;-webkit-overflow-scrolling:touch}
+  .wchip{flex:0 0 auto;background:var(--panel2);border-radius:12px;padding:8px 12px;text-align:center;min-width:64px}
+  .wchip .time{color:var(--muted);font-size:11px}
+  .wchip .t{font-size:17px;font-weight:800;margin:2px 0}
+  .wchip .rain{color:#7fd0ff;font-size:10.5px}
+
+  .next-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+  .next-item{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border-radius:12px;padding:10px 13px;font-size:13.5px}
+  .next-item .n-name{font-weight:700}
+  .next-item .n-land{color:var(--muted);font-size:12px}
+
+  /* Toolbar (Rides tab) */
+  .toolbar{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:16px;
+           display:flex;flex-direction:column;gap:12px;margin-bottom:18px;position:sticky;top:118px;z-index:10}
+  .search-row{display:flex;gap:8px;flex-wrap:wrap}
+  .search-row input[type=text]{flex:1;min-width:180px;background:var(--panel2);border:1px solid rgba(255,255,255,.12);
+       color:var(--text);padding:10px 14px;border-radius:11px;font-size:14.5px}
   .search-row input[type=text]:focus{outline:2px solid var(--accent)}
   .btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-weight:700;
-       padding:11px 18px;border-radius:12px;cursor:pointer;font-size:14.5px;white-space:nowrap}
+       padding:10px 16px;border-radius:11px;cursor:pointer;font-size:13.5px;white-space:nowrap}
   .btn:hover{filter:brightness(1.08)}
-  .btn.secondary{background:var(--panel2);border:1px solid rgba(255,255,255,.15)}
-  .chip-row{display:flex;gap:8px;flex-wrap:wrap}
+  .btn.secondary{background:var(--panel2);border:1px solid rgba(255,255,255,.15);color:var(--text)}
+  .btn.small{padding:6px 11px;font-size:12.5px;border-radius:9px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .chip-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
   .chip{background:var(--panel2);border:1px solid rgba(255,255,255,.14);color:var(--muted);
-        padding:7px 14px;border-radius:999px;font-size:13.5px;cursor:pointer;user-select:none}
+        padding:6px 13px;border-radius:999px;font-size:13px;cursor:pointer;user-select:none}
   .chip.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
-  .chip-group-label{font-size:12px;color:var(--muted);margin-inline-end:4px;align-self:center}
-  #locate-status, #live-status{font-size:13.5px;color:var(--muted)}
-  #nearby-panel{margin-top:6px}
-  .nearby-list{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
-  .nearby-item{background:var(--panel2);border-radius:12px;padding:10px 14px;font-size:13.5px;min-width:150px}
-  .nearby-item b{display:block;font-size:14.5px;margin-bottom:2px}
-  .nearby-item .dist{color:var(--gold)}
+  .chip-group-label{font-size:11.5px;color:var(--muted);margin-inline-end:2px;align-self:center}
 
-  #map{height:440px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
-  .maplegend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13.5px;color:var(--muted)}
-  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-inline-end:6px;vertical-align:middle}
-  .zdot{display:inline-block;width:13px;height:13px;border-radius:4px;margin-inline-end:6px;vertical-align:middle;opacity:.55}
-
-  .view-toggle{display:flex;gap:8px}
-  .count-note{color:var(--muted);font-size:13.5px;margin-bottom:16px}
-
-  .tier{margin-bottom:34px}
-  .tier-title{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-  .tier-badge{font-size:13px;font-weight:800;padding:5px 12px;border-radius:999px}
+  .count-note{color:var(--muted);font-size:13px;margin-bottom:12px}
+  .tier{margin-bottom:28px}
+  .tier-title{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .tier-badge{font-size:12.5px;font-weight:800;padding:4px 11px;border-radius:999px}
   .tier-badge.top{background:rgba(255,92,106,.18);color:#ff8a95;border:1px solid rgba(255,92,106,.4)}
   .tier-badge.mid{background:rgba(255,207,92,.16);color:var(--gold);border:1px solid rgba(255,207,92,.4)}
   .tier-badge.chill{background:rgba(61,220,151,.15);color:var(--green);border:1px solid rgba(61,220,151,.4)}
   .tier-badge.show{background:rgba(124,92,255,.18);color:#b4a4ff;border:1px solid rgba(124,92,255,.4)}
-  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:14px}
   .ride{background:var(--panel);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.06);
-        transition:transform .15s ease;display:flex;flex-direction:column}
+        transition:transform .15s ease;display:flex;flex-direction:column;position:relative}
+  .ride.visited{opacity:.55}
   .ride:hover{transform:translateY(-3px)}
-  .ride img{width:100%;height:150px;object-fit:cover;display:block;background:#1a2340}
-  .ride .body{padding:14px 16px 16px;flex:1;display:flex;flex-direction:column}
-  .ride h3{margin:0 0 4px;font-size:16.5px}
-  .ride .land{color:var(--muted);font-size:12.5px;margin-bottom:10px}
-  .scores{display:flex;gap:14px;margin:6px 0 10px}
-  .score{font-size:13px}
-  .score b{display:block;font-size:16px}
+  .ride img{width:100%;height:140px;object-fit:cover;display:block;background:#1a2340}
+  .visit-toggle{position:absolute;top:8px;inset-inline-end:8px;background:rgba(10,14,30,.75);border:1.5px solid rgba(255,255,255,.35);
+     color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+  .visit-toggle.on{background:var(--green);border-color:var(--green);color:#08351f}
+  .ride .body{padding:13px 15px 15px;flex:1;display:flex;flex-direction:column}
+  .ride h3{margin:0 0 3px;font-size:15.5px}
+  .ride .land{color:var(--muted);font-size:12px;margin-bottom:8px}
+  .scores{display:flex;gap:12px;margin:4px 0 8px}
+  .score{font-size:12px}
+  .score b{display:block;font-size:15px}
   .bars{display:flex;gap:3px;margin-top:3px}
-  .bar{width:14px;height:6px;border-radius:3px;background:rgba(255,255,255,.12)}
+  .bar{width:13px;height:6px;border-radius:3px;background:rgba(255,255,255,.12)}
   .bar.on.extreme{background:var(--red)}
   .bar.on.exp{background:var(--gold)}
-  .ride p.note{color:var(--muted);font-size:13.5px;margin:0 0 10px}
-  .badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
-  .badge-sr{display:inline-block;font-size:11.5px;background:rgba(61,220,151,.15);
-        color:var(--green);border:1px solid rgba(61,220,151,.35);padding:3px 9px;border-radius:999px}
-  .badge-wait{display:inline-block;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+  .ride p.note{color:var(--muted);font-size:13px;margin:0 0 8px}
+  .badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;margin-bottom:8px}
+  .badge-sr{display:inline-block;font-size:11px;background:rgba(61,220,151,.15);
+        color:var(--green);border:1px solid rgba(61,220,151,.35);padding:3px 8px;border-radius:999px}
+  .badge-wait{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px}
   .badge-wait.low{background:rgba(61,220,151,.18);color:var(--green)}
   .badge-wait.mid{background:rgba(255,207,92,.18);color:var(--gold)}
   .badge-wait.high{background:rgba(255,92,106,.18);color:#ff8a95}
   .badge-wait.closed{background:rgba(167,174,214,.15);color:var(--muted)}
-  .badge-dist{display:inline-block;font-size:11.5px;background:rgba(124,92,255,.18);color:#b4a4ff;
-        border:1px solid rgba(124,92,255,.35);padding:3px 9px;border-radius:999px}
-  .crowd-chart{display:flex;align-items:flex-end;gap:2px;height:24px;margin:8px 0 2px}
-  .chour{width:6px;border-radius:2px 2px 0 0;min-height:4px}
-  .crowd-caption{font-size:10.5px;color:var(--muted);margin-bottom:8px}
+  .badge-dist{display:inline-block;font-size:11px;background:rgba(124,92,255,.18);color:#b4a4ff;
+        border:1px solid rgba(124,92,255,.35);padding:3px 8px;border-radius:999px}
+  .crowd-chart{display:flex;align-items:flex-end;gap:2px;height:22px;margin:6px 0 2px}
+  .chour{width:5.5px;border-radius:2px 2px 0 0;min-height:4px}
+  .crowd-caption{font-size:10px;color:var(--muted);margin-bottom:6px}
+  .link-row{display:flex;gap:6px;margin-top:4px}
+  .link-btn{flex:1;text-align:center;background:var(--panel2);border:1px solid rgba(255,255,255,.14);
+      color:var(--text);text-decoration:none;padding:7px 8px;border-radius:9px;font-size:12px}
+  .link-btn:hover{background:var(--panel3)}
 
-  ol.route{list-style:none;margin:0;padding:0;counter-reset:step}
-  ol.route li{counter-increment:step;position:relative;padding:6px 0 26px 0;margin-inline-start:34px;border-inline-start:2px solid rgba(255,255,255,.12)}
-  ol.route li:last-child{border-color:transparent;padding-bottom:0}
-  ol.route li::before{content:counter(step);position:absolute;inset-inline-start:-19px;top:0;
-        width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
-        display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff}
-  ol.route .time{color:var(--gold);font-weight:700;font-size:14px}
-  ol.route h4{margin:2px 0 4px;font-size:17px}
-  ol.route p{margin:0;color:var(--muted);font-size:14.5px}
-  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-  .gallery img{width:100%;height:150px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.08)}
-  footer{padding:30px 0 60px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid rgba(255,255,255,.06);margin-top:20px}
+  /* Map tab */
+  #map{height:420px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+  .maplegend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-inline-end:5px;vertical-align:middle}
+  .zdot{display:inline-block;width:12px;height:12px;border-radius:4px;margin-inline-end:5px;vertical-align:middle;opacity:.55}
+  #locate-status{font-size:13px;color:var(--muted);margin-top:8px}
+  .nearby-list{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
+  .nearby-item{background:var(--panel2);border-radius:12px;padding:9px 13px;font-size:13px;min-width:150px}
+  .nearby-item b{display:block;font-size:13.5px;margin-bottom:2px}
+  .nearby-item .dist{color:var(--gold)}
+
+  /* Planner tab */
+  .planner-form{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:640px){.planner-form{grid-template-columns:1fr 1fr}}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:13px;color:var(--muted);font-weight:700}
+  .field input[type=time],.field input[type=number]{background:var(--panel2);border:1px solid rgba(255,255,255,.14);
+      color:var(--text);padding:9px 12px;border-radius:10px;font-size:14px}
+  .field input[type=range]{width:100%}
+  .range-labels{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)}
+  .switch-row{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);
+      padding:10px 13px;border-radius:11px;font-size:13.5px}
+  .switch-row input{width:18px;height:18px}
+  .visited-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:130px;overflow-y:auto;padding:4px 2px}
+  .vchip{background:var(--panel2);border:1px solid rgba(255,255,255,.14);color:var(--muted);
+      padding:5px 11px;border-radius:999px;font-size:12px;cursor:pointer}
+  .vchip.on{background:rgba(61,220,151,.18);color:var(--green);border-color:rgba(61,220,151,.4)}
+  .planner-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  #plan-output{margin-top:20px}
+  .plan-summary{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:13.5px;color:var(--muted)}
+  .plan-summary b{color:var(--text)}
+  ol.plan{list-style:none;margin:0;padding:0;counter-reset:step}
+  ol.plan li{counter-increment:step;position:relative;padding:4px 0 22px 0;margin-inline-start:32px;border-inline-start:2px solid rgba(255,255,255,.12)}
+  ol.plan li:last-child{border-color:transparent;padding-bottom:0}
+  ol.plan li::before{content:counter(step);position:absolute;inset-inline-start:-18px;top:0;
+        width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+        display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff}
+  ol.plan .time{color:var(--gold);font-weight:700;font-size:13.5px}
+  ol.plan h4{margin:2px 0 3px;font-size:15.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  ol.plan p{margin:0 0 6px;color:var(--muted);font-size:13px}
+  ol.plan .plink{font-size:12px}
+  details.classic{margin-top:22px}
+  details.classic summary{cursor:pointer;color:var(--gold);font-weight:700;font-size:14px;padding:8px 0}
+  ol.route{list-style:none;margin:10px 0 0;padding:0;counter-reset:cstep}
+  ol.route li{counter-increment:cstep;position:relative;padding:4px 0 18px 0;margin-inline-start:30px;border-inline-start:2px solid rgba(255,255,255,.1)}
+  ol.route li:last-child{border-color:transparent}
+  ol.route li::before{content:counter(cstep);position:absolute;inset-inline-start:-16px;top:0;
+        width:30px;height:30px;border-radius:50%;background:var(--panel3);
+        display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;color:var(--gold)}
+  ol.route .time{color:var(--gold);font-weight:700;font-size:13px}
+  ol.route h5{margin:2px 0 2px;font-size:14.5px}
+  ol.route p{margin:0;color:var(--muted);font-size:13px}
+
+  /* Gallery */
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+  .gallery img{width:100%;height:140px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.08)}
+
+  footer{padding:26px 0 50px;color:var(--muted);font-size:12.5px;text-align:center;border-top:1px solid rgba(255,255,255,.06);margin-top:10px}
   footer a{color:var(--muted);text-decoration:underline}
-  .credit{font-size:11.5px;opacity:.7}
-  @media (max-width:640px){h1{font-size:28px}.sub{font-size:15px}#map{height:320px}}
+  .credit{font-size:11px;opacity:.7}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel3);
+      border:1px solid rgba(255,255,255,.2);color:var(--text);padding:10px 20px;border-radius:12px;font-size:13.5px;
+      z-index:200;opacity:0;pointer-events:none;transition:opacity .25s ease}
+  .toast.show{opacity:1}
 </style>
 </head>
 <body>
 
-<header class="hero">
-  <div class="wrap">
-    <div class="kicker">🎢 UNIVERSAL EPIC UNIVERSE</div>
-    <h1>מדריך ליום אחד — שני, 10 באוגוסט 2026</h1>
-    <p class="sub">כל האטרקציות מדורגות, חיפוש וסינון לפי אזור/עצימות, מפה חיה עם כל המתקנים והאזורים, זמני המתנה בזמן אמת, ואיתור מיקום עם זמני הליכה.</p>
-    <div class="pill-row">
-      <div class="pill">🕘 שעות: <b>09:00–21:00</b></div>
-      <div class="pill">🌅 Early Admission: <b>08:00–09:00</b> (לא רלוונטי לכם)</div>
-      <div class="pill">📍 1001 Epic Boulevard, Orlando, FL 32819</div>
-      <div class="pill">🎫 בלי Express</div>
+<div class="sticky-head">
+  <div class="title-strip">
+    <div>
+      <div class="kicker">🎢 UNIVERSAL EPIC UNIVERSE</div>
+      <h1>מדריך חי — שני, 10.8.2026</h1>
     </div>
   </div>
-</header>
+  <div class="status-row">
+    <span class="status-chip">🕐 אורלנדו: <b id="orlando-clock">--:--</b></span>
+    <span class="status-chip" id="park-status-chip">⏳ <b id="park-status-text">בודק שעות...</b></span>
+    <span class="status-chip"><span class="dotlive" id="live-dot"></span> <b id="live-dot-text">זמני המתנה</b></span>
+    <span class="status-chip progress-mini">✅ <b id="progress-text">0/19</b>
+      <span class="progress-track"><span class="progress-fill" id="progress-fill" style="width:0%"></span></span>
+    </span>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="overview">📋 סקירה</button>
+    <button class="tab-btn" data-tab="rides">🎢 מתקנים</button>
+    <button class="tab-btn" data-tab="map">🗺️ מפה</button>
+    <button class="tab-btn" data-tab="planner">🧭 מתכנן מסלול</button>
+    <button class="tab-btn" data-tab="gallery">📸 גלריה</button>
+  </div>
+</div>
 
 <div class="wrap">
 
-  <section id="weather">
-    <h2>☀️ מזג אוויר ליום (°C)</h2>
-    <p class="lead">חם ולח כרגיל לאורלנדו באוגוסט. שיא חום בין 13:00–17:00, סיכוי גשם עולה לקראת הערב.</p>
-    <div class="card">
-      <div class="grid-weather">
-        <div class="wcard"><div class="time">08:00</div><div class="t">26°C</div><div class="rain">☔ 0%</div></div>
-        <div class="wcard"><div class="time">10:00</div><div class="t">29°C</div><div class="rain">☔ 0%</div></div>
-        <div class="wcard"><div class="time">12:00</div><div class="t">32°C</div><div class="rain">☔ 1%</div></div>
-        <div class="wcard"><div class="time">14:00</div><div class="t">35°C</div><div class="rain">☔ 3%</div></div>
-        <div class="wcard"><div class="time">16:00</div><div class="t">36°C</div><div class="rain">☔ 6%</div></div>
-        <div class="wcard"><div class="time">18:00</div><div class="t">30°C</div><div class="rain">☔ 9%</div></div>
-        <div class="wcard"><div class="time">20:00</div><div class="t">27°C</div><div class="rain">☔ 14%</div></div>
-      </div>
+  <!-- ===== OVERVIEW TAB ===== -->
+  <section class="tab-panel active" id="tab-overview">
+    <div class="pill-row" style="margin-bottom:16px">
+      <div class="pill">🕘 שעות: <b>09:00–21:00</b></div>
+      <div class="pill">🌅 Early Admission: <b>08:00</b> (לא רלוונטי לכם)</div>
+      <div class="pill">📍 1001 Epic Boulevard, Orlando, FL</div>
+      <div class="pill">🎫 בלי Express</div>
     </div>
-  </section>
-
-  <section id="explore">
-    <h2>🔍 חיפוש וסינון מתקנים</h2>
-    <p class="lead">חפשו לפי שם, סננו לפי אזור בפארק או לפי רמת עצימות, ותציגו לפי דירוג או לפי אזור.</p>
-    <div class="toolbar">
-      <div class="search-row">
-        <input type="text" id="search-input" placeholder="חיפוש מתקן... (למשל: Stardust, קרוסלה, דרקון)">
-        <button class="btn" id="locate-btn">📍 מצא אותי</button>
-        <div class="view-toggle">
-          <button class="btn secondary" id="view-tier-btn">לפי דירוג</button>
-          <button class="btn secondary" id="view-land-btn">לפי אזור</button>
+    <div class="ov-grid">
+      <div class="card">
+        <h2>☀️ מזג אוויר</h2>
+        <p class="lead">°C · שיא חום 13:00–17:00</p>
+        <div class="weather-strip">
+          <div class="wchip"><div class="time">08:00</div><div class="t">26°</div><div class="rain">☔0%</div></div>
+          <div class="wchip"><div class="time">10:00</div><div class="t">29°</div><div class="rain">☔0%</div></div>
+          <div class="wchip"><div class="time">12:00</div><div class="t">32°</div><div class="rain">☔1%</div></div>
+          <div class="wchip"><div class="time">14:00</div><div class="t">35°</div><div class="rain">☔3%</div></div>
+          <div class="wchip"><div class="time">16:00</div><div class="t">36°</div><div class="rain">☔6%</div></div>
+          <div class="wchip"><div class="time">18:00</div><div class="t">30°</div><div class="rain">☔9%</div></div>
+          <div class="wchip"><div class="time">20:00</div><div class="t">27°</div><div class="rain">☔14%</div></div>
         </div>
       </div>
-      <div class="chip-row" id="land-chips">
-        <span class="chip-group-label">אזור:</span>
+      <div class="card">
+        <h2>🔥 הבא בתור</h2>
+        <p class="lead">3 המלצות מהירות (לפי דירוג ומתקנים שלא סימנתם כ"הייתי")</p>
+        <div class="next-list" id="next-list"></div>
+        <button class="btn secondary small" style="margin-top:10px" onclick="switchTab('planner')">🧭 בנו לי מסלול מלא</button>
       </div>
-      <div class="chip-row" id="tier-chips">
-        <span class="chip-group-label">עצימות:</span>
-      </div>
-      <div id="locate-status"></div>
-      <div id="nearby-panel"></div>
     </div>
   </section>
 
-  <section id="map-section">
-    <h2>🗺️ המפה — כל המתקנים והאזורים</h2>
-    <p class="lead">מהמלון (StaySky Suites, 7601 Canada Ave) עד הכניסה לפארק — כ-15 דקות נסיעה. סינון מלמעלה גם משפיע על המפה (מתקנים שלא תואמים מוצגים דהויים).</p>
-    <div id="map"></div>
-    <div class="maplegend" id="map-legend">
-      <span><span class="dot" style="background:#ff5c8a"></span>Epic Universe (כניסה)</span>
-      <span><span class="dot" style="background:#7c5cff"></span>המלון שלכם</span>
-      <span><span class="dot" style="background:#3ddc97"></span>המיקום שלכם (אחרי "מצא אותי")</span>
-    </div>
-  </section>
-
-  <section id="rides">
+  <!-- ===== RIDES TAB ===== -->
+  <section class="tab-panel" id="tab-rides">
     <h2>🎢 כל האטרקציות</h2>
-    <p class="lead">אקסטרים וחוויה בסולם 1–5. 🎫 SR = יש Single Rider. תג הצבע הוא זמן המתנה חי (מתעדכן מ-queue-times.com) והגרף הקטן הוא מגמת עומס משוערת לפי שעה.</p>
-    <div id="live-status">טוען זמני המתנה חיים...</div>
+    <p class="lead">אקסטרים וחוויה בסולם 1–5. 🎫 SR = יש Single Rider. תג הצבע = זמן המתנה חי. לחצו ⭕ כדי לסמן "הייתי כאן".</p>
+    <div class="toolbar">
+      <div class="search-row">
+        <input type="text" id="search-input" placeholder="חיפוש מתקן... (Stardust, קרוסלה, דרקון)">
+        <button class="btn secondary small" id="view-tier-btn">לפי דירוג</button>
+        <button class="btn secondary small" id="view-land-btn">לפי אזור</button>
+      </div>
+      <div class="chip-row" id="land-chips"><span class="chip-group-label">אזור:</span></div>
+      <div class="chip-row" id="tier-chips"><span class="chip-group-label">עצימות:</span></div>
+    </div>
+    <div id="live-status" class="lead"></div>
     <div class="count-note" id="count-note"></div>
     <div id="rides-container"></div>
   </section>
 
-  <section id="route">
-    <h2>🗓️ המסלול המומלץ — בלי Express</h2>
-    <p class="lead">עדיפות לתפוס את הביג-4 בשעה וחצי הראשונות, לנצל Single Rider לאורך היום, ולסיים עם המופע הלילי.</p>
-    <div class="card">
-      <ol class="route">
-        <li><div class="time">08:00–08:15</div><h4>הגעה לשער</h4><p>לעמוד קרוב לכניסה כדי להיות בין הראשונים כשנפתח לכלל הציבור ב-09:00 (אין לכם Early Admission של 08:00).</p></li>
-        <li><div class="time">09:00</div><h4>Stardust Racers</h4><p>ישר לקואסטר הכי מבוקש בפארק — ב-Celestial Park, קרוב לכניסה.</p></li>
-        <li><div class="time">09:30–10:45</div><h4>Battle at the Ministry + Curse of the Werewolf</h4><p>תפסו 2–3 מה"ביג 4" בתוך 90 הדקות הראשונות, לפני שהתורים מתפוצצים.</p></li>
-        <li><div class="time">לאורך היום</div><h4>נצלו Single Rider</h4><p>ב-Curse of the Werewolf, Mario Kart, Mine-Cart Madness ו-Battle at the Ministry — חוסך המון זמן בלי Express, אם לא אכפת לכם לשבת בנפרד.</p></li>
-        <li><div class="time">12:00–17:00</div><h4>הפסקת צהריים + מזגן</h4><p>שיא החום. כנסו למופע אחד (Le Cirque Arcanus) ומלאו עם Hiccup's Wing Gliders / Fyre Drill / Mine-Cart Madness / Mario Kart.</p></li>
-        <li><div class="time">17:00–20:00</div><h4>השלמות</h4><p>כל מה שנשאר מרשימת ה"רגוע" והשכבה הבינונית, בדקו Virtual Line חינמי באפליקציה.</p></li>
-        <li><div class="time">~20:00–21:00</div><h4>Universal Celestial Goodnight</h4><p>סיימו את היום עם מופע הסיום הלילי לפני סגירה ב-21:00.</p></li>
-      </ol>
+  <!-- ===== MAP TAB ===== -->
+  <section class="tab-panel" id="tab-map">
+    <h2>🗺️ המפה — כל המתקנים והאזורים</h2>
+    <p class="lead">מהמלון (StaySky Suites) עד הכניסה — כ-15 דק' נסיעה. לחצו "מצא אותי" לזמני הליכה בזמן אמת.</p>
+    <button class="btn" id="locate-btn">📍 מצא אותי</button>
+    <div id="locate-status"></div>
+    <div id="nearby-panel"></div>
+    <div style="height:14px"></div>
+    <div id="map"></div>
+    <div class="maplegend" id="map-legend">
+      <span><span class="dot" style="background:#ff5c8a"></span>Epic Universe (כניסה)</span>
+      <span><span class="dot" style="background:#7c5cff"></span>המלון שלכם</span>
+      <span><span class="dot" style="background:#3ddc97"></span>המיקום שלכם</span>
     </div>
   </section>
 
-  <section id="gallery">
+  <!-- ===== PLANNER TAB ===== -->
+  <section class="tab-panel" id="tab-planner">
+    <h2>🧭 מתכנן מסלול חכם</h2>
+    <p class="lead">סמנו איפה כבר הייתם, קבעו העדפות, ותקבלו מסלול מותאם בזמן אמת (עם זמני המתנה חיים כשזמינים).</p>
+
+    <div class="card">
+      <div class="field" style="margin-bottom:16px">
+        <label>✅ איפה כבר הייתם? (יישמר אוטומטית)</label>
+        <div class="visited-chips" id="visited-chips"></div>
+      </div>
+
+      <div class="planner-form">
+        <div class="field">
+          <label>שעת התחלה</label>
+          <input type="time" id="pl-start" value="09:00">
+        </div>
+        <div class="field">
+          <label>כמה שעות פנויות? <span id="pl-hours-val">4</span> שעות</label>
+          <input type="range" id="pl-hours" min="1" max="10" step="0.5" value="4">
+        </div>
+        <div class="field" style="grid-column:1/-1">
+          <label>סוג חוויה: <span id="pl-thrill-val">מאוזן</span></label>
+          <input type="range" id="pl-thrill" min="0" max="100" value="55">
+          <div class="range-labels"><span>😌 רגוע/משפחתי</span><span>🔥 אקסטרים</span></div>
+        </div>
+        <div class="switch-row">
+          <span>🎭 לכלול מופעים</span>
+          <input type="checkbox" id="pl-shows" checked>
+        </div>
+        <div class="switch-row">
+          <span>📍 להתחיל מהמיקום הנוכחי שלי (אם אותר)</span>
+          <input type="checkbox" id="pl-uselocation">
+        </div>
+      </div>
+
+      <div class="planner-actions">
+        <button class="btn" id="build-plan-btn">🧭 בנו לי מסלול</button>
+        <button class="btn secondary" id="reset-visited-btn">♻️ איפוס "הייתי כאן"</button>
+      </div>
+    </div>
+
+    <div id="plan-output"></div>
+
+    <details class="classic">
+      <summary>📜 או השתמשו במסלול הקלאסי המומלץ שלנו (בלי Express)</summary>
+      <div class="card" style="margin-top:10px">
+        <ol class="route">
+          <li><div class="time">08:00–08:15</div><h5>הגעה לשער</h5><p>לעמוד קרוב לכניסה לפני פתיחה כללית ב-09:00.</p></li>
+          <li><div class="time">09:00</div><h5>Stardust Racers</h5><p>ישר לקואסטר הכי מבוקש — ב-Celestial Park, קרוב לכניסה.</p></li>
+          <li><div class="time">09:30–10:45</div><h5>Battle at the Ministry + Curse of the Werewolf</h5><p>תפסו 2–3 מה"ביג 4" ב-90 הדקות הראשונות.</p></li>
+          <li><div class="time">לאורך היום</div><h5>נצלו Single Rider</h5><p>Curse of the Werewolf, Mario Kart, Mine-Cart Madness, Battle at the Ministry.</p></li>
+          <li><div class="time">12:00–17:00</div><h5>הפסקת צהריים + מזגן</h5><p>שיא החום — Le Cirque Arcanus, Hiccup's Wing Gliders, Fyre Drill.</p></li>
+          <li><div class="time">17:00–20:00</div><h5>השלמות</h5><p>מה שנשאר מהשכבה הבינונית/רגועה, בדקו Virtual Line חינמי באפליקציה.</p></li>
+          <li><div class="time">~20:00–21:00</div><h5>Universal Celestial Goodnight</h5><p>מופע סיום לילי לפני סגירה.</p></li>
+        </ol>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== GALLERY TAB ===== -->
+  <section class="tab-panel" id="tab-gallery">
     <h2>📸 גלריה</h2>
     <div class="gallery">
       <img src="assets/img/stardust-racers-twilight.jpg" alt="Stardust Racers בדמדומים" loading="lazy">
@@ -230,9 +369,11 @@
 <footer>
   <div class="wrap">
     <p>נבנה עבור הטיול המשפחתי לארה"ב, אוגוסט 2026 · שעות ומזג אוויר נבדקו 2026-08-09/10</p>
-    <p class="credit">תמונות: Wikimedia Commons (Martin Lewison CC BY 2.0, Jeremy Thompson CC BY 4.0, Gfgbeach CC0, CANthony0125 Public Domain) · מפה ומיקומי מתקנים: © OpenStreetMap contributors · זמני המתנה חיים: queue-times.com · מגמות עומס לפי שעה הן הערכה כללית ולא נתון רשמי</p>
+    <p class="credit">תמונות: Wikimedia Commons (CC BY / CC0) · מפה ומיקומים: © OpenStreetMap contributors · זמני המתנה: queue-times.com · קישורי מידע: touringplans.com · מגמות עומס הן הערכה כללית</p>
   </div>
 </footer>
+
+<div class="toast" id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -246,29 +387,30 @@ const LANDS = {
 };
 
 const RIDES = [
-  {id:'stardust-racers', name:"Stardust Racers", land:'celestial', lat:28.4419052, lng:-81.4462874, tier:'top', extreme:5, exp:5, desc:"קואסטר משגר כפול — הכי מהיר ואקסטרים בפארק. התור הכי ארוך, יעד ראשון בפתיחה.", img:'assets/img/stardust-racers-1.jpg', qt:14690, qtSR:null},
-  {id:'battle-ministry', name:"Harry Potter and the Battle at the Ministry", land:'ministry', lat:28.443753, lng:-81.4481744, tier:'top', extreme:4, exp:5, desc:"ה-dark ride הכי מתוחכם שיוניברסל בנתה — נפילה חופשית וטכנולוגיית תנועה מתקדמת.", img:'assets/img/ministry-of-magic.jpg', qt:14687, qtSR:14696},
-  {id:'monsters-unchained', name:"Monsters Unchained: The Frankenstein Experiment", land:'dark-universe', lat:28.4407507, lng:-81.4509709, tier:'top', extreme:4, exp:4, desc:"רגע דרמטי ואינטנסיבי — חוויית תיאטרון + ride משולבת.", img:'assets/img/monsters-unchained.jpg', qt:14694, qtSR:null},
-  {id:'curse-werewolf', name:"Curse of the Werewolf", land:'dark-universe', lat:28.4396832, lng:-81.4496367, tier:'top', extreme:4, exp:4, desc:"קואסטר חוץ עם סיבובים חדים ומהירות גבוהה.", img:'assets/img/curse-werewolf.jpg', qt:14692, qtSR:14698},
-  {id:'mario-kart', name:"Mario Kart: Bowser's Challenge", land:'nintendo', lat:28.438288, lng:-81.4479501, tier:'mid', extreme:2, exp:5, desc:"dark ride עם משקפי AR — לא אקסטרים אבל הכי אהוב בפארק.", img:'assets/img/mario-kart.jpg', qt:14683, qtSR:14684},
-  {id:'wing-gliders', name:"Hiccup's Wing Gliders", land:'berk', lat:28.441252, lng:-81.4444943, tier:'mid', extreme:3, exp:4, desc:"קואסטר משפחתי עם נוף יפה על הפארק.", img:'assets/img/isle-of-berk.jpg', qt:14695, qtSR:null},
-  {id:'fyre-drill', name:"Fyre Drill", land:'berk', lat:28.4403742, lng:-81.4452706, tier:'mid', extreme:2, exp:3, desc:"dark ride על סירות עם אלמנטים של מים — טוב להתקרר.", img:'assets/img/isle-of-berk-2.jpg', qt:14691, qtSR:null},
-  {id:'mine-cart', name:"Mine-Cart Madness", land:'nintendo', lat:28.4381273, lng:-81.4488692, tier:'mid', extreme:2, exp:4, desc:"קואסטר בסגנון Donkey Kong — כיפי ולא מפחיד.", img:'assets/img/super-nintendo-world.jpg', qt:14686, qtSR:14697},
-  {id:'carousel', name:"Constellation Carousel", land:'celestial', lat:28.4402932, lng:-81.4477835, tier:'chill', extreme:1, exp:3, desc:"קרוסלה יפה עם תאורה — נעים בערב.", img:'assets/img/constellation-carousel.jpg', qt:14688, qtSR:null},
-  {id:'dragon-rally', name:"Dragon Racer's Rally", land:'berk', lat:28.4414496, lng:-81.445343, tier:'chill', extreme:1, exp:2, desc:"אטרקציית ילדים עדינה.", img:'assets/img/chronos-tower.jpg', qt:14693, qtSR:null},
-  {id:'yoshi', name:"Yoshi's Adventure", land:'nintendo', lat:28.4388954, lng:-81.4482496, tier:'chill', extreme:1, exp:2, desc:"אטרקציית ילדים קלילה בסופר נינטנדו וורלד.", img:'assets/img/vip-entrance.jpg', qt:14689, qtSR:null},
-  {id:'bowser-jr', name:"Bowser Jr. Challenge", land:'nintendo', lat:28.4390, lng:-81.4479, tier:'chill', extreme:1, exp:2, desc:"אזור משחק אינטראקטיבי לילדים.", img:'assets/img/vip-entrance.jpg', qt:14682, qtSR:null},
-  {id:'astronomica', name:"Astronomica", land:'celestial', lat:28.4407755, lng:-81.4479429, tier:'chill', extreme:1, exp:2, desc:"אזור מים אינטראקטיבי — מעולה להתקרר בשיא החום.", img:'assets/img/destinations-sign.jpg', qt:null, qtSR:null},
-  {id:'viking-camp', name:"Viking Training Camp", land:'berk', lat:28.4411238, lng:-81.4460185, tier:'chill', extreme:1, exp:2, desc:"מתחם משחק וטיפוס לילדים.", img:'assets/img/chronos-tower.jpg', qt:null, qtSR:null},
-  {id:'meet-toothless', name:"Meet Toothless and Friends", land:'berk', lat:28.439842, lng:-81.4448596, tier:'chill', extreme:1, exp:3, desc:"מפגש דמויות עם טות'לס וחברים.", img:'assets/img/isle-of-berk.jpg', qt:14685, qtSR:null},
-  {id:'cirque-arcanus', name:"Le Cirque Arcanus", land:'ministry', lat:28.4433478, lng:-81.4477539, tier:'show', extreme:0, exp:3.5, desc:"מופע קרקס-קסמים אינטימי.", img:'assets/img/destinations-sign.jpg', qt:null, qtSR:null},
-  {id:'darkmoor', name:"Darkmoor Monster Makeup Experience", land:'dark-universe', lat:28.4405971, lng:-81.4496669, tier:'show', extreme:0, exp:3, desc:"חוויית איפור מפלצות אינטראקטיבית.", img:'assets/img/dark-universe-portal.jpg', qt:null, qtSR:null},
-  {id:'untrainable-dragon', name:"The Untrainable Dragon", land:'berk', lat:28.4395805, lng:-81.444646, tier:'show', extreme:0, exp:4, desc:"המופע הגדול ביותר בפארק.", img:'assets/img/isle-of-berk-2.jpg', qt:null, qtSR:null},
-  {id:'celestial-goodnight', name:"Universal Celestial Goodnight", land:'celestial', lat:28.4404, lng:-81.4468, tier:'show', extreme:0, exp:5, desc:"מופע סיום לילי — מזרקות, אור וזיקוקים. לא לפספס! כ-30–60 דק' לפני סגירה.", img:'assets/img/stardust-racers-twilight.jpg', qt:null, qtSR:null},
+  {id:'stardust-racers', name:"Stardust Racers", land:'celestial', lat:28.4419052, lng:-81.4462874, tier:'top', extreme:5, exp:5, desc:"קואסטר משגר כפול — הכי מהיר ואקסטרים בפארק. התור הכי ארוך, יעד ראשון בפתיחה.", img:'assets/img/stardust-racers-1.jpg', qt:14690, qtSR:null, slug:'stardust-racers'},
+  {id:'battle-ministry', name:"Harry Potter and the Battle at the Ministry", land:'ministry', lat:28.443753, lng:-81.4481744, tier:'top', extreme:4, exp:5, desc:"ה-dark ride הכי מתוחכם שיוניברסל בנתה — נפילה חופשית וטכנולוגיית תנועה מתקדמת.", img:'assets/img/ministry-of-magic.jpg', qt:14687, qtSR:14696, slug:'harry-potter-battle-at-ministry'},
+  {id:'monsters-unchained', name:"Monsters Unchained: The Frankenstein Experiment", land:'dark-universe', lat:28.4407507, lng:-81.4509709, tier:'top', extreme:4, exp:4, desc:"רגע דרמטי ואינטנסיבי — חוויית תיאטרון + ride משולבת.", img:'assets/img/monsters-unchained.jpg', qt:14694, qtSR:null, slug:'monsters-unchained-frankenstein-experiment'},
+  {id:'curse-werewolf', name:"Curse of the Werewolf", land:'dark-universe', lat:28.4396832, lng:-81.4496367, tier:'top', extreme:4, exp:4, desc:"קואסטר חוץ עם סיבובים חדים ומהירות גבוהה.", img:'assets/img/curse-werewolf.jpg', qt:14692, qtSR:14698, slug:'curse-werewolf'},
+  {id:'mario-kart', name:"Mario Kart: Bowser's Challenge", land:'nintendo', lat:28.438288, lng:-81.4479501, tier:'mid', extreme:2, exp:5, desc:"dark ride עם משקפי AR — לא אקסטרים אבל הכי אהוב בפארק.", img:'assets/img/mario-kart.jpg', qt:14683, qtSR:14684, slug:'mario-kart-bowsers-challenge'},
+  {id:'wing-gliders', name:"Hiccup's Wing Gliders", land:'berk', lat:28.441252, lng:-81.4444943, tier:'mid', extreme:3, exp:4, desc:"קואסטר משפחתי עם נוף יפה על הפארק.", img:'assets/img/isle-of-berk.jpg', qt:14695, qtSR:null, slug:'hiccups-wing-gliders'},
+  {id:'fyre-drill', name:"Fyre Drill", land:'berk', lat:28.4403742, lng:-81.4452706, tier:'mid', extreme:2, exp:3, desc:"dark ride על סירות עם אלמנטים של מים — טוב להתקרר.", img:'assets/img/isle-of-berk-2.jpg', qt:14691, qtSR:null, slug:'fyre-drill'},
+  {id:'mine-cart', name:"Mine-Cart Madness", land:'nintendo', lat:28.4381273, lng:-81.4488692, tier:'mid', extreme:2, exp:4, desc:"קואסטר בסגנון Donkey Kong — כיפי ולא מפחיד.", img:'assets/img/super-nintendo-world.jpg', qt:14686, qtSR:14697, slug:'mine-cart-madness'},
+  {id:'carousel', name:"Constellation Carousel", land:'celestial', lat:28.4402932, lng:-81.4477835, tier:'chill', extreme:1, exp:3, desc:"קרוסלה יפה עם תאורה — נעים בערב.", img:'assets/img/constellation-carousel.jpg', qt:14688, qtSR:null, slug:'constellation-carousel'},
+  {id:'dragon-rally', name:"Dragon Racer's Rally", land:'berk', lat:28.4414496, lng:-81.445343, tier:'chill', extreme:1, exp:2, desc:"אטרקציית ילדים עדינה.", img:'assets/img/chronos-tower.jpg', qt:14693, qtSR:null, slug:'dragon-racers-rally'},
+  {id:'yoshi', name:"Yoshi's Adventure", land:'nintendo', lat:28.4388954, lng:-81.4482496, tier:'chill', extreme:1, exp:2, desc:"אטרקציית ילדים קלילה בסופר נינטנדו וורלד.", img:'assets/img/vip-entrance.jpg', qt:14689, qtSR:null, slug:'yoshis-adventure'},
+  {id:'bowser-jr', name:"Bowser Jr. Challenge", land:'nintendo', lat:28.4390, lng:-81.4479, tier:'chill', extreme:1, exp:2, desc:"אזור משחק אינטראקטיבי לילדים.", img:'assets/img/vip-entrance.jpg', qt:14682, qtSR:null, slug:'bowser-jr-challenge'},
+  {id:'astronomica', name:"Astronomica", land:'celestial', lat:28.4407755, lng:-81.4479429, tier:'chill', extreme:1, exp:2, desc:"אזור מים אינטראקטיבי — מעולה להתקרר בשיא החום.", img:'assets/img/destinations-sign.jpg', qt:null, qtSR:null, slug:'astronomica'},
+  {id:'viking-camp', name:"Viking Training Camp", land:'berk', lat:28.4411238, lng:-81.4460185, tier:'chill', extreme:1, exp:2, desc:"מתחם משחק וטיפוס לילדים.", img:'assets/img/chronos-tower.jpg', qt:null, qtSR:null, slug:'viking-training-camp'},
+  {id:'meet-toothless', name:"Meet Toothless and Friends", land:'berk', lat:28.439842, lng:-81.4448596, tier:'chill', extreme:1, exp:3, desc:"מפגש דמויות עם טות'לס וחברים.", img:'assets/img/isle-of-berk.jpg', qt:14685, qtSR:null, slug:'meet-toothless-hiccup'},
+  {id:'cirque-arcanus', name:"Le Cirque Arcanus", land:'ministry', lat:28.4433478, lng:-81.4477539, tier:'show', extreme:0, exp:3.5, desc:"מופע קרקס-קסמים אינטימי.", img:'assets/img/destinations-sign.jpg', qt:null, qtSR:null, slug:'cirque-arcanus'},
+  {id:'darkmoor', name:"Darkmoor Monster Makeup Experience", land:'dark-universe', lat:28.4405971, lng:-81.4496669, tier:'show', extreme:0, exp:3, desc:"חוויית איפור מפלצות אינטראקטיבית.", img:'assets/img/dark-universe-portal.jpg', qt:null, qtSR:null, slug:'darkmoor-monster-makeup-experience'},
+  {id:'untrainable-dragon', name:"The Untrainable Dragon", land:'berk', lat:28.4395805, lng:-81.444646, tier:'show', extreme:0, exp:4, desc:"המופע הגדול ביותר בפארק.", img:'assets/img/isle-of-berk-2.jpg', qt:null, qtSR:null, slug:'untrainable-dragon'},
+  {id:'celestial-goodnight', name:"Universal Celestial Goodnight", land:'celestial', lat:28.4404, lng:-81.4468, tier:'show', extreme:0, exp:5, desc:"מופע סיום לילי — מזרקות, אור וזיקוקים. לא לפספס!", img:'assets/img/stardust-racers-twilight.jpg', qt:null, qtSR:null, slug:'universal-celestial-goodnight'},
 ];
 
 const HOTEL = [28.4520039, -81.4677475];
 const PARK_ENTRANCE = [28.4386432, -81.4457939];
+const PARK_OPEN_MIN = 9*60, PARK_CLOSE_MIN = 21*60;
 
 const CROWD_HOURS = [9,10,11,12,13,14,15,16,17,18,19,20,21];
 const CROWD_PATTERNS = {
@@ -276,17 +418,93 @@ const CROWD_PATTERNS = {
   mid:   [1,2,3,3,4,4,3,3,3,2,2,2,1],
   chill: [1,1,1,2,2,2,2,2,2,1,1,1,1],
 };
-
+const DURATION_DEFAULT = {top:45, mid:25, chill:12, show:25};
 const TIER_LABELS = {top:'🔥 שכבה עליונה', mid:'⭐ שכבה בינונית', chill:'😌 רגוע', show:'🎭 מופעים'};
 const TIER_ORDER = ['top','mid','chill','show'];
+const PROXIES = [
+  url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url) + '&_=' + Date.now(),
+  url => 'https://cors.eu.org/' + url,
+];
 
 /* ===================== STATE ===================== */
-let activeLand = 'all';
-let activeTier = 'all';
-let viewMode = 'tier';
-let searchText = '';
-let userLatLng = null;
-let liveQueueMap = {};
+let activeLand='all', activeTier='all', viewMode='tier', searchText='';
+let userLatLng=null, liveQueueMap={};
+let visited = new Set(JSON.parse(localStorage.getItem('epicVisited')||'[]'));
+
+/* ===================== TABS ===================== */
+function switchTab(tab){
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+tab));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
+  localStorage.setItem('epicActiveTab', tab);
+  if (tab==='map') setTimeout(() => map.invalidateSize(), 60);
+  window.scrollTo({top:0, behavior:'instant'});
+}
+document.getElementById('tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (btn) switchTab(btn.dataset.tab);
+});
+
+/* ===================== HELPERS ===================== */
+function haversine(lat1, lon1, lat2, lon2){
+  const R = 6371000, toRad = d => d*Math.PI/180;
+  const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return R * 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function walkMinutes(distMeters){ return Math.max(1, Math.round((distMeters*1.25)/75)); }
+function fmtDist(m){ return m < 1000 ? Math.round(m)+' מ׳' : (m/1000).toFixed(1)+' ק"מ'; }
+function fmtClock(mins){
+  mins = ((mins % 1440) + 1440) % 1440;
+  const h = Math.floor(mins/60), m = Math.round(mins%60);
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+}
+function gmapsLink(lat,lng){ return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`; }
+function tpLink(slug){ return `https://touringplans.com/epic-universe/attractions/${slug}`; }
+function bars(value, max, cls){
+  let html=''; for(let i=1;i<=max;i++) html += `<span class="bar ${i<=value?'on '+cls:''}"></span>`;
+  return html;
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._h);
+  toast._h = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function saveVisited(){ localStorage.setItem('epicVisited', JSON.stringify([...visited])); }
+function toggleVisited(id){
+  if (visited.has(id)) visited.delete(id); else visited.add(id);
+  saveVisited(); renderAll();
+}
+
+function crowdChartHtml(tier){
+  if (tier === 'show') return '<p class="crowd-caption">מופע מתוזמן — בדקו שעות באפליקציה</p>';
+  const pattern = CROWD_PATTERNS[tier];
+  const bars2 = pattern.map((v,i) => {
+    const colors = ['#3ddc97','#3ddc97','#ffcf5c','#ffcf5c','#ff5c6a'];
+    return `<span class="chour" style="height:${v*4+4}px;background:${colors[v-1]||'#3ddc97'}" title="שעה ${CROWD_HOURS[i]}:00"></span>`;
+  }).join('');
+  return `<div class="crowd-chart">${bars2}</div><div class="crowd-caption">מגמת עומס משוערת (הערכה, לא נתון רשמי)</div>`;
+}
+function liveInfo(ride){
+  // returns {open:bool|null, wait:number|null}
+  if (ride.qt == null) return {open:null, wait:null};
+  const main = liveQueueMap[ride.qt];
+  if (!main) return {open:null, wait:null};
+  return {open: !!main.is_open, wait: main.wait_time||0};
+}
+function waitBadgeHtml(ride){
+  if (ride.qt == null) return '';
+  const li = liveInfo(ride);
+  if (li.open === null) return '<span class="badge-wait closed">⏳ אין נתון חי</span>';
+  if (!li.open) return '<span class="badge-wait closed">🔴 סגור כרגע</span>';
+  const cls = li.wait <= 20 ? 'low' : (li.wait <= 45 ? 'mid' : 'high');
+  let html = `<span class="badge-wait ${cls}">🟢 ${li.wait} דק'</span>`;
+  if (ride.qtSR != null){
+    const sr = liveQueueMap[ride.qtSR];
+    if (sr && sr.is_open) html += ` <span class="badge-wait low">🎫 SR: ${sr.wait_time||0} דק'</span>`;
+  }
+  return html;
+}
 
 /* ===================== MAP INIT ===================== */
 const map = L.map('map', {scrollWheelZoom:false}).setView([28.448, -81.458], 15);
@@ -302,14 +520,10 @@ L.marker(PARK_ENTRANCE, {icon: entranceIcon}).addTo(map).bindPopup('<b>Universal
 L.marker(HOTEL, {icon: hotelIcon}).addTo(map).bindPopup('<b>המלון שלכם</b><br>7601 Canada Avenue, Orlando, FL');
 L.polyline([HOTEL, PARK_ENTRANCE], {color:'#ffcf5c', weight:3, dashArray:'6,8', opacity:.8}).addTo(map);
 
-// Land zones (approximate circles)
 Object.entries(LANDS).forEach(([key, land]) => {
-  L.circle([land.lat, land.lng], {
-    radius: land.radius, color: land.color, weight: 2, fillColor: land.color, fillOpacity: 0.10
-  }).addTo(map).bindTooltip(land.name, {permanent:true, direction:'center', className:'', opacity:0.85});
+  L.circle([land.lat, land.lng], {radius: land.radius, color: land.color, weight: 2, fillColor: land.color, fillOpacity: 0.10})
+    .addTo(map).bindTooltip(land.name, {permanent:true, direction:'center', opacity:0.85});
 });
-
-// Build legend for zones dynamically
 const legendEl = document.getElementById('map-legend');
 Object.values(LANDS).forEach(land => {
   const span = document.createElement('span');
@@ -326,60 +540,9 @@ RIDES.forEach(r => {
   marker.bindPopup(`<b>${r.name}</b><br>${LANDS[r.land].name}`);
   rideMarkers[r.id] = marker;
 });
-
 let userMarker = null;
 
-/* ===================== HELPERS ===================== */
-function haversine(lat1, lon1, lat2, lon2){
-  const R = 6371000;
-  const toRad = d => d*Math.PI/180;
-  const dLat = toRad(lat2-lat1);
-  const dLon = toRad(lon2-lon1);
-  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
-  return R * 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-function walkMinutes(distMeters){
-  return Math.max(1, Math.round((distMeters*1.25)/75)); // ~4.5km/h + 25% path overhead
-}
-function fmtDist(m){
-  return m < 1000 ? Math.round(m)+' מ׳' : (m/1000).toFixed(1)+' ק"מ';
-}
-function bars(value, max, cls){
-  let html = '';
-  for(let i=1;i<=max;i++){
-    html += `<span class="bar ${i<=value?'on '+cls:''}"></span>`;
-  }
-  return html;
-}
-function crowdChartHtml(tier){
-  if (tier === 'show') return '<p class="crowd-caption">מופע מתוזמן — בדקו שעות באפליקציה</p>';
-  const pattern = CROWD_PATTERNS[tier];
-  const bars2 = pattern.map((v,i) => {
-    const colors = ['#3ddc97','#3ddc97','#ffcf5c','#ffcf5c','#ff5c6a'];
-    const color = colors[v-1] || '#3ddc97';
-    return `<span class="chour" style="height:${v*4+4}px;background:${color}" title="שעה ${CROWD_HOURS[i]}:00"></span>`;
-  }).join('');
-  return `<div class="crowd-chart">${bars2}</div><div class="crowd-caption">מגמת עומס משוערת 9:00–21:00 (הערכה כללית, לא נתון רשמי)</div>`;
-}
-function waitBadgeHtml(ride){
-  if (ride.qt == null) return '';
-  const main = liveQueueMap[ride.qt];
-  const sr = ride.qtSR != null ? liveQueueMap[ride.qtSR] : null;
-  if (!main) return '<span class="badge-wait closed">⏳ אין נתון חי</span>';
-  if (!main.is_open) {
-    let html = '<span class="badge-wait closed">🔴 סגור כרגע</span>';
-    return html;
-  }
-  const w = main.wait_time || 0;
-  const cls = w <= 20 ? 'low' : (w <= 45 ? 'mid' : 'high');
-  let html = `<span class="badge-wait ${cls}">🟢 ${w} דק' המתנה</span>`;
-  if (sr && sr.is_open) {
-    html += ` <span class="badge-wait low">🎫 SR: ${sr.wait_time||0} דק'</span>`;
-  }
-  return html;
-}
-
-/* ===================== FILTER + RENDER ===================== */
+/* ===================== RIDES RENDER ===================== */
 function ridePasses(r){
   if (activeLand !== 'all' && r.land !== activeLand) return false;
   if (activeTier !== 'all' && r.tier !== activeTier) return false;
@@ -389,13 +552,14 @@ function ridePasses(r){
   }
   return true;
 }
-
 function rideCardHtml(r){
   const dist = userLatLng ? haversine(userLatLng[0], userLatLng[1], r.lat, r.lng) : null;
-  const distBadge = dist != null ? `<span class="badge-dist">🚶 ${fmtDist(dist)} · ${walkMinutes(dist)} דק' הליכה</span>` : '';
+  const distBadge = dist != null ? `<span class="badge-dist">🚶 ${fmtDist(dist)} · ${walkMinutes(dist)} דק'</span>` : '';
   const extremeRow = r.tier === 'show' ? '' : `<div class="score">אקסטרים<b>${r.extreme}/5</b><div class="bars">${bars(r.extreme,5,'extreme')}</div></div>`;
+  const isVisited = visited.has(r.id);
   return `
-  <div class="ride" data-id="${r.id}">
+  <div class="ride ${isVisited?'visited':''}" data-id="${r.id}">
+    <button class="visit-toggle ${isVisited?'on':''}" onclick="toggleVisited('${r.id}')" title="סמנו הייתי כאן">${isVisited?'✓':'⭕'}</button>
     <img src="${r.img}" alt="${r.name}" loading="lazy">
     <div class="body">
       <h3>${r.name}</h3>
@@ -408,25 +572,23 @@ function rideCardHtml(r){
       ${crowdChartHtml(r.tier)}
       <div class="badge-row">
         ${waitBadgeHtml(r)}
-        ${r.qtSR!=null ? '<span class="badge-sr">🎫 יש Single Rider</span>' : ''}
+        ${r.qtSR!=null ? '<span class="badge-sr">🎫 Single Rider</span>' : ''}
         ${distBadge}
+      </div>
+      <div class="link-row">
+        <a class="link-btn" href="${tpLink(r.slug)}" target="_blank" rel="noopener">ℹ️ מידע נוסף</a>
+        <a class="link-btn" href="${gmapsLink(r.lat,r.lng)}" target="_blank" rel="noopener">🧭 ניווט</a>
       </div>
     </div>
   </div>`;
 }
-
 function renderRides(){
   const container = document.getElementById('rides-container');
   const filtered = RIDES.filter(ridePasses);
   document.getElementById('count-note').textContent = `מציג ${filtered.length} מתוך ${RIDES.length} מתקנים`;
-
   let groups = {};
-  if (viewMode === 'tier'){
-    TIER_ORDER.forEach(t => groups[t] = filtered.filter(r => r.tier === t));
-  } else {
-    Object.keys(LANDS).forEach(l => groups[l] = filtered.filter(r => r.land === l));
-  }
-
+  if (viewMode === 'tier') TIER_ORDER.forEach(t => groups[t] = filtered.filter(r => r.tier === t));
+  else Object.keys(LANDS).forEach(l => groups[l] = filtered.filter(r => r.land === l));
   let html = '';
   Object.entries(groups).forEach(([key, rides]) => {
     if (!rides.length) return;
@@ -437,12 +599,7 @@ function renderRides(){
     html += `</div></div>`;
   });
   container.innerHTML = html || '<p class="lead">לא נמצאו מתקנים תואמים לסינון.</p>';
-
-  // dim/undim map markers based on filter
-  RIDES.forEach(r => {
-    const marker = rideMarkers[r.id];
-    marker.setOpacity(ridePasses(r) ? 1 : 0.15);
-  });
+  RIDES.forEach(r => rideMarkers[r.id].setOpacity(ridePasses(r) ? 1 : 0.15));
 }
 
 function renderNearby(){
@@ -450,119 +607,269 @@ function renderNearby(){
   if (!userLatLng){ panel.innerHTML=''; return; }
   const withDist = RIDES.map(r => ({r, d: haversine(userLatLng[0], userLatLng[1], r.lat, r.lng)}));
   withDist.sort((a,b) => a.d - b.d);
-  const top = withDist.slice(0, 6);
   let html = '<div class="lead" style="margin-bottom:6px">🚶 המתקנים הקרובים אליכם:</div><div class="nearby-list">';
-  top.forEach(({r,d}) => {
-    html += `<div class="nearby-item"><b>${r.name}</b><span>${LANDS[r.land].name}</span><br><span class="dist">${fmtDist(d)} · ${walkMinutes(d)} דק' הליכה</span></div>`;
+  withDist.slice(0,6).forEach(({r,d}) => {
+    html += `<div class="nearby-item"><b>${r.name}</b><span>${LANDS[r.land].name}</span><br><span class="dist">${fmtDist(d)} · ${walkMinutes(d)} דק'</span></div>`;
   });
-  html += '</div>';
-  panel.innerHTML = html;
+  panel.innerHTML = html + '</div>';
 }
 
-/* ===================== LIVE QUEUE FETCH ===================== */
+function renderNextUp(){
+  const pool = RIDES.filter(r => !visited.has(r.id));
+  const tierScore = {top:3, mid:2, chill:1, show:1.5};
+  pool.sort((a,b) => {
+    const sa = tierScore[a.tier], sb = tierScore[b.tier];
+    if (sb !== sa) return sb - sa;
+    const wa = liveInfo(a).wait, wb = liveInfo(b).wait;
+    if (wa!=null && wb!=null) return wa - wb;
+    return 0;
+  });
+  const top3 = pool.slice(0,3);
+  const el = document.getElementById('next-list');
+  if (!top3.length){ el.innerHTML = '<p class="lead">כל הכבוד — סימנתם שהייתם בכל המתקנים! 🎉</p>'; return; }
+  el.innerHTML = top3.map(r => {
+    const li = liveInfo(r);
+    const waitTxt = li.open===false ? '🔴 סגור' : (li.wait!=null ? `🟢 ${li.wait} דק'` : '');
+    return `<div class="next-item"><div><div class="n-name">${r.name}</div><div class="n-land">${LANDS[r.land].name}</div></div><div>${waitTxt}</div></div>`;
+  }).join('');
+}
+
+/* ===================== VISITED CHIPS (Planner tab) ===================== */
+function renderVisitedChips(){
+  const el = document.getElementById('visited-chips');
+  el.innerHTML = RIDES.map(r => `<span class="vchip ${visited.has(r.id)?'on':''}" data-id="${r.id}">${visited.has(r.id)?'✓ ':''}${r.name}</span>`).join('');
+}
+document.getElementById('visited-chips').addEventListener('click', e => {
+  const chip = e.target.closest('.vchip');
+  if (chip) toggleVisited(chip.dataset.id);
+});
+document.getElementById('reset-visited-btn').addEventListener('click', () => {
+  visited.clear(); saveVisited(); renderAll(); toast('אופס — הרשימה התאפסה');
+});
+
+/* ===================== STATUS BAR (clock / park open / progress) ===================== */
+function orlandoNow(){ return new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'})); }
+function updateStatusBar(){
+  const d = orlandoNow();
+  const mins = d.getHours()*60 + d.getMinutes();
+  document.getElementById('orlando-clock').textContent = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  const chip = document.getElementById('park-status-chip');
+  const txt = document.getElementById('park-status-text');
+  if (mins < PARK_OPEN_MIN){
+    const left = PARK_OPEN_MIN - mins;
+    txt.textContent = `נפתח בעוד ${Math.floor(left/60)}ש${left%60}ד`;
+    chip.style.opacity = 1;
+  } else if (mins < PARK_CLOSE_MIN){
+    const left = PARK_CLOSE_MIN - mins;
+    txt.textContent = `פתוח · נסגר בעוד ${Math.floor(left/60)}ש${left%60}ד`;
+  } else {
+    txt.textContent = 'הפארק סגור כרגע';
+  }
+  const progress = Math.round((visited.size/RIDES.length)*100);
+  document.getElementById('progress-text').textContent = `${visited.size}/${RIDES.length}`;
+  document.getElementById('progress-fill').style.width = progress+'%';
+}
+
+/* ===================== LIVE QUEUE FETCH (multi-proxy fallback) ===================== */
+async function fetchWithTimeout(url, ms){
+  const controller = new AbortController();
+  const t = setTimeout(()=>controller.abort(), ms);
+  try { return await fetch(url, {signal: controller.signal, cache:'no-store'}); }
+  finally { clearTimeout(t); }
+}
 async function fetchLiveQueue(){
   const statusEl = document.getElementById('live-status');
+  const dot = document.getElementById('live-dot');
+  const dotText = document.getElementById('live-dot-text');
   statusEl.textContent = '⏳ טוען זמני המתנה חיים...';
-  try {
-    const target = 'https://queue-times.com/parks/334/queue_times.json';
-    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(target) + '&_=' + Date.now();
-    const controller = new AbortController();
-    const t = setTimeout(()=>controller.abort(), 12000);
-    const res = await fetch(proxyUrl, {signal: controller.signal, cache:'no-store'});
-    clearTimeout(t);
-    if (!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
-    const map2 = {};
-    (data.lands||[]).forEach(land => (land.rides||[]).forEach(r => { map2[r.id] = r; }));
-    (data.rides||[]).forEach(r => { map2[r.id] = r; });
-    liveQueueMap = map2;
-    let latest = null;
-    Object.values(map2).forEach(r => { if (r.last_updated && (!latest || r.last_updated > latest)) latest = r.last_updated; });
-    const latestLocal = latest ? new Date(latest).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', timeZone:'America/New_York'}) : null;
-    statusEl.textContent = latestLocal ? ('🟢 זמני המתנה חיים · עודכן ' + latestLocal + ' (שעון אורלנדו) · queue-times.com') : '🟢 זמני המתנה חיים נטענו';
-    renderRides();
-  } catch(e){
-    statusEl.textContent = '⚠️ לא ניתן לטעון זמני המתנה חיים כרגע (הפארק כנראה סגור עכשיו, או שירות הביניים עמוס). מוצג דירוג ומגמת עומס כללית בלבד. נסו לרענן.';
-    console.warn('live queue fetch failed', e);
+  const target = 'https://queue-times.com/parks/334/queue_times.json';
+  for (const makeUrl of PROXIES){
+    try {
+      const res = await fetchWithTimeout(makeUrl(target), 9000);
+      if (!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json();
+      const map2 = {};
+      (data.lands||[]).forEach(land => (land.rides||[]).forEach(r => { map2[r.id] = r; }));
+      (data.rides||[]).forEach(r => { map2[r.id] = r; });
+      liveQueueMap = map2;
+      let latest = null;
+      Object.values(map2).forEach(r => { if (r.last_updated && (!latest || r.last_updated > latest)) latest = r.last_updated; });
+      const latestLocal = latest ? new Date(latest).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', timeZone:'America/New_York'}) : null;
+      statusEl.textContent = latestLocal ? ('עודכן ' + latestLocal + ' (שעון אורלנדו) · queue-times.com') : 'זמני המתנה נטענו';
+      dot.classList.add('on'); dot.classList.remove('off');
+      dotText.textContent = 'זמני המתנה חיים';
+      renderAll();
+      return;
+    } catch(e){ console.warn('proxy failed', e); }
   }
+  statusEl.textContent = '⚠️ לא ניתן לטעון זמני המתנה חיים כרגע. מוצגת מגמת עומס כללית בלבד.';
+  dot.classList.add('off'); dot.classList.remove('on');
+  dotText.textContent = 'אין חיבור חי';
 }
 
 /* ===================== GEOLOCATION ===================== */
 function locateMe(){
   const statusEl = document.getElementById('locate-status');
-  if (!navigator.geolocation){
-    statusEl.textContent = '⚠️ הדפדפן לא תומך באיתור מיקום.';
-    return;
-  }
+  if (!navigator.geolocation){ statusEl.textContent = '⚠️ הדפדפן לא תומך באיתור מיקום.'; return; }
   statusEl.textContent = '📍 מאתר מיקום...';
   navigator.geolocation.getCurrentPosition(pos => {
     userLatLng = [pos.coords.latitude, pos.coords.longitude];
-    statusEl.textContent = '✅ מיקום אותר — מרחקים וזמני הליכה מוצגים למטה ועל כרטיסי המתקנים.';
+    statusEl.textContent = '✅ מיקום אותר — מרחקים וזמני הליכה מוצגים למטה ובכרטיסי המתקנים.';
     if (userMarker) map.removeLayer(userMarker);
     userMarker = L.marker(userLatLng, {icon:userIcon}).addTo(map).bindPopup('📍 אתם כאן').openPopup();
     map.setView(userLatLng, 16);
-    renderNearby();
-    renderRides();
+    document.getElementById('pl-uselocation').checked = true;
+    renderAll();
   }, err => {
-    statusEl.textContent = '⚠️ לא הצלחנו לאתר מיקום (' + (err.message||'הרשאה נדחתה') + '). ודאו שאישרתם גישה למיקום בדפדפן.';
+    statusEl.textContent = '⚠️ לא הצלחנו לאתר מיקום (' + (err.message||'הרשאה נדחתה') + ').';
   }, {enableHighAccuracy:true, timeout:12000});
 }
+document.getElementById('locate-btn').addEventListener('click', locateMe);
 
-/* ===================== UI WIRING ===================== */
+/* ===================== ROUTE PLANNER ===================== */
+function normalize(v,max){ return Math.max(0, Math.min(1, v/max)); }
+
+function buildPlan(){
+  const startStr = document.getElementById('pl-start').value || '09:00';
+  const [sh, sm] = startStr.split(':').map(Number);
+  let clock = sh*60 + sm;
+  const budget = parseFloat(document.getElementById('pl-hours').value) * 60;
+  let remaining = budget;
+  const thrillWeight = parseInt(document.getElementById('pl-thrill').value,10) / 100;
+  const includeShows = document.getElementById('pl-shows').checked;
+  const useLocation = document.getElementById('pl-uselocation').checked && userLatLng;
+
+  let current = useLocation ? userLatLng : PARK_ENTRANCE;
+  let pool = RIDES.filter(r => (includeShows || r.tier !== 'show') && !visited.has(r.id));
+
+  const plan = [];
+  let guard = 0;
+  while (remaining > 0 && pool.length && guard < 25){
+    guard++;
+    let best=null, bestScore=-Infinity, bestWalk=0, bestDuration=0, bestDist=0;
+    for (const r of pool){
+      const li = liveInfo(r);
+      if (li.open === false) continue; // closed now, skip
+      const dist = haversine(current[0], current[1], r.lat, r.lng);
+      const walkMin = walkMinutes(dist);
+      const duration = r.tier==='show' ? 25 : (li.wait!=null ? li.wait+5 : DURATION_DEFAULT[r.tier]);
+      const totalNeeded = walkMin + duration;
+      if (totalNeeded > remaining + 15) continue;
+      const prefScore = thrillWeight*normalize(r.extreme,5) + (1-thrillWeight)*normalize(r.exp,5);
+      const score = prefScore*100 - walkMin*3 - duration*0.4;
+      if (score > bestScore){ bestScore=score; best=r; bestWalk=walkMin; bestDuration=duration; bestDist=dist; }
+    }
+    if (!best) break;
+    const arrive = clock + bestWalk;
+    const done = arrive + bestDuration;
+    plan.push({ride:best, walkMin:bestWalk, duration:bestDuration, arrive, done, dist:bestDist});
+    clock = done;
+    remaining -= (bestWalk + bestDuration);
+    current = [best.lat, best.lng];
+    pool = pool.filter(r => r.id !== best.id);
+  }
+  return plan;
+}
+
+function renderPlan(){
+  const plan = buildPlan();
+  const out = document.getElementById('plan-output');
+  if (!plan.length){
+    out.innerHTML = '<div class="card"><p class="lead">לא נמצא מסלול — נסו להגדיל את הזמן הפנוי, לכלול מופעים, או לאפס חלק מ"הייתי כאן".</p></div>';
+    return;
+  }
+  const totalWalk = plan.reduce((s,p)=>s+p.walkMin,0);
+  const endClock = plan[plan.length-1].done;
+  let html = `<div class="card">
+    <div class="plan-summary">
+      <span>🎢 <b>${plan.length}</b> מתקנים</span>
+      <span>🚶 <b>${totalWalk}</b> דק' הליכה מצטבר</span>
+      <span>🏁 סיום משוער <b>${fmtClock(endClock)}</b></span>
+    </div>
+    <ol class="plan">`;
+  plan.forEach(p => {
+    const r = p.ride;
+    html += `<li>
+      <div class="time">${fmtClock(p.arrive)}–${fmtClock(p.done)}</div>
+      <h4>${r.name} <span class="badge-sr" style="font-size:10.5px">${LANDS[r.land].name}</span></h4>
+      <p>🚶 ${p.walkMin} דק' הליכה (${fmtDist(p.dist)}) · ⏱️ ${p.duration} דק' בפנים${r.tier!=='show' ? ' (כולל המתנה)' : ''}</p>
+      <a class="plink" href="${gmapsLink(r.lat,r.lng)}" target="_blank" rel="noopener">🧭 ניווט ב-Google Maps</a>
+    </li>`;
+  });
+  html += `</ol>
+    <div class="planner-actions">
+      <button class="btn secondary small" id="copy-plan-btn">📋 העתקה כטקסט לוואטסאפ</button>
+    </div>
+  </div>`;
+  out.innerHTML = html;
+
+  document.getElementById('copy-plan-btn').addEventListener('click', () => {
+    let text = `*Epic Universe — המסלול שלנו*\n`;
+    plan.forEach((p,i) => { text += `${i+1}. ${fmtClock(p.arrive)} ${p.ride.name} (${LANDS[p.ride.land].name}) — ${p.duration} דק'\n`; });
+    text += `\nסיום משוער: ${fmtClock(endClock)} · סה"כ הליכה: ${totalWalk} דק'`;
+    navigator.clipboard.writeText(text).then(()=>toast('הועתק! מוכן להדבקה בוואטסאפ 📋')).catch(()=>toast('לא הצלחנו להעתיק אוטומטית'));
+  });
+}
+document.getElementById('build-plan-btn').addEventListener('click', renderPlan);
+
+/* planner UI live labels */
+document.getElementById('pl-hours').addEventListener('input', e => { document.getElementById('pl-hours-val').textContent = e.target.value; });
+document.getElementById('pl-thrill').addEventListener('input', e => {
+  const v = parseInt(e.target.value,10);
+  const label = v<34 ? 'רגוע/משפחתי 😌' : (v<67 ? 'מאוזן ⚖️' : 'אקסטרים 🔥');
+  document.getElementById('pl-thrill-val').textContent = label;
+});
+
+/* ===================== TOOLBAR WIRING (Rides tab) ===================== */
 function buildChips(){
   const landChips = document.getElementById('land-chips');
   const allLandChip = document.createElement('span');
-  allLandChip.className = 'chip active';
-  allLandChip.textContent = 'הכל';
-  allLandChip.dataset.land = 'all';
+  allLandChip.className='chip active'; allLandChip.textContent='הכל'; allLandChip.dataset.land='all';
   landChips.appendChild(allLandChip);
   Object.entries(LANDS).forEach(([key, land]) => {
     const chip = document.createElement('span');
-    chip.className = 'chip';
-    chip.textContent = land.name;
-    chip.dataset.land = key;
+    chip.className='chip'; chip.textContent=land.name; chip.dataset.land=key;
     landChips.appendChild(chip);
   });
   landChips.addEventListener('click', e => {
     if (!e.target.dataset.land) return;
     activeLand = e.target.dataset.land;
-    [...landChips.children].forEach(c => c.classList.toggle('active', c === e.target));
+    [...landChips.children].forEach(c => c.classList.toggle('active', c===e.target));
     renderRides();
   });
 
   const tierChips = document.getElementById('tier-chips');
   const allTierChip = document.createElement('span');
-  allTierChip.className = 'chip active';
-  allTierChip.textContent = 'הכל';
-  allTierChip.dataset.tier = 'all';
+  allTierChip.className='chip active'; allTierChip.textContent='הכל'; allTierChip.dataset.tier='all';
   tierChips.appendChild(allTierChip);
   Object.entries(TIER_LABELS).forEach(([key, label]) => {
     const chip = document.createElement('span');
-    chip.className = 'chip';
-    chip.textContent = label;
-    chip.dataset.tier = key;
+    chip.className='chip'; chip.textContent=label; chip.dataset.tier=key;
     tierChips.appendChild(chip);
   });
   tierChips.addEventListener('click', e => {
     if (!e.target.dataset.tier) return;
     activeTier = e.target.dataset.tier;
-    [...tierChips.children].forEach(c => c.classList.toggle('active', c === e.target));
+    [...tierChips.children].forEach(c => c.classList.toggle('active', c===e.target));
     renderRides();
   });
 }
-
-document.getElementById('search-input').addEventListener('input', e => {
-  searchText = e.target.value.trim().toLowerCase();
-  renderRides();
-});
-document.getElementById('locate-btn').addEventListener('click', locateMe);
+document.getElementById('search-input').addEventListener('input', e => { searchText = e.target.value.trim().toLowerCase(); renderRides(); });
 document.getElementById('view-tier-btn').addEventListener('click', () => { viewMode='tier'; renderRides(); });
 document.getElementById('view-land-btn').addEventListener('click', () => { viewMode='land'; renderRides(); });
 
+/* ===================== INIT ===================== */
+function renderAll(){
+  renderRides(); renderNearby(); renderNextUp(); renderVisitedChips(); updateStatusBar();
+}
 buildChips();
-renderRides();
+renderAll();
 fetchLiveQueue();
-setInterval(fetchLiveQueue, 120000); // refresh every 2 minutes
+setInterval(fetchLiveQueue, 120000);
+setInterval(updateStatusBar, 30000);
+
+const savedTab = localStorage.getItem('epicActiveTab');
+if (savedTab) switchTab(savedTab);
 </script>
 
 </body>
