@@ -234,9 +234,10 @@
   .map-search input{width:100%;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:inherit;font-size:12.5px;padding:5px}
   .map-search input::placeholder{color:var(--muted)}
   .map-zoom-hint{position:absolute;bottom:12px;inset-inline-start:12px;z-index:500;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:10px;padding:6px 9px;color:var(--muted);font-size:11px;box-shadow:0 4px 14px rgba(0,0,0,.12);pointer-events:none}
-  .map-ride-label{display:none;background:transparent!important;border:0!important;border-radius:0!important;color:#fff;font-size:10.5px;font-weight:800;padding:0;margin-top:0;box-shadow:none!important;white-space:nowrap;pointer-events:auto;cursor:pointer;text-shadow:0 1px 2px #000,1px 0 2px #000,-1px 0 2px #000;line-height:1.25;transform:none}
-  .map-ride-label.is-visible{display:block}
-  .map-ride-label:before{display:none}
+  .ride-marker-wrap{width:180px;min-height:30px;display:flex;flex-direction:column;align-items:center;pointer-events:auto;cursor:pointer}
+  .ride-marker-dot{width:10px;height:10px;flex:0 0 10px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.3)}
+  .map-ride-label{display:none;margin-top:3px;color:#fff;font-size:10.5px;font-weight:800;line-height:1.2;white-space:nowrap;pointer-events:auto;cursor:pointer;text-shadow:0 1px 2px #000,1px 0 2px #000,-1px 0 2px #000}
+  .ride-marker-wrap.is-visible .map-ride-label{display:block}
   .leaflet-control-zoom{border:1px solid var(--border-strong)!important;box-shadow:0 4px 14px rgba(0,0,0,.14)!important}
   .leaflet-control-zoom a{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}
   .leaflet-control-attribution{background:var(--head-bg)!important;color:var(--muted)!important}
@@ -871,22 +872,15 @@ function mapPopupHtml(r){
 }
 RIDES.forEach(r => {
   const color = TIER_MARKER_COLOR[r.tier];
-  const icon = L.divIcon({className:'', html:`<div style="background:${color};width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.3)"></div>`, iconSize:[14,14], iconAnchor:[7,7], tooltipAnchor:[0,7]});
+  const icon = L.divIcon({className:'ride-marker-icon', html:`<div class="ride-marker-wrap"><div class="ride-marker-dot" style="background:${color}"></div><div class="map-ride-label" role="button" tabindex="0" aria-label="פתיחת פרטי ${r.name}">${r.name}</div></div>`, iconSize:[180,30], iconAnchor:[90,7]});
   const marker = L.marker([r.lat, r.lng], {icon}).addTo(rideLayer);
-  marker.bindTooltip(r.name, {permanent:false, direction:'bottom', offset:[0,0], className:'map-ride-label', sticky:false, opacity:.98, interactive:true});
-  marker.on('mouseover', () => { if (map.getZoom() >= 16) marker.openTooltip(); });
-  marker.on('mouseout', () => marker.closeTooltip());
   marker.bindPopup(mapPopupHtml(r));
-  marker.on('tooltipopen', e => {
-    const tip = e.tooltip.getElement();
-    if (tip) {
-      tip.classList.toggle('is-visible', map.getZoom() >= 16);
-      tip.setAttribute('role','button');
-      tip.setAttribute('tabindex','0');
-      tip.setAttribute('aria-label',`פתיחת פרטי ${r.name}`);
-      tip.onclick = () => marker.openPopup();
-      tip.onkeydown = ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); marker.openPopup(); } };
-    }
+  marker.on('click', () => marker.openPopup());
+  marker.on('add', () => {
+    const wrap = marker.getElement()?.querySelector('.ride-marker-wrap');
+    if (!wrap) return;
+    wrap.addEventListener('click', ev => { ev.stopPropagation(); marker.openPopup(); });
+    wrap.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); marker.openPopup(); } });
   });
   rideMarkers[r.id] = marker;
 });
@@ -897,10 +891,8 @@ function updateRideLabels(){
   RIDES.forEach(r => {
     const marker = rideMarkers[r.id];
     if (!marker) return;
-    const tip = marker.getTooltip()?.getElement();
-    if (!show) marker.closeTooltip();
-    if (tip) tip.classList.toggle('is-visible', show);
-    if (show && !marker.isTooltipOpen()) marker.openTooltip();
+    const wrap = marker.getElement()?.querySelector('.ride-marker-wrap');
+    if (wrap) wrap.classList.toggle('is-visible', show);
   });
 }
 map.on('zoomend', updateRideLabels);
