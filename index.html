@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Epic Universe — מדריך ליום אחד | דניאל וחברים</title>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  :root{
+    --bg:#0b1020; --panel:#131a33; --panel2:#1a2340; --accent:#7c5cff; --accent2:#ff5c8a;
+    --gold:#ffcf5c; --text:#eef0ff; --muted:#a7aed6; --green:#3ddc97; --red:#ff5c6a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#090c1a,#0b1020 400px,#0b1020);color:var(--text);
+       font-family:'Segoe UI',Arial,Helvetica,sans-serif;line-height:1.6}
+  a{color:var(--gold)}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+  header.hero{position:relative;min-height:56vh;display:flex;align-items:flex-end;
+    background:linear-gradient(180deg,rgba(9,12,26,.15),rgba(9,12,26,.95)),url('assets/img/hero-entrance.jpg') center/cover no-repeat;}
+  header.hero .wrap{padding-bottom:36px;width:100%}
+  .kicker{color:var(--gold);font-weight:700;letter-spacing:.5px;font-size:15px}
+  h1{font-size:42px;margin:6px 0 8px;line-height:1.15}
+  .sub{color:var(--muted);font-size:18px;max-width:700px}
+  .pill-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .pill{background:rgba(255,255,255,.08);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.15);
+        padding:8px 14px;border-radius:999px;font-size:14px;white-space:nowrap}
+  .pill b{color:var(--gold)}
+  section{padding:46px 0}
+  h2{font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:10px}
+  .lead{color:var(--muted);margin:0 0 26px;font-size:16px;max-width:760px}
+  .card{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:20px}
+  .grid-weather{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+  .wcard{background:var(--panel2);border-radius:14px;padding:14px;text-align:center}
+  .wcard .t{font-size:22px;font-weight:700}
+  .wcard .time{color:var(--muted);font-size:13px}
+  .wcard .rain{color:#7fd0ff;font-size:13px;margin-top:4px}
+  #map{height:420px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+  .maplegend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--muted)}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-inline-end:6px;vertical-align:middle}
+  .tier{margin-bottom:34px}
+  .tier-title{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .tier-badge{font-size:13px;font-weight:800;padding:5px 12px;border-radius:999px}
+  .tier-badge.top{background:rgba(255,92,106,.18);color:#ff8a95;border:1px solid rgba(255,92,106,.4)}
+  .tier-badge.mid{background:rgba(255,207,92,.16);color:var(--gold);border:1px solid rgba(255,207,92,.4)}
+  .tier-badge.chill{background:rgba(61,220,151,.15);color:var(--green);border:1px solid rgba(61,220,151,.4)}
+  .tier-badge.shows{background:rgba(124,92,255,.18);color:#b4a4ff;border:1px solid rgba(124,92,255,.4)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  .ride{background:var(--panel);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.06);
+        transition:transform .15s ease;display:flex;flex-direction:column}
+  .ride:hover{transform:translateY(-3px)}
+  .ride img{width:100%;height:150px;object-fit:cover;display:block;background:#1a2340}
+  .ride .body{padding:14px 16px 16px;flex:1;display:flex;flex-direction:column}
+  .ride h3{margin:0 0 4px;font-size:17px}
+  .ride .land{color:var(--muted);font-size:12.5px;margin-bottom:10px}
+  .scores{display:flex;gap:14px;margin:6px 0 10px}
+  .score{font-size:13px}
+  .score b{display:block;font-size:16px}
+  .bars{display:flex;gap:3px;margin-top:3px}
+  .bar{width:14px;height:6px;border-radius:3px;background:rgba(255,255,255,.12)}
+  .bar.on.extreme{background:var(--red)}
+  .bar.on.exp{background:var(--gold)}
+  .ride p.note{color:var(--muted);font-size:13.5px;margin:auto 0 0}
+  .badge-sr{display:inline-block;margin-top:8px;font-size:11.5px;background:rgba(61,220,151,.15);
+        color:var(--green);border:1px solid rgba(61,220,151,.35);padding:3px 9px;border-radius:999px}
+  ol.route{list-style:none;margin:0;padding:0;counter-reset:step}
+  ol.route li{counter-increment:step;position:relative;padding:6px 0 26px 0;margin-inline-start:34px;border-inline-start:2px solid rgba(255,255,255,.12)}
+  ol.route li:last-child{border-color:transparent;padding-bottom:0}
+  ol.route li::before{content:counter(step);position:absolute;inset-inline-start:-19px;top:0;
+        width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+        display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff}
+  ol.route .time{color:var(--gold);font-weight:700;font-size:14px}
+  ol.route h4{margin:2px 0 4px;font-size:17px}
+  ol.route p{margin:0;color:var(--muted);font-size:14.5px}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+  .gallery img{width:100%;height:150px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.08)}
+  footer{padding:30px 0 60px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid rgba(255,255,255,.06);margin-top:20px}
+  footer a{color:var(--muted);text-decoration:underline}
+  .credit{font-size:11.5px;opacity:.7}
+  @media (max-width:640px){h1{font-size:30px}.sub{font-size:16px}#map{height:320px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">🎢 UNIVERSAL EPIC UNIVERSE</div>
+    <h1>מדריך ליום אחד — שני, 10 באוגוסט 2026</h1>
+    <p class="sub">כל האטרקציות מדורגות באקסטרים וחוויה, מסלול מומלץ בלי Express/Early Admission, מפה חיה ותחזית מזג אוויר.</p>
+    <div class="pill-row">
+      <div class="pill">🕘 שעות: <b>09:00–21:00</b></div>
+      <div class="pill">🌅 Early Admission: <b>08:00–09:00</b> (לא רלוונטי לכם)</div>
+      <div class="pill">📍 1001 Epic Boulevard, Orlando, FL 32819</div>
+      <div class="pill">🎫 בלי Express</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section id="weather">
+    <h2>☀️ מזג אוויר ליום</h2>
+    <p class="lead">חם ולח כרגיל לאורלנדו באוגוסט. שיא חום בין 12:00–18:00, סיכוי גשם עולה קלות לקראת הערב.</p>
+    <div class="card">
+      <div class="grid-weather">
+        <div class="wcard"><div class="time">08:00</div><div class="t">78°F</div><div class="rain">☔ 0%</div></div>
+        <div class="wcard"><div class="time">10:00</div><div class="t">85°F</div><div class="rain">☔ 0%</div></div>
+        <div class="wcard"><div class="time">12:00</div><div class="t">91°F</div><div class="rain">☔ 1%</div></div>
+        <div class="wcard"><div class="time">14:00</div><div class="t">93°F</div><div class="rain">☔ 4%</div></div>
+        <div class="wcard"><div class="time">16:00</div><div class="t">95°F</div><div class="rain">☔ 7%</div></div>
+        <div class="wcard"><div class="time">18:00</div><div class="t">92°F</div><div class="rain">☔ 9%</div></div>
+        <div class="wcard"><div class="time">20:00</div><div class="t">79°F</div><div class="rain">☔ 16%</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="map-section">
+    <h2>🗺️ המפה</h2>
+    <p class="lead">מהמלון (StaySky Suites, 7601 Canada Ave) עד הכניסה לפארק — כ-15 דקות נסיעה.</p>
+    <div id="map"></div>
+    <div class="maplegend">
+      <span><span class="dot" style="background:#ff5c8a"></span>Epic Universe</span>
+      <span><span class="dot" style="background:#7c5cff"></span>המלון שלכם</span>
+    </div>
+  </section>
+
+  <section id="rides">
+    <h2>🎢 דירוג כל האטרקציות</h2>
+    <p class="lead">אקסטרים וחוויה בסולם 1–5. 🎫 SR = יש Single Rider (שווה זהב בלי Express).</p>
+
+    <div class="tier">
+      <div class="tier-title"><span class="tier-badge top">🔥 שכבה עליונה — חובה</span></div>
+      <div class="cards">
+
+        <div class="ride">
+          <img src="assets/img/stardust-racers-1.jpg" alt="Stardust Racers" loading="lazy">
+          <div class="body">
+            <h3>Stardust Racers</h3>
+            <div class="land">Celestial Park</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>5/5</b><div class="bars">
+                <span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar on extreme"></span></div></div>
+              <div class="score">חוויה<b>5/5</b><div class="bars">
+                <span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span></div></div>
+            </div>
+            <p class="note">קואסטר משגר כפול — הכי מהיר ואקסטרים בפארק. התור הכי ארוך. יעד ראשון ברגע הפתיחה.</p>
+          </div>
+        </div>
+
+        <div class="ride">
+          <img src="assets/img/ministry-of-magic.jpg" alt="Battle at the Ministry" loading="lazy">
+          <div class="body">
+            <h3>Harry Potter and the Battle at the Ministry</h3>
+            <div class="land">Ministry of Magic</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>4/5</b><div class="bars">
+                <span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar"></span></div></div>
+              <div class="score">חוויה<b>5/5</b><div class="bars">
+                <span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span></div></div>
+            </div>
+            <p class="note">ה-dark ride הכי מתוחכם שיוניברסל בנתה — נפילה חופשית וטכנולוגיית תנועה מתקדמת.</p>
+            <span class="badge-sr">🎫 יש Single Rider</span>
+          </div>
+        </div>
+
+        <div class="ride">
+          <img src="assets/img/monsters-unchained.jpg" alt="Monsters Unchained" loading="lazy">
+          <div class="body">
+            <h3>Monsters Unchained: The Frankenstein Experiment</h3>
+            <div class="land">Dark Universe</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>4/5</b><div class="bars">
+                <span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar"></span></div></div>
+              <div class="score">חוויה<b>4/5</b><div class="bars">
+                <span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar"></span></div></div>
+            </div>
+            <p class="note">רגע דרמטי ואינטנסיבי — חוויית תיאטרון + ride משולבת.</p>
+          </div>
+        </div>
+
+        <div class="ride">
+          <img src="assets/img/curse-werewolf.jpg" alt="Curse of the Werewolf" loading="lazy">
+          <div class="body">
+            <h3>Curse of the Werewolf</h3>
+            <div class="land">Dark Universe</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>4/5</b><div class="bars">
+                <span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar"></span></div></div>
+              <div class="score">חוויה<b>4/5</b><div class="bars">
+                <span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar"></span></div></div>
+            </div>
+            <p class="note">קואסטר חוץ עם סיבובים חדים ומהירות גבוהה.</p>
+            <span class="badge-sr">🎫 יש Single Rider</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="tier">
+      <div class="tier-title"><span class="tier-badge mid">⭐ שכבה בינונית — שווה מאוד</span></div>
+      <div class="cards">
+
+        <div class="ride">
+          <img src="assets/img/mario-kart.jpg" alt="Mario Kart: Bowser's Challenge" loading="lazy">
+          <div class="body">
+            <h3>Mario Kart: Bowser's Challenge</h3>
+            <div class="land">Super Nintendo World</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>2/5</b><div class="bars">
+                <span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span></div></div>
+              <div class="score">חוויה<b>5/5</b><div class="bars">
+                <span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span></div></div>
+            </div>
+            <p class="note">dark ride עם משקפי AR — לא אקסטרים אבל הכי אהוב בפארק.</p>
+            <span class="badge-sr">🎫 יש Single Rider</span>
+          </div>
+        </div>
+
+        <div class="ride">
+          <img src="assets/img/isle-of-berk.jpg" alt="Hiccup's Wing Gliders" loading="lazy">
+          <div class="body">
+            <h3>Hiccup's Wing Gliders</h3>
+            <div class="land">Isle of Berk</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>3/5</b><div class="bars">
+                <span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar"></span><span class="bar"></span></div></div>
+              <div class="score">חוויה<b>4/5</b><div class="bars">
+                <span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar"></span></div></div>
+            </div>
+            <p class="note">קואסטר משפחתי עם נוף יפה על הפארק.</p>
+          </div>
+        </div>
+
+        <div class="ride">
+          <img src="assets/img/isle-of-berk-2.jpg" alt="Fyre Drill" loading="lazy">
+          <div class="body">
+            <h3>Fyre Drill</h3>
+            <div class="land">Isle of Berk</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>2/5</b><div class="bars">
+                <span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span></div></div>
+              <div class="score">חוויה<b>3/5</b><div class="bars">
+                <span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar"></span><span class="bar"></span></div></div>
+            </div>
+            <p class="note">dark ride על סירות עם אלמנטים של מים — טוב להתקרר.</p>
+          </div>
+        </div>
+
+        <div class="ride">
+          <img src="assets/img/super-nintendo-world.jpg" alt="Mine-Cart Madness" loading="lazy">
+          <div class="body">
+            <h3>Mine-Cart Madness</h3>
+            <div class="land">Super Nintendo World</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>2/5</b><div class="bars">
+                <span class="bar on extreme"></span><span class="bar on extreme"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span></div></div>
+              <div class="score">חוויה<b>4/5</b><div class="bars">
+                <span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar on exp"></span><span class="bar"></span></div></div>
+            </div>
+            <p class="note">קואסטר בסגנון Donkey Kong — כיפי ולא מפחיד.</p>
+            <span class="badge-sr">🎫 יש Single Rider</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="tier">
+      <div class="tier-title"><span class="tier-badge chill">😌 רגוע / למילוי זמן</span></div>
+      <div class="cards">
+        <div class="ride">
+          <img src="assets/img/celestial-park.jpg" alt="Constellation Carousel" loading="lazy">
+          <div class="body">
+            <h3>Constellation Carousel</h3>
+            <div class="land">Celestial Park</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>1/5</b></div><div class="score">חוויה<b>3/5</b></div>
+            </div>
+            <p class="note">קרוסלה יפה עם תאורה — נעים בערב.</p>
+          </div>
+        </div>
+        <div class="ride">
+          <img src="assets/img/chronos-tower.jpg" alt="Dragon Racer's Rally" loading="lazy">
+          <div class="body">
+            <h3>Dragon Racer's Rally</h3>
+            <div class="land">Isle of Berk</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>1/5</b></div><div class="score">חוויה<b>2/5</b></div>
+            </div>
+            <p class="note">אטרקציית ילדים עדינה.</p>
+          </div>
+        </div>
+        <div class="ride">
+          <img src="assets/img/dark-universe-portal.jpg" alt="Yoshi's Adventure / Bowser Jr. Challenge" loading="lazy">
+          <div class="body">
+            <h3>Yoshi's Adventure & Bowser Jr. Challenge</h3>
+            <div class="land">Super Nintendo World</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>1/5</b></div><div class="score">חוויה<b>2/5</b></div>
+            </div>
+            <p class="note">שתי אטרקציות ילדים קלילות באותו אזור.</p>
+          </div>
+        </div>
+        <div class="ride">
+          <img src="assets/img/vip-entrance.jpg" alt="Astronomica & Viking Training Camp" loading="lazy">
+          <div class="body">
+            <h3>Astronomica & Viking Training Camp</h3>
+            <div class="land">Celestial Park / Isle of Berk</div>
+            <div class="scores">
+              <div class="score">אקסטרים<b>1/5</b></div><div class="score">חוויה<b>2/5</b></div>
+            </div>
+            <p class="note">אזור מים (Astronomica) ומתחם משחק (Viking) — טוב להתקרר בשיא החום.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tier">
+      <div class="tier-title"><span class="tier-badge shows">🎭 מופעים</span></div>
+      <div class="cards">
+        <div class="ride">
+          <img src="assets/img/destinations-sign.jpg" alt="Le Cirque Arcanus" loading="lazy">
+          <div class="body">
+            <h3>Le Cirque Arcanus</h3>
+            <div class="land">Ministry of Magic</div>
+            <div class="scores"><div class="score">חוויה<b>3.5/5</b></div></div>
+            <p class="note">מופע קרקס-קסמים אינטימי.</p>
+          </div>
+        </div>
+        <div class="ride">
+          <img src="assets/img/ministry-portal-night.jpg" alt="Universal Celestial Goodnight" loading="lazy">
+          <div class="body">
+            <h3>Universal Celestial Goodnight</h3>
+            <div class="land">Celestial Park</div>
+            <div class="scores"><div class="score">חוויה<b>5/5</b></div></div>
+            <p class="note">מופע סיום לילי — מזרקות, אור וזיקוקים. לא לפספס! ~30–60 דק' לפני סגירה.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="route">
+    <h2>🗓️ המסלול המומלץ — בלי Express</h2>
+    <p class="lead">עדיפות לתפוס את הביג-4 בשעה וחצי הראשונות, לנצל Single Rider לאורך היום, ולסיים עם המופע הלילי.</p>
+    <div class="card">
+      <ol class="route">
+        <li><div class="time">08:00–08:15</div><h4>הגעה לשער</h4><p>לעמוד קרוב לכניסה כדי להיות בין הראשונים כשנפתח לכלל הציבור ב-09:00 (אין לכם Early Admission של 08:00).</p></li>
+        <li><div class="time">09:00</div><h4>Stardust Racers</h4><p>ישר לקואסטר הכי מבוקש בפארק — ב-Celestial Park, קרוב לכניסה.</p></li>
+        <li><div class="time">09:30–10:45</div><h4>Battle at the Ministry + Curse of the Werewolf</h4><p>תפסו 2–3 מה"ביג 4" בתוך 90 הדקות הראשונות, לפני שהתורים מתפוצצים.</p></li>
+        <li><div class="time">לאורך היום</div><h4>נצלו Single Rider</h4><p>ב-Curse of the Werewolf, Mario Kart, Mine-Cart Madness ו-Battle at the Ministry — חוסך המון זמן בלי Express, אם לא אכפת לכם לשבת בנפרד.</p></li>
+        <li><div class="time">12:00–17:00</div><h4>הפסקת צהריים + מזגן</h4><p>שיא החום. כנסו למופע אחד (Le Cirque Arcanus) ומלאו עם Hiccup's Wing Gliders / Fyre Drill / Mine-Cart Madness / Mario Kart.</p></li>
+        <li><div class="time">17:00–20:00</div><h4>השלמות</h4><p>כל מה שנשאר מרשימת ה"רגוע" והשכבה הבינונית, בדקו Virtual Line חינמי באפליקציה.</p></li>
+        <li><div class="time">~20:00–21:00</div><h4>Universal Celestial Goodnight</h4><p>סיימו את היום עם מופע הסיום הלילי לפני סגירה ב-21:00.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="gallery">
+    <h2>📸 גלריה</h2>
+    <div class="gallery">
+      <img src="assets/img/stardust-racers-twilight.jpg" alt="Stardust Racers בדמדומים" loading="lazy">
+      <img src="assets/img/celestial-park.jpg" alt="Celestial Park" loading="lazy">
+      <img src="assets/img/ministry-portal-night.jpg" alt="Ministry of Magic בלילה" loading="lazy">
+      <img src="assets/img/super-nintendo-world.jpg" alt="Super Nintendo World" loading="lazy">
+      <img src="assets/img/dark-universe-portal.jpg" alt="Dark Universe" loading="lazy">
+      <img src="assets/img/destinations-sign.jpg" alt="שילוט הפארק" loading="lazy">
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>נבנה עבור הטיול המשפחתי לארה"ב, אוגוסט 2026 · שעות ומזג אוויר נבדקו 2026-08-09/10</p>
+    <p class="credit">תמונות: Wikimedia Commons (Martin Lewison CC BY 2.0, Jeremy Thompson CC BY 4.0, Gfgbeach CC0, CANthony0125 Public Domain) · מפה: © OpenStreetMap contributors</p>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  var epic = [28.4437046, -81.4477664];
+  var hotel = [28.4520039, -81.4677475];
+  var map = L.map('map', {scrollWheelZoom:false}).setView([28.448, -81.458], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  var epicIcon = L.divIcon({className:'', html:'<div style="background:#ff5c8a;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 3px rgba(255,92,138,.35)"></div>', iconSize:[18,18]});
+  var hotelIcon = L.divIcon({className:'', html:'<div style="background:#7c5cff;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 3px rgba(124,92,255,.35)"></div>', iconSize:[18,18]});
+
+  L.marker(epic, {icon: epicIcon}).addTo(map).bindPopup('<b>Universal Epic Universe</b><br>1001 Epic Boulevard, Orlando, FL');
+  L.marker(hotel, {icon: hotelIcon}).addTo(map).bindPopup('<b>המלון שלכם</b><br>7601 Canada Avenue, Orlando, FL');
+  L.polyline([hotel, epic], {color:'#ffcf5c', weight:3, dashArray:'6,8', opacity:.8}).addTo(map);
+
+  var bounds = L.latLngBounds([epic, hotel]);
+  map.fitBounds(bounds, {padding:[40,40]});
+</script>
+
+</body>
+</html>
