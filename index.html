@@ -236,7 +236,6 @@
   .map-zoom-hint{position:absolute;bottom:12px;inset-inline-start:12px;z-index:500;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:10px;padding:6px 9px;color:var(--muted);font-size:11px;box-shadow:0 4px 14px rgba(0,0,0,.12);pointer-events:none}
   .map-ride-label{background:transparent!important;border:0!important;border-radius:0!important;color:#fff;font-size:10.5px;font-weight:800;padding:0;margin-top:4px;box-shadow:none!important;white-space:nowrap;pointer-events:auto;cursor:pointer;text-shadow:0 1px 2px #000,1px 0 2px #000,-1px 0 2px #000;line-height:1.25}
   .map-ride-label:before{display:none}
-  .map-land-label{background:transparent;border:0;color:#fff;font-size:11px;font-weight:800;padding:0;box-shadow:none;text-shadow:0 1px 2px #000,1px 0 2px #000,-1px 0 2px #000;pointer-events:none}
   .leaflet-control-zoom{border:1px solid var(--border-strong)!important;box-shadow:0 4px 14px rgba(0,0,0,.14)!important}
   .leaflet-control-zoom a{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}
   .leaflet-control-attribution{background:var(--head-bg)!important;color:var(--muted)!important}
@@ -853,7 +852,7 @@ L.polyline([HOTEL, PARK_ENTRANCE], {color:'#ffcf5c', weight:3, dashArray:'6,8', 
 
 Object.entries(LANDS).forEach(([key, land]) => {
   L.polygon(land.bounds, {color: land.color, weight: 2, fillColor: land.color, fillOpacity: 0.18})
-    .addTo(landLayer).bindTooltip(land.name, {permanent:true, direction:'center', opacity:0.9, className:'map-land-label'});
+    .addTo(landLayer);
 });
 const TIER_MARKER_COLOR = {top:'#ff5c6a', mid:'#ffcf5c', chill:'#3ddc97', show:'#b4a4ff'};
 const rideMarkers = {};
