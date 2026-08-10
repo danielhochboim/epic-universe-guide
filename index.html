@@ -67,8 +67,8 @@
     #map{height:440px}
     .map-toolbar{top:8px;inset-inline-start:8px;inset-inline-end:8px;align-items:stretch;flex-wrap:wrap}
     .map-search{order:1;max-width:none;flex-basis:100%}
-    .map-maptype,.map-base{order:2;overflow-x:auto;max-width:100%}
-    .map-maptype .map-type-btn,.map-base .map-type-btn{padding-inline:8px}
+    .map-maptype,.map-base{order:2;overflow-x:auto;max-width:100%;margin-inline-start:0}
+    .map-maptype .map-type-btn,.map-base .map-type-btn,.map-all-status{padding-inline:8px}
     .map-official-link{order:3;padding-inline:8px}
   }
 
@@ -209,6 +209,8 @@
   .map-toolbar{position:absolute;top:12px;inset-inline-start:12px;inset-inline-end:12px;z-index:500;display:flex;align-items:center;gap:8px;pointer-events:none}
   .map-toolbar > *{pointer-events:auto}
   .map-maptype,.map-base{display:flex;gap:5px;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:12px;padding:4px;box-shadow:0 4px 14px rgba(0,0,0,.14)}
+  .map-base{margin-inline-start:auto}
+  .map-all-status{align-items:center;color:var(--text);font-size:12px;font-weight:800;padding:8px 10px;white-space:nowrap}
   .map-type-btn{background:transparent;border:0;color:var(--muted);padding:7px 10px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
   .map-type-btn.active{background:var(--accent);color:#fff}
   .map-official-link{background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:12px;padding:8px 10px;color:var(--text);font-size:11.5px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.14)}
@@ -240,6 +242,7 @@
   .nearby-item .mini-stats{display:flex;gap:6px;margin:3px 0}
   .nearby-item .mini-stat{font-size:11px;background:var(--surface-soft);border-radius:6px;padding:1px 6px}
   .nearby-item .dist{color:var(--gold);font-size:11.5px;white-space:nowrap}
+  .sr-explainer{margin:8px 0 14px;padding:10px 12px;background:var(--surface-soft);border:1px solid var(--border);border-inline-start:3px solid var(--accent2);border-radius:10px;color:var(--muted);font-size:12.5px;line-height:1.5}
 
   /* Map popup ride card */
   .map-pop{display:flex;gap:9px;align-items:center;cursor:pointer;min-width:190px;padding:2px}
@@ -381,7 +384,8 @@
   <!-- ===== RIDES TAB ===== -->
   <section class="tab-panel" id="tab-rides">
     <h2>🎢 כל האטרקציות</h2>
-    <p class="lead">אקסטרים וחוויה בסולם 1–5. 🎫 SR = יש Single Rider. תג הצבע = זמן המתנה חי. לחצו ⭕ כדי לסמן "הייתי כאן".</p>
+    <p class="lead">אקסטרים וחוויה בסולם 1–5. 🎫 SR = Single Rider אפשרי לפי המיפוי; הוא יכול להיפתח ולהיסגר במהלך היום. תג הצבע = זמן המתנה חי.</p>
+    <div class="sr-explainer"><b>איך לקרוא את ה־SR:</b> “Single Rider אפשרי” מבוסס על מיפוי של מתקנים נבחרים; “פתוח/סגור עכשיו” מבוסס על נתון חי נפרד. Universal כותבת רשמית שהאפשרות תלויה בזמינות, במתקנים נבחרים, ויכולה להשתנות ללא הודעה — לכן האפליקציה הרשמית והשלט בכניסה גוברים על כל מקור חיצוני. <a href="https://www.universalorlando.com/web/en/us/faqs/rides-and-attractions" target="_blank" rel="noopener">מקור רשמי</a></div>
     <div class="toolbar">
       <div class="search-row">
         <input type="text" id="search-input" placeholder="חיפוש מתקן... (Stardust, קרוסלה, דרקון)">
@@ -399,7 +403,7 @@
   <!-- ===== MAP TAB ===== -->
   <section class="tab-panel" id="tab-map">
     <h2>🗺️ המפה — כל המתקנים והאזורים</h2>
-    <p class="lead">מהמלון (StaySky Suites) עד הכניסה — כ-15 דק' נסיעה. לחצו "מצא אותי" לזמני הליכה בזמן אמת.</p>
+    <p class="lead">מפת הפארק הרשמית כרקע + הכרטיסיות והסמנים שלנו מעליה. מוצגים כברירת מחדל גם האזורים וגם המתקנים; אפשר לעבור לרקע גאוגרפי אם המפה הרשמית לא נטענת.</p>
     <button class="btn" id="locate-btn">📍 מצא אותי</button>
     <div id="locate-status"></div>
     <div id="nearby-panel"></div>
@@ -410,16 +414,13 @@
           <span aria-hidden="true">🔎</span>
           <input id="map-search-input" type="search" placeholder="חיפוש מתקן או אזור במפה..." aria-label="חיפוש מתקן או אזור במפה">
         </div>
-        <div class="map-maptype" role="group" aria-label="מה להציג במפה">
-          <button class="map-type-btn active" type="button" data-map-mode="rides">🎢 מתקנים</button>
-          <button class="map-type-btn" type="button" data-map-mode="lands">🌎 אזורים</button>
-          <button class="map-type-btn" type="button" data-map-mode="all">✨ הכול</button>
-        </div>
-        <div class="map-base" role="group" aria-label="סגנון מפה">
-          <button class="map-type-btn active" type="button" data-map-base="standard">🗺️ רגילה</button>
+        <div class="map-maptype map-all-status" role="status" aria-label="תצוגת המפה">✨ מתקנים + אזורים</div>
+        <div class="map-base" role="group" aria-label="רקע המפה">
+          <button class="map-type-btn active" type="button" data-map-base="official">🎢 מפת הפארק</button>
+          <button class="map-type-btn" type="button" data-map-base="standard">🗺️ גאוגרפית</button>
           <button class="map-type-btn" type="button" data-map-base="satellite">🛰️ לוויין</button>
         </div>
-        <a class="map-official-link" href="https://www.universalorlando.com/web/en/us/plan-your-visit/resort-maps/interactive-map-eu.html" target="_blank" rel="noopener">↗️ מפה רשמית</a>
+        <a class="map-official-link" href="https://www.universalorlando.com/web/en/us/plan-your-visit/resort-maps/interactive-map-eu.html" target="_blank" rel="noopener">↗️ פתיחה באתר Universal</a>
       </div>
       <div id="map"></div>
       <div class="map-zoom-hint">🖐️ גררו · pinch לזום · לחצו על סמן לפרטים</div>
@@ -489,9 +490,9 @@
           <li><div class="time">08:00–08:15</div><h5>הגעה לשער</h5><p>לעמוד קרוב לכניסה לפני פתיחה כללית ב-09:00.</p></li>
           <li><div class="time">09:00</div><h5>Stardust Racers</h5><p>ישר לקואסטר הכי מבוקש — ב-Celestial Park, קרוב לכניסה.</p></li>
           <li><div class="time">09:30–10:45</div><h5>Battle at the Ministry + Curse of the Werewolf</h5><p>תפסו 2–3 מה"ביג 4" ב-90 הדקות הראשונות.</p></li>
-          <li><div class="time">לאורך היום</div><h5>נצלו Single Rider</h5><p>Curse of the Werewolf, Mario Kart, Mine-Cart Madness, Battle at the Ministry.</p></li>
+          <li><div class="time">לאורך היום</div><h5>נצלו Single Rider</h5><p>Stardust Racers, Monsters Unchained, Curse of the Werewolf, Hiccup's Wing Gliders, Mario Kart, Mine-Cart Madness ו־Battle at the Ministry — רק אם האפשרות פתוחה בזמן אמת.</p></li>
           <li><div class="time">12:00–17:00</div><h5>הפסקת צהריים + מזגן</h5><p>שיא החום — Le Cirque Arcanus, Hiccup's Wing Gliders, Fyre Drill.</p></li>
-          <li><div class="time">17:00–20:00</div><h5>השלמות</h5><p>מה שנשאר מהשכבה הבינונית/רגועה, בדקו Virtual Line חינמי באפליקציה.</p></li>
+          <li><div class="time">17:00–20:00</div><h5>השלמות</h5><p>מה שנשאר מהמתקנים המומלצים או הרגועים, בדקו Virtual Line חינמי באפליקציה.</p></li>
           <li><div class="time">~20:00–21:00</div><h5>Universal Celestial Goodnight</h5><p>מופע סיום לילי לפני סגירה.</p></li>
         </ol>
       </div>
@@ -562,6 +563,13 @@ const RIDES = [
   {id:'celestial-goodnight', name:"Universal Celestial Goodnight", land:'celestial', lat:28.4404, lng:-81.4468, tier:'show', extreme:0, exp:5, desc:"מופע סיום לילי — מזרקות, אור וזיקוקים. לא לפספס!", img:'assets/img/stardust-racers-twilight.jpg', qt:null, qtSR:null, slug:'universal-celestial-goodnight'},
 ];
 
+/* Single Rider has two independent facts: configured support vs. live operational status. */
+const SINGLE_RIDER_RIDE_IDS = new Set([
+  'stardust-racers', 'monsters-unchained', 'curse-werewolf',
+  'wing-gliders', 'mario-kart', 'mine-cart', 'battle-ministry'
+]);
+const SINGLE_RIDER_LIVE_IDS = {}; // add only a verified current Queue Times SR feed; missing feed means unknown, never 0 minutes
+
 const HOTEL = [28.4520039, -81.4677475];
 const PARK_ENTRANCE = [28.4386432, -81.4457939];
 const PARK_OPEN_MIN = 9*60, PARK_CLOSE_MIN = 21*60;
@@ -573,7 +581,7 @@ const CROWD_PATTERNS = {
   chill: [1,1,1,2,2,2,2,2,2,1,1,1,1],
 };
 const DURATION_DEFAULT = {top:45, mid:25, chill:12, show:25};
-const TIER_LABELS = {top:'🔥 שכבה עליונה', mid:'⭐ שכבה בינונית', chill:'😌 רגוע', show:'🎭 מופעים'};
+const TIER_LABELS = {top:'🔥 מתקני חובה ואקסטרים', mid:'⭐ מתקנים מומלצים', chill:'😌 רגוע ומשפחתי', show:'🎭 מופעים וחוויות'};
 const TIER_ORDER = ['top','mid','chill','show'];
 const PROXIES = [
   url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url) + '&_=' + Date.now(),
@@ -604,7 +612,7 @@ function rideDetailsHtml(r){
   const dist = userLatLng ? haversine(userLatLng[0], userLatLng[1], r.lat, r.lng) : null;
   const distBadge = dist != null ? `<span class="badge-dist">🚶 ${fmtDist(dist)} · ${walkMinutes(dist)} דק'</span>` : '';
   const extremeRow = r.tier === 'show' ? '' : `<div class="score">אקסטרים<b>${r.extreme}/5</b><div class="bars">${bars(r.extreme,5,'extreme')}</div></div>`;
-  const srBadge = r.qtSR != null ? '<span class="badge-sr">🎫 יש Single Rider</span>' : '<span class="badge-sr no">🚫 אין Single Rider</span>';
+  const srBadge = (SINGLE_RIDER_RIDE_IDS.has(r.id) || r.qtSR != null) ? '<span class="badge-sr">🎫 Single Rider אפשרי · לבדוק זמינות</span>' : '<span class="badge-sr no">ℹ️ לא מסומן כ־Single Rider</span>';
   return `<div class="ride-modal-content">
     <div class="ride-modal-hero">
       <img src="${r.img}" alt="${r.name}">
@@ -724,17 +732,21 @@ function waitBadgeHtml(ride){
   return `<span class="badge-wait ${cls}">🟢 ${li.wait} דק'</span>`;
 }
 function singleRiderInfoHtml(ride){
-  if (ride.qtSR == null){
-    return `<div class="single-rider-panel no"><span class="single-rider-icon">🚫</span><div class="single-rider-copy"><div class="single-rider-title">אין Single Rider</div><div class="single-rider-text">לא מצאתי נתיב Single Rider למתקן הזה.</div></div></div>`;
+  const configured = SINGLE_RIDER_RIDE_IDS.has(ride.id) || ride.qtSR != null;
+  const liveId = ride.qtSR != null ? ride.qtSR : SINGLE_RIDER_LIVE_IDS[ride.id];
+  if (!configured){
+    return `<div class="single-rider-panel no"><span class="single-rider-icon">ℹ️</span><div class="single-rider-copy"><div class="single-rider-title">לא מסומן כ־Single Rider</div><div class="single-rider-text">הוא לא נמצא במיפוי הנוכחי שלנו; זו אינה קביעה רשמית סופית. בדקו את האפליקציה או את השלט בפארק.</div></div></div>`;
   }
-  const sr = liveQueueMap[ride.qtSR];
+  const sr = liveId != null ? liveQueueMap[liveId] : null;
   if (!sr){
-    return `<div class="single-rider-panel closed"><span class="single-rider-icon">🎫</span><div class="single-rider-copy"><div class="single-rider-title">יש Single Rider</div><div class="single-rider-text">אין כרגע מידע חי על זמן ההמתנה ב־Single Rider.</div></div></div>`;
+    return `<div class="single-rider-panel closed"><span class="single-rider-icon">🎫</span><div class="single-rider-copy"><div class="single-rider-title">יש Single Rider — מצב תפעולי לא ידוע</div><div class="single-rider-text">אין כרגע רשומת live ציבורית לתור הזה. בדקו את האפליקציה הרשמית או את השלט בכניסה.</div></div></div>`;
   }
   if (!sr.is_open){
-    return `<div class="single-rider-panel closed"><span class="single-rider-icon">🎫</span><div class="single-rider-copy"><div class="single-rider-title">יש Single Rider</div><div class="single-rider-text">ה־Single Rider סגור כרגע.</div></div></div>`;
+    return `<div class="single-rider-panel closed"><span class="single-rider-icon">🎫</span><div class="single-rider-copy"><div class="single-rider-title">יש Single Rider — סגור כרגע</div><div class="single-rider-text">התור קיים, אבל אינו פעיל כרגע לפי נתון ה־live.</div></div></div>`;
   }
-  return `<div class="single-rider-panel"><span class="single-rider-icon">🎫</span><div class="single-rider-copy"><div class="single-rider-title">יש Single Rider</div><div class="single-rider-text">זמן המתנה חי: <b>${sr.wait_time||0} דק׳</b></div></div></div>`;
+  const wait = typeof sr.wait_time === 'number' && Number.isFinite(sr.wait_time) ? sr.wait_time : null;
+  const updated = sr.last_updated ? new Date(sr.last_updated).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', timeZone:'America/New_York'}) : null;
+  return `<div class="single-rider-panel"><span class="single-rider-icon">🎫</span><div class="single-rider-copy"><div class="single-rider-title">יש Single Rider — פתוח כרגע</div><div class="single-rider-text">זמן המתנה חי: <b>${wait == null ? 'לא ידוע' : wait+' דק׳'}</b>${updated ? ` · עודכן ${updated} (אורלנדו)` : ''}</div></div></div>`;
 }
 
 /* ===================== MAP INIT ===================== */
@@ -745,8 +757,13 @@ const mapBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 const mapSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
   attribution: 'Tiles &copy; Esri', maxZoom: 19
 });
-mapBase.addTo(map);
-let currentMapMode = 'rides';
+/* Official Universal Epic Universe map tiles: official background only; our markers/cards remain independent. */
+const mapOfficial = L.tileLayer('https://services.universalorlando.com/assets/MapTiles/Production/10255/512/{z}_{x}_{y}.jpg', {
+  attribution: '<a href="https://www.universalorlando.com/web/en/us/plan-your-visit/resort-maps/interactive-map-eu.html" target="_blank" rel="noopener">Universal Orlando</a>',
+  minZoom: 12, maxZoom: 18, tileSize: 512, zoomOffset: -1, tms: false
+});
+mapOfficial.addTo(map);
+let currentMapMode = 'all';
 const rideLayer = L.layerGroup().addTo(map);
 const landLayer = L.layerGroup().addTo(map);
 const landmarkLayer = L.layerGroup().addTo(map);
@@ -796,24 +813,16 @@ RIDES.forEach(r => {
 });
 let userMarker = null;
 
-function setMapMode(mode){
-  currentMapMode = mode;
-  const showRides = mode === 'rides' || mode === 'all';
-  const showLands = mode === 'lands' || mode === 'all';
-  if (showRides) map.addLayer(rideLayer); else map.removeLayer(rideLayer);
-  if (showLands) map.addLayer(landLayer); else map.removeLayer(landLayer);
-  document.querySelectorAll('[data-map-mode]').forEach(btn => btn.classList.toggle('active', btn.dataset.mapMode === mode));
-}
-document.querySelectorAll('[data-map-mode]').forEach(btn => btn.addEventListener('click', () => setMapMode(btn.dataset.mapMode)));
+
 document.querySelectorAll('[data-map-base]').forEach(btn => btn.addEventListener('click', () => {
-  const satellite = btn.dataset.mapBase === 'satellite';
-  if (satellite){ map.removeLayer(mapBase); mapSatellite.addTo(map); }
-  else { map.removeLayer(mapSatellite); mapBase.addTo(map); }
-  document.querySelectorAll('[data-map-base]').forEach(item => item.classList.toggle('active', item.dataset.mapBase === btn.dataset.mapBase));
+  const selected = btn.dataset.mapBase;
+  [mapOfficial, mapBase, mapSatellite].forEach(layer => { if (map.hasLayer(layer)) map.removeLayer(layer); });
+  (selected === 'satellite' ? mapSatellite : selected === 'standard' ? mapBase : mapOfficial).addTo(map);
+  document.querySelectorAll('[data-map-base]').forEach(b => b.classList.toggle('active', b === btn));
 }));
 document.getElementById('map-search-input').addEventListener('input', e => {
   const query = e.target.value.trim().toLowerCase();
-  if (!query){ setMapMode(currentMapMode); return; }
+  if (!query){ RIDES.forEach(r => rideMarkers[r.id].setOpacity(1)); return; }
   const matches = RIDES.filter(r => `${r.name} ${LANDS[r.land].name}`.toLowerCase().includes(query));
   RIDES.forEach(r => rideMarkers[r.id].setOpacity(matches.includes(r) ? 1 : .12));
   if (matches.length === 1){
@@ -821,7 +830,8 @@ document.getElementById('map-search-input').addEventListener('input', e => {
     rideMarkers[matches[0].id].openPopup();
   }
 });
-setMapMode('rides');
+map.addLayer(rideLayer);
+map.addLayer(landLayer);
 
 /* ===================== RIDES RENDER ===================== */
 function ridePasses(r){
@@ -835,7 +845,7 @@ function ridePasses(r){
 }
 function rideCardHtml(r){
   const isVisited = visited.has(r.id);
-  const srBadge = r.qtSR != null ? '<span class="badge-sr">🎫 יש Single Rider</span>' : '<span class="badge-sr no">🚫 אין Single Rider</span>';
+  const srBadge = (SINGLE_RIDER_RIDE_IDS.has(r.id) || r.qtSR != null) ? '<span class="badge-sr">🎫 Single Rider אפשרי · לבדוק זמינות</span>' : '<span class="badge-sr no">ℹ️ לא מסומן כ־Single Rider</span>';
   return `
   <article class="ride ${isVisited?'visited':''}" data-id="${r.id}" role="button" tabindex="0" aria-label="פתיחת פרטי ${r.name}"
       onclick="openRideModal('${r.id}', this)"
