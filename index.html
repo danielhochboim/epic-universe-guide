@@ -230,6 +230,8 @@
   .map-toolbar-actions{display:flex;align-items:center;gap:5px;margin-inline-start:auto}
   .map-action-btn{background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:10px;padding:7px 9px;color:var(--text);font-size:11.5px;font-weight:700;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.14);cursor:pointer}
   .map-action-btn:hover{background:var(--surface-hover)}
+  .map-rotation-controls{display:flex;gap:4px;align-items:center}
+  .map-compass-active{background:#16c784!important;color:#071b12!important}
   .map-search{display:flex;align-items:center;gap:6px;min-width:0;flex:1;max-width:310px;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:12px;padding:4px 9px;box-shadow:0 4px 14px rgba(0,0,0,.14)}
   .map-search input{width:100%;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:inherit;font-size:12.5px;padding:5px}
   .map-search input::placeholder{color:var(--muted)}
@@ -446,6 +448,11 @@
         </div>
         <div class="map-toolbar-actions">
           <button class="map-action-btn" id="map-fullscreen-btn" type="button" aria-label="פתיחת המפה במסך מלא">⛶ <span>מסך מלא</span></button>
+          <div class="map-rotation-controls" aria-label="סיבוב המפה">
+            <button class="map-action-btn" id="map-rotate-left" type="button" aria-label="סיבוב המפה שמאלה">↺</button>
+            <button class="map-action-btn" id="map-rotate-right" type="button" aria-label="סיבוב המפה ימינה">↻</button>
+            <button class="map-action-btn" id="map-compass-btn" type="button" aria-label="הפעלת סיבוב לפי המצפן">🧭 <span>מצפן</span></button>
+          </div>
           <button class="map-action-btn" id="map-nav-btn" type="button" aria-label="ניווט למתקן שנבחר">🧭 <span>ניווט</span></button>
         </div>
       </div>
@@ -896,6 +903,34 @@ let userMarker = null;
 function updateUserMarkerIcon(){
   if (userMarker) userMarker.setIcon(makeUserIcon(userHeading));
 }
+let mapBearing = 0;
+let compassMapMode = false;
+function setMapBearing(degrees){
+  mapBearing = ((degrees % 360) + 360) % 360;
+  const pane = document.querySelector('#map .leaflet-map-pane');
+  if (pane) pane.style.transform = `rotate(${-mapBearing}deg)`;
+  document.getElementById('map-compass-btn')?.classList.toggle('map-compass-active', compassMapMode);
+}
+function rotateMapBy(delta){ compassMapMode = false; setMapBearing(mapBearing + delta); }
+function setCompassMapMode(enabled){
+  compassMapMode = enabled;
+  if (enabled && !('DeviceOrientationEvent' in window)) {
+    compassMapMode = false;
+    setLocationStatus('⚠️ המצפן אינו זמין במכשיר הזה.');
+  }
+  setMapBearing(compassMapMode && Number.isFinite(userHeading) ? userHeading : mapBearing);
+}
+async function toggleCompassMap(){
+  if (compassMapMode) { setCompassMapMode(false); return; }
+  try {
+    if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
+      const permission = await DeviceOrientationEvent.requestPermission();
+      if (permission !== 'granted') { setLocationStatus('⚠️ הרשאת המצפן נדחתה.'); return; }
+    }
+    setCompassMapMode(true);
+    setLocationStatus('🧭 המפה מסתובבת לפי המצפן.');
+  } catch (e) { setLocationStatus('⚠️ לא ניתן להפעיל את המצפן כרגע.'); }
+}
 
 function updateRideLabels(){
   const show = map.getZoom() >= 16;
@@ -957,6 +992,9 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.getElementById('map-shell').classList.contains('map-fullscreen-fallback')) closeMapFullscreenFallback();
 });
 document.getElementById('map-fullscreen-btn').addEventListener('click', toggleMapFullscreen);
+document.getElementById('map-rotate-left').addEventListener('click', () => rotateMapBy(-15));
+document.getElementById('map-rotate-right').addEventListener('click', () => rotateMapBy(15));
+document.getElementById('map-compass-btn').addEventListener('click', toggleCompassMap);
 document.addEventListener('fullscreenchange', closeMapFullscreenFallback);
 document.getElementById('global-map-btn').addEventListener('click', () => {
   switchTab('map');
@@ -1180,7 +1218,7 @@ function applyDeviceHeading(event){
   let heading = null;
   if (Number.isFinite(event.webkitCompassHeading)) heading = event.webkitCompassHeading;
   else if (Number.isFinite(event.alpha)) heading = (360 - event.alpha) % 360;
-  if (Number.isFinite(heading)) { userHeading = heading; updateUserMarkerIcon(); }
+  if (Number.isFinite(heading)) { userHeading = heading; updateUserMarkerIcon(); if (compassMapMode) setMapBearing(heading); }
 }
 window.addEventListener('deviceorientationabsolute', applyDeviceHeading, true);
 window.addEventListener('deviceorientation', applyDeviceHeading, true);
