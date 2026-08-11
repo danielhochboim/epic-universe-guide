@@ -38,6 +38,25 @@
   .title-strip{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px 6px;max-width:1100px;margin:0 auto;min-width:0}
   .title-strip > div:first-child{min-width:0}
   .title-strip h1{font-size:16.5px;margin:0;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .site-title-btn{background:none;border:0;color:var(--text);font:inherit;font-weight:800;padding:0;cursor:pointer;text-align:start}
+  .site-title-btn:hover{color:var(--gold)}
+  .park-menu{position:absolute;top:calc(100% + 6px);inset-inline-start:16px;z-index:150;background:var(--panel);border:1px solid var(--border-strong);border-radius:13px;padding:6px;box-shadow:0 14px 35px rgba(0,0,0,.3);min-width:270px;display:none}
+  .park-menu.open{display:block}
+  .park-menu button{display:block;width:100%;text-align:start;background:transparent;border:0;color:var(--text);padding:10px 12px;border-radius:9px;cursor:pointer;font-weight:700}
+  .park-menu button:hover,.park-menu button.active{background:var(--surface-hover);color:var(--gold)}
+  .park-start{position:fixed;inset:0;z-index:300;background:rgba(3,7,18,.78);display:flex;align-items:center;justify-content:center;padding:18px}
+  .park-start.hidden{display:none}
+  .park-start-card{width:min(500px,100%);background:var(--panel);border:1px solid var(--border-strong);border-radius:20px;padding:24px;box-shadow:0 20px 70px rgba(0,0,0,.4)}
+  .park-start-card h2{margin-top:0}.park-choice{display:grid;gap:9px;margin-top:18px}
+  .park-choice button{background:var(--panel2);border:1px solid var(--border-strong);color:var(--text);padding:13px;border-radius:11px;text-align:start;font-size:15px;font-weight:800;cursor:pointer}
+  .park-choice button:hover{border-color:var(--accent);background:var(--surface-hover)}
+  .title-strip{position:relative}
+  .site-tour{position:fixed;inset:0;z-index:350;background:rgba(3,7,18,.82);display:flex;align-items:center;justify-content:center;padding:18px}
+  .site-tour.hidden{display:none}
+  .site-tour-card{width:min(600px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--border-strong);border-radius:20px;padding:24px;box-shadow:0 20px 70px rgba(0,0,0,.45)}
+  .site-tour-card h2{margin-top:0}.tour-list{display:grid;gap:10px;margin:18px 0;color:var(--muted)}
+  .tour-item{display:flex;gap:10px;align-items:flex-start;background:var(--panel2);border-radius:11px;padding:11px 12px}.tour-item b{color:var(--text);display:block}
+  .tour-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;flex-wrap:wrap}
   .title-strip .kicker{color:var(--gold);font-size:11.5px;font-weight:700}
   .title-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
   .global-map-btn{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:0;color:#fff;padding:7px 10px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:800;white-space:nowrap}
@@ -364,7 +383,12 @@
   <div class="title-strip">
     <div>
       <div class="kicker">🎢 UNIVERSAL EPIC UNIVERSE</div>
-      <h1>מדריך חי — שני, 10.8.2026</h1>
+      <button class="site-title-btn" id="site-title-btn" type="button" aria-expanded="false">מדריך חי — שני, 10.8.2026</button>
+    </div>
+    <div class="park-menu" id="park-menu" role="menu">
+      <button type="button" data-park="epic">🌌 Epic Universe</button>
+      <button type="button" data-park="studios">🎬 Universal Studios Florida</button>
+      <button type="button" data-park="islands">🦖 Islands of Adventure</button>
     </div>
     <div class="title-actions">
       <button class="global-map-btn" id="global-map-btn" type="button" aria-label="פתיחת המפה במסך מלא">🗺️ <span>מפה</span></button>
@@ -580,6 +604,21 @@
 
 <div class="toast" id="toast"></div>
 
+<div class="site-tour" id="site-tour" role="dialog" aria-modal="true" aria-labelledby="site-tour-title">
+  <div class="site-tour-card">
+    <h2 id="site-tour-title">👋 ברוכים הבאים למדריך Universal</h2>
+    <p class="lead">מדריך קצר שיעזור לכם להפיק את המקסימום מהאתר.</p>
+    <div class="tour-list">
+      <div class="tour-item"><span>🎢</span><div><b>בחירת פארק</b>בפעם הראשונה בוחרים פארק. כדי להחליף אחר כך, לוחצים על שם האתר בחלק העליון.</div></div>
+      <div class="tour-item"><span>📋</span><div><b>סקירה</b>שעות, מזג אוויר, סטטוס הפארק והמלצות מהירות.</div></div>
+      <div class="tour-item"><span>🎯</span><div><b>מתקנים</b>חיפוש, סינון לפי אזור או עצימות, דירוגי אקסטרים וחוויה וזמני המתנה.</div></div>
+      <div class="tour-item"><span>🗺️</span><div><b>מפה וניווט</b>מפה אינטראקטיבית, מיקום נוכחי ופתיחת מסלול ב־Google Maps.</div></div>
+      <div class="tour-item"><span>🧭</span><div><b>מתכנן מסלול</b>מסמנים איפה כבר הייתם ומקבלים מסלול מותאם לפי הזמן וההעדפות שלכם.</div></div>
+    </div>
+    <div class="tour-actions"><button class="btn secondary" id="tour-skip-btn" type="button">דלג</button><button class="btn" id="tour-start-btn" type="button">הבנתי, בואו נתחיל 🚀</button></div>
+  </div>
+</div>
+
 <div class="ride-modal" id="ride-modal" role="dialog" aria-modal="true" aria-labelledby="ride-modal-title" aria-hidden="true">
   <div class="ride-modal-dialog" role="document">
     <button class="ride-modal-close" id="ride-modal-close" type="button" aria-label="סגירת פרטי המתקן">×</button>
@@ -649,13 +688,27 @@ const PARKS = {
   ]}
 };
 let activePark = localStorage.getItem('universalActivePark') || 'epic';
+const parkMenu = document.getElementById('park-menu');
+const siteTitleBtn = document.getElementById('site-title-btn');
+siteTitleBtn?.addEventListener('click', () => {
+  const open = parkMenu.classList.toggle('open');
+  siteTitleBtn.setAttribute('aria-expanded', String(open));
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.title-strip')) { parkMenu?.classList.remove('open'); siteTitleBtn?.setAttribute('aria-expanded','false'); }
+});
+parkMenu?.addEventListener('click', e => { const b=e.target.closest('[data-park]'); if (b) { selectPark(b.dataset.park); parkMenu.classList.remove('open'); } });
+function finishSiteTour(){ localStorage.setItem('universalSiteTourSeen','1'); document.getElementById('site-tour')?.classList.add('hidden'); }
+document.getElementById('tour-start-btn')?.addEventListener('click', finishSiteTour);
+document.getElementById('tour-skip-btn')?.addEventListener('click', finishSiteTour);
+if (localStorage.getItem('universalSiteTourSeen') === '1') document.getElementById('site-tour')?.classList.add('hidden');
 function selectPark(key){
   if(!PARKS[key]) return;
   activePark=key; RIDES=PARKS[key].rides; PARK_ENTRANCE=PARKS[key].entrance; activeLand='all'; activeTier='all'; searchText='';
   localStorage.setItem('universalActivePark',key);
   document.querySelectorAll('#park-switcher [data-park]').forEach(b=>b.classList.toggle('active',b.dataset.park===key));
   document.querySelector('.kicker').textContent=PARKS[key].kicker;
-  document.querySelector('.title-strip h1').textContent=`מדריך חי — ${PARKS[key].name}`;
+  document.getElementById('site-title-btn').textContent=`מדריך חי — ${PARKS[key].name}`;
   document.querySelector('.status-row .status-chip:nth-child(2) b').textContent=PARKS[key].hours;
   document.querySelector('.progress-mini b').textContent=`${[...visited].filter(id=>RIDES.some(r=>r.id===id)).length}/${RIDES.length}`;
   renderAll(); initMapMarkers(); updateNavSelect(); renderPlan();
