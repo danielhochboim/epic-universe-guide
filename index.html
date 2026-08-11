@@ -58,6 +58,8 @@
   .progress-track{width:60px;height:6px;background:var(--track);border-radius:3px;overflow:hidden}
   .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
 
+  .park-switcher{display:flex;gap:6px;padding:4px 10px 6px;max-width:1100px;margin:0 auto;overflow-x:auto}
+  .park-switcher .chip{font-weight:700;white-space:nowrap}
   .tabs{display:flex;gap:4px;padding:0 10px 10px;max-width:1100px;margin:0 auto;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .tab-btn{flex:0 0 auto;background:transparent;border:none;color:var(--muted);padding:9px 15px;border-radius:11px;
      font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
@@ -379,6 +381,11 @@
       <span class="progress-track"><span class="progress-fill" id="progress-fill" style="width:0%"></span></span>
     </span>
   </div>
+  <div class="park-switcher" id="park-switcher" role="tablist" aria-label="בחירת פארק">
+    <button class="chip active" data-park="epic">🌌 Epic Universe</button>
+    <button class="chip" data-park="studios">🎬 Universal Studios Florida</button>
+    <button class="chip" data-park="islands">🦖 Islands of Adventure</button>
+  </div>
   <div class="tabs" id="tabs">
     <button class="tab-btn" data-tab="overview">📋 סקירה</button>
     <button class="tab-btn" data-tab="rides">🎢 מתקנים</button>
@@ -589,9 +596,18 @@ const LANDS = {
   berk:           {name:"Isle of Berk",         color:'#3ddc97', lat:28.4405521, lng:-81.4451793, bounds:[[28.43905,-81.44630],[28.43905,-81.44355],[28.44295,-81.44355],[28.44295,-81.44630]]},
   nintendo:       {name:"Super Nintendo World", color:'#ff8a5c', lat:28.4386925, lng:-81.4484706, bounds:[[28.43705,-81.44995],[28.43705,-81.44675],[28.44025,-81.44675],[28.44025,-81.44995]]},
   ministry:       {name:"Ministry of Magic",    color:'#5cc9ff', lat:28.4432085, lng:-81.4477313, bounds:[[28.44180,-81.44915],[28.44180,-81.44600],[28.44465,-81.44600],[28.44465,-81.44915]]},
+  'Production Central': {name:'Production Central', color:'#ff8a5c', lat:28.475,lng:-81.469},
+  'New York': {name:'New York', color:'#5cc9ff', lat:28.4772,lng:-81.4708},
+  'Diagon Alley': {name:'Diagon Alley', color:'#ffcf5c', lat:28.479,lng:-81.4718},
+  'World Expo': {name:'World Expo', color:'#3ddc97', lat:28.4755,lng:-81.4685},
+  'Jurassic Park': {name:'Jurassic Park', color:'#3ddc97', lat:28.472,lng:-81.474},
+  'Marvel Super Hero Island': {name:'Marvel Super Hero Island', color:'#ff5c6a', lat:28.471,lng:-81.4725},
+  'The Wizarding World of Harry Potter': {name:'Wizarding World', color:'#b48cff', lat:28.4728,lng:-81.470},
+  'Skull Island': {name:'Skull Island', color:'#b48cff', lat:28.4742,lng:-81.4732},
+  'Hogsmeade': {name:'Hogsmeade', color:'#5cc9ff', lat:28.4725,lng:-81.4698},
 };
 
-const RIDES = [
+let RIDES = [
   {id:'stardust-racers', name:"Stardust Racers", land:'celestial', lat:28.4419052, lng:-81.4462874, tier:'top', extreme:5, exp:5, desc:"קואסטר משגר כפול — הכי מהיר ואקסטרים בפארק. התור הכי ארוך, יעד ראשון בפתיחה.", img:'assets/img/stardust-racers-1.jpg', qt:14690, qtSR:null, slug:'stardust-racers'},
   {id:'battle-ministry', name:"Harry Potter and the Battle at the Ministry", land:'ministry', lat:28.443753, lng:-81.4481744, tier:'top', extreme:4, exp:5, desc:"ה-dark ride הכי מתוחכם שיוניברסל בנתה — נפילה חופשית וטכנולוגיית תנועה מתקדמת.", img:'assets/img/ministry-of-magic.jpg', qt:14687, qtSR:14696, slug:'harry-potter-battle-at-ministry'},
   {id:'monsters-unchained', name:"Monsters Unchained: The Frankenstein Experiment", land:'dark-universe', lat:28.4407507, lng:-81.4509709, tier:'top', extreme:4, exp:4, desc:"רגע דרמטי ואינטנסיבי — חוויית תיאטרון + ride משולבת.", img:'assets/img/monsters-unchained.jpg', qt:14694, qtSR:null, slug:'monsters-unchained-frankenstein-experiment'},
@@ -613,6 +629,39 @@ const RIDES = [
   {id:'celestial-goodnight', name:"Universal Celestial Goodnight", land:'celestial', lat:28.4404, lng:-81.4468, tier:'show', extreme:0, exp:5, desc:"מופע סיום לילי — מזרקות, אור וזיקוקים. לא לפספס!", img:'assets/img/stardust-racers-twilight.jpg', qt:null, qtSR:null, slug:'universal-celestial-goodnight'},
 ];
 
+const PARKS = {
+  epic: {name:'Universal Epic Universe', kicker:'🎢 UNIVERSAL EPIC UNIVERSE', address:'1001 Epic Boulevard, Orlando, FL', entrance:[28.4386432,-81.4457939], hours:'09:00–21:00', rides:RIDES},
+  studios: {name:'Universal Studios Florida', kicker:'🎬 UNIVERSAL STUDIOS FLORIDA', address:'6000 Universal Boulevard, Orlando, FL', entrance:[28.4793,-81.4682], hours:'09:00–21:00', rides:[
+    {id:'usf-velocicoaster',name:'Hollywood Rip Ride Rockit',land:'Production Central',lat:28.4743,lng:-81.4698,tier:'top',extreme:5,exp:4,desc:'קואסטר אקסטרים עם עלייה אנכית ומוזיקה אישית.',img:'assets/img/stardust-racers-1.jpg'},
+    {id:'usf-mummy',name:'Revenge of the Mummy',land:'New York',lat:28.4772,lng:-81.4708,tier:'top',extreme:4,exp:5,desc:'Dark ride מקורה ומהיר עם שיגורים ואש.',img:'assets/img/monsters-unchained.jpg'},
+    {id:'usf-potter',name:'Harry Potter and the Escape from Gringotts',land:'Diagon Alley',lat:28.4790,lng:-81.4718,tier:'top',extreme:3,exp:5,desc:'הרפתקת Harry Potter משולבת רכבת ו־3D.',img:'assets/img/ministry-of-magic.jpg'},
+    {id:'usf-transformers',name:'TRANSFORMERS: The Ride-3D',land:'Production Central',lat:28.4750,lng:-81.4690,tier:'mid',extreme:3,exp:4,desc:'אקשן 3D משפחתי עם האוטובוטים.',img:'assets/img/destinations-sign.jpg'},
+    {id:'usf-jurassic',name:'Jurassic Park River Adventure',land:'World Expo',lat:28.4755,lng:-81.4685,tier:'mid',extreme:3,exp:4,desc:'שיט מים עם דינוזאורים ונפילה גדולה.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'usf-minions',name:'Despicable Me Minion Mayhem',land:'Production Central',lat:28.4757,lng:-81.4698,tier:'chill',extreme:1,exp:4,desc:'סימולטור מצחיק לכל המשפחה.',img:'assets/img/super-nintendo-world.jpg'},
+  ]},
+  islands: {name:'Universal Islands of Adventure', kicker:'🦖 UNIVERSAL ISLANDS OF ADVENTURE', address:'6000 Universal Boulevard, Orlando, FL', entrance:[28.4727,-81.4712], hours:'09:00–21:00', rides:[
+    {id:'ioa-velocicoaster',name:'Jurassic World VelociCoaster',land:'Jurassic Park',lat:28.4720,lng:-81.4740,tier:'top',extreme:5,exp:5,desc:'אחד הקואסטרים האינטנסיביים והטובים בעולם.',img:'assets/img/stardust-racers-1.jpg'},
+    {id:'ioa-hulk',name:'The Incredible Hulk Coaster',land:'Marvel Super Hero Island',lat:28.4710,lng:-81.4725,tier:'top',extreme:5,exp:4,desc:'שיגור עוצמתי וקואסטר קלאסי של Marvel.',img:'assets/img/curse-werewolf.jpg'},
+    {id:'ioa-potter',name:"Harry Potter and the Forbidden Journey",land:'The Wizarding World of Harry Potter',lat:28.4728,lng:-81.4700,tier:'top',extreme:3,exp:5,desc:'מסע תעופה מרשים בתוך טירת Hogwarts.',img:'assets/img/ministry-of-magic.jpg'},
+    {id:'ioa-spiderman',name:'The Amazing Adventures of Spider-Man',land:'Marvel Super Hero Island',lat:28.4715,lng:-81.4718,tier:'mid',extreme:2,exp:5,desc:'אקשן 3D מעולה לכל המשפחה.',img:'assets/img/destinations-sign.jpg'},
+    {id:'ioa-kong',name:'Skull Island: Reign of Kong',land:'Skull Island',lat:28.4742,lng:-81.4732,tier:'mid',extreme:2,exp:4,desc:'מסע חשוך ומרשים אל האי של קונג.',img:'assets/img/dark-universe-portal.jpg'},
+    {id:'ioa-hippogriff',name:'Flight of the Hippogriff',land:'Hogsmeade',lat:28.4725,lng:-81.4698,tier:'chill',extreme:1,exp:4,desc:'קואסטר משפחתי קצר עם נוף לטירה.',img:'assets/img/isle-of-berk.jpg'},
+  ]}
+};
+let activePark = localStorage.getItem('universalActivePark') || 'epic';
+function selectPark(key){
+  if(!PARKS[key]) return;
+  activePark=key; RIDES=PARKS[key].rides; PARK_ENTRANCE=PARKS[key].entrance; activeLand='all'; activeTier='all'; searchText='';
+  localStorage.setItem('universalActivePark',key);
+  document.querySelectorAll('#park-switcher [data-park]').forEach(b=>b.classList.toggle('active',b.dataset.park===key));
+  document.querySelector('.kicker').textContent=PARKS[key].kicker;
+  document.querySelector('.title-strip h1').textContent=`מדריך חי — ${PARKS[key].name}`;
+  document.querySelector('.status-row .status-chip:nth-child(2) b').textContent=PARKS[key].hours;
+  document.querySelector('.progress-mini b').textContent=`${[...visited].filter(id=>RIDES.some(r=>r.id===id)).length}/${RIDES.length}`;
+  renderAll(); initMapMarkers(); updateNavSelect(); renderPlan();
+}
+document.getElementById('park-switcher').addEventListener('click',e=>{const b=e.target.closest('[data-park]');if(b)selectPark(b.dataset.park);});
+
 /* Single Rider has two independent facts: configured support vs. live operational status. */
 const SINGLE_RIDER_RIDE_IDS = new Set([
   'stardust-racers', 'monsters-unchained', 'curse-werewolf',
@@ -621,7 +670,7 @@ const SINGLE_RIDER_RIDE_IDS = new Set([
 const SINGLE_RIDER_LIVE_IDS = {}; // add only a verified current Queue Times SR feed; missing feed means unknown, never 0 minutes
 
 const HOTEL = [28.4520039, -81.4677475];
-const PARK_ENTRANCE = [28.4386432, -81.4457939];
+let PARK_ENTRANCE = [28.4386432, -81.4457939];
 const PARK_OPEN_MIN = 9*60, PARK_CLOSE_MIN = 21*60;
 
 const CROWD_HOURS = [9,10,11,12,13,14,15,16,17,18,19,20,21];
@@ -728,6 +777,14 @@ function openMapForRide(ride, zoom=17){
     map.setView([ride.lat, ride.lng], zoom);
     rideMarkers[ride.id]?.openPopup();
   }, 80);
+}
+function updateNavSelect(){
+  const select = document.getElementById('nav-ride-select');
+  if (!select) return;
+  select.innerHTML = RIDES.map(r => `<option value="${r.id}">${r.name} · ${r.land}</option>`).join('');
+  selectedNavRideId = RIDES[0]?.id || null;
+  select.value = selectedNavRideId || '';
+  updateNavUI();
 }
 function updateNavUI(){
   const ride = RIDES.find(r => r.id === selectedNavRideId) || RIDES[0];
