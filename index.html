@@ -1082,9 +1082,10 @@ function createRideMarker(r){
   return marker;
 }
 function rebuildMapForPark(){
-  // The Universal tile service only covers Epic Universe; the other two parks need OSM.
-  if (activePark === 'epic') { if (map.hasLayer(mapFallback)) map.removeLayer(mapFallback); if (!map.hasLayer(mapOfficial)) map.addLayer(mapOfficial); }
-  else { if (map.hasLayer(mapOfficial)) map.removeLayer(mapOfficial); if (!map.hasLayer(mapFallback)) map.addLayer(mapFallback); }
+  // The Universal illustrated tile service covers all three Orlando parks;
+  // mapFallback stays wired only as a rescue if those tiles start failing.
+  if (!map.hasLayer(mapOfficial)) map.addLayer(mapOfficial);
+  if (map.hasLayer(mapFallback)) map.removeLayer(mapFallback);
   // Remove every previous marker from the layer so a park switch cannot keep stale pins.
   rideLayer.clearLayers();
   Object.keys(rideMarkers).forEach(id => delete rideMarkers[id]);
