@@ -131,8 +131,9 @@
   .toolbar{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:8px 10px;
            display:flex;flex-direction:column;gap:6px;margin-bottom:12px;position:sticky;top:118px;z-index:10}
   .search-row{display:flex;gap:5px;flex-wrap:wrap}
-  .search-row input[type=text]{flex:1;min-width:150px;background:var(--panel2);border:1px solid var(--border-strong);
-       color:var(--text);padding:7px 10px;border-radius:9px;font-size:13px}
+  .search-row input[type=text]{flex:1;min-width:120px;max-width:360px;background:var(--panel2);border:1px solid var(--border-strong);
+       color:var(--text);padding:6px 9px;border-radius:8px;font-size:12px}
+  .filter-select{background:var(--panel2);border:1px solid var(--border-strong);color:var(--text);padding:6px 9px;border-radius:8px;font-size:12px;min-width:130px;max-width:190px}
   .search-row input[type=text]:focus{outline:2px solid var(--accent)}
   .btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-weight:700;
        padding:9px 14px;border-radius:10px;cursor:pointer;font-size:13px;white-space:nowrap}
@@ -455,12 +456,14 @@
     <details class="sr-explainer" id="sr-explainer"><summary>🎫 איך לקרוא את ה־Single Rider?</summary><div>“Single Rider אפשרי” מבוסס על מיפוי של מתקנים נבחרים; “פתוח/סגור עכשיו” מבוסס על נתון חי נפרד. Universal כותבת רשמית שהאפשרות תלויה בזמינות, במתקנים נבחרים, ויכולה להשתנות ללא הודעה — לכן האפליקציה הרשמית והשלט בכניסה גוברים על כל מקור חיצוני. <a href="https://www.universalorlando.com/web/en/us/faqs/rides-and-attractions" target="_blank" rel="noopener">מקור רשמי</a><br><button class="note-dismiss" id="sr-explainer-dismiss" type="button">× הסתרה לצמיתות</button></div></details>
     <div class="toolbar">
       <div class="search-row">
-        <input type="text" id="search-input" placeholder="חיפוש מתקן... (Stardust, קרוסלה, דרקון)">
+        <input type="text" id="search-input" placeholder="🔎 חיפוש מתקן..." aria-label="חיפוש מתקן">
+        <select id="land-filter" class="filter-select" aria-label="סינון לפי אזור"><option value="all">📍 כל האזורים</option></select>
+        <select id="tier-filter" class="filter-select" aria-label="סינון לפי עצימות"><option value="all">🔥 כל הרמות</option></select>
         <button class="btn secondary small" id="view-tier-btn">לפי דירוג</button>
         <button class="btn secondary small" id="view-land-btn">לפי אזור</button>
       </div>
-      <div class="chip-row" id="land-chips"><span class="chip-group-label">אזור:</span></div>
-      <div class="chip-row" id="tier-chips"><span class="chip-group-label">עצימות:</span></div>
+      <div class="chip-row" id="land-chips" hidden></div>
+      <div class="chip-row" id="tier-chips" hidden></div>
     </div>
     <div id="live-status" class="lead"></div>
     <div class="count-note" id="count-note"></div>
@@ -704,10 +707,21 @@ function finishSiteTour(){ localStorage.setItem('universalSiteTourSeen','1'); do
 document.getElementById('tour-start-btn')?.addEventListener('click', finishSiteTour);
 document.getElementById('tour-skip-btn')?.addEventListener('click', finishSiteTour);
 if (localStorage.getItem('universalSiteTourSeen') === '1') document.getElementById('site-tour')?.classList.add('hidden');
+function refreshParkFilters(){
+  const landSelect=document.getElementById('land-filter'), tierSelect=document.getElementById('tier-filter');
+  if(!landSelect || !tierSelect) return;
+  const lands=[...new Set(RIDES.map(r=>r.land))];
+  landSelect.innerHTML='<option value="all">📍 כל האזורים</option>'+lands.map(k=>`<option value="${k}">${LANDS[k]?.name || k}</option>`).join('');
+  tierSelect.innerHTML='<option value="all">🔥 כל הרמות</option>'+Object.entries(TIER_LABELS).filter(([k])=>RIDES.some(r=>r.tier===k)).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+  landSelect.value=activeLand; tierSelect.value=activeTier;
+}
 function selectPark(key){
   if(!PARKS[key]) return;
   activePark=key; RIDES=PARKS[key].rides; PARK_ENTRANCE=PARKS[key].entrance; activeLand='all'; activeTier='all'; searchText='';
-  localStorage.setItem('universalActivePark',key);
+  refreshParkFilters();
+  document.getElementById('search-input').value='';
+  document.getElementById('land-filter').value='all'; document.getElementById('tier-filter').value='all';
+ localStorage.setItem('universalActivePark',key);
   document.querySelectorAll('#park-switcher [data-park]').forEach(b=>b.classList.toggle('active',b.dataset.park===key));
   document.querySelector('.kicker').textContent=PARKS[key].kicker;
   document.getElementById('site-title-btn').textContent=`מדריך חי — ${PARKS[key].name}`;
@@ -1476,6 +1490,8 @@ function buildChips(){
   });
 }
 document.getElementById('search-input').addEventListener('input', e => { searchText = e.target.value.trim().toLowerCase(); renderRides(); });
+document.getElementById('land-filter')?.addEventListener('change', e => { activeLand=e.target.value; renderRides(); });
+document.getElementById('tier-filter')?.addEventListener('change', e => { activeTier=e.target.value; renderRides(); });
 document.getElementById('view-tier-btn').addEventListener('click', () => { viewMode='tier'; renderRides(); });
 document.getElementById('view-land-btn').addEventListener('click', () => { viewMode='land'; renderRides(); });
 
@@ -1485,6 +1501,8 @@ function renderAll(){
 }
 initNavigation();
 buildChips();
+refreshParkFilters();
+selectPark(activePark);
 renderAll();
 fetchLiveQueue();
 fetchLiveWeather();
