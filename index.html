@@ -681,8 +681,8 @@ let RIDES = [
 ];
 
 const PARKS = {
-  epic: {name:'Universal Epic Universe', kicker:'🎢 UNIVERSAL EPIC UNIVERSE', address:'1001 Epic Boulevard, Orlando, FL', entrance:[28.4386432,-81.4457939], hours:'09:00–21:00', rides:RIDES},
-  studios: {name:'Universal Studios Florida', kicker:'🎬 UNIVERSAL STUDIOS FLORIDA', address:'6000 Universal Boulevard, Orlando, FL', entrance:[28.4793,-81.4682], hours:'09:00–21:00', rides:[
+  epic: {name:'Universal Epic Universe', kicker:'🎢 UNIVERSAL EPIC UNIVERSE', address:'1001 Epic Boulevard, Orlando, FL', entrance:[28.4386432,-81.4457939], hours:'09:00–21:00', queueId:334, rides:RIDES},
+  studios: {name:'Universal Studios Florida', kicker:'🎬 UNIVERSAL STUDIOS FLORIDA', address:'6000 Universal Boulevard, Orlando, FL', entrance:[28.4793,-81.4682], hours:'09:00–21:00', queueId:65, rides:[
     {id:'usf-mummy',name:'Revenge of the Mummy',land:'New York',lat:28.4772,lng:-81.4708,tier:'top',extreme:4,exp:5,desc:'Dark ride מקורה ומהיר עם שיגורים ואש.',img:'assets/img/monsters-unchained.jpg'},
     {id:'usf-hogwarts-express',name:'Hogwarts Express — King’s Cross Station',land:'Diagon Alley',lat:28.4794,lng:-81.4722,tier:'chill',extreme:1,exp:5,desc:'רכבת קסומה ל־Hogsmeade; נדרש כרטיס Park-to-Park.',img:'assets/img/ministry-of-magic.jpg'},
     {id:'usf-trolls',name:'Trolls Trollercoaster',land:'DreamWorks Land',lat:28.4742,lng:-81.4640,tier:'chill',extreme:2,exp:4,desc:'קואסטר משפחתי קצר ומהנה.',img:'assets/img/super-nintendo-world.jpg'},
@@ -706,7 +706,7 @@ const PARKS = {
     {id:'usf-po-live',name:'Po Live!',land:'DreamWorks Land',lat:28.4749,lng:-81.4640,tier:'show',extreme:0,exp:3,desc:'מפגש ומופע אינטראקטיבי עם Po.',img:'assets/img/super-nintendo-world.jpg'},
     {id:'usf-mega-parade',name:'Universal Mega Movie Parade',land:'Hollywood',lat:28.4765,lng:-81.4685,tier:'show',extreme:0,exp:4,desc:'מצעד עונתי; יש לבדוק שעות פעילות באפליקציה הרשמית.',img:'assets/img/destinations-sign.jpg'},
   ]},
-  islands: {name:'Universal Islands of Adventure', kicker:'🦖 UNIVERSAL ISLANDS OF ADVENTURE', address:'6000 Universal Boulevard, Orlando, FL', entrance:[28.4727,-81.4712], hours:'09:00–21:00', rides:[
+  islands: {name:'Universal Islands of Adventure', kicker:'🦖 UNIVERSAL ISLANDS OF ADVENTURE', address:'6000 Universal Boulevard, Orlando, FL', entrance:[28.4727,-81.4712], hours:'09:00–21:00', queueId:64, rides:[
     {id:'ioa-velocicoaster',name:'Jurassic World VelociCoaster',land:'Jurassic Park',lat:28.4720,lng:-81.4740,tier:'top',extreme:5,exp:5,desc:'אחד הקואסטרים האינטנסיביים והטובים בעולם.',img:'assets/img/stardust-racers-1.jpg'},
     {id:'ioa-hulk',name:'The Incredible Hulk Coaster',land:'Marvel Super Hero Island',lat:28.4710,lng:-81.4725,tier:'top',extreme:5,exp:4,desc:'שיגור עוצמתי וקואסטר קלאסי של Marvel.',img:'assets/img/curse-werewolf.jpg'},
     {id:'ioa-potter',name:"Harry Potter and the Forbidden Journey",land:'The Wizarding World of Harry Potter',lat:28.4728,lng:-81.4700,tier:'top',extreme:3,exp:5,desc:'מסע תעופה מרשים בתוך טירת Hogwarts.',img:'assets/img/ministry-of-magic.jpg'},
@@ -773,6 +773,8 @@ function selectPark(key){
   document.querySelector('.status-row .status-chip:nth-child(2) b').textContent=PARKS[key].hours;
   document.querySelector('.progress-mini b').textContent=`${[...visited].filter(id=>RIDES.some(r=>r.id===id)).length}/${RIDES.length}`;
   rebuildMapForPark(); renderAll(); updateNavSelect(); updateNavUI(); renderNearby(); renderPlan();
+  liveQueueMap = {};
+  fetchLiveQueue();
 }
 // Park selection is handled by the title dropdown (#park-menu).
 
@@ -796,10 +798,23 @@ const CROWD_PATTERNS = {
 const DURATION_DEFAULT = {top:45, mid:25, chill:12, show:25};
 const TIER_LABELS = {top:'🔥 מתקני חובה ואקסטרים', mid:'⭐ מתקנים מומלצים', chill:'😌 רגוע ומשפחתי', show:'🎭 מופעים וחוויות'};
 const TIER_ORDER = ['top','mid','chill','show'];
+/* CORS proxies, ordered by observed reliability. r.jina.ai returns the JSON
+   wrapped in a small markdown preamble, so parseProxyPayload() digs it out. */
 const PROXIES = [
+  url => 'https://r.jina.ai/' + url,
   url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url) + '&_=' + Date.now(),
-  url => 'https://cors.eu.org/' + url,
+  url => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+  url => 'https://corsproxy.io/?url=' + encodeURIComponent(url),
 ];
+/* Accepts raw JSON or a text wrapper containing it; returns null when absent. */
+function parseProxyPayload(text){
+  if (!text) return null;
+  try { return JSON.parse(text); } catch (_) {}
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start === -1 || end <= start) return null;
+  try { return JSON.parse(text.slice(start, end + 1)); } catch (_) { return null; }
+}
 
 /* ===================== STATE ===================== */
 let activeLand='all', activeTier='all', viewMode='tier', searchText='';
@@ -1385,16 +1400,28 @@ async function fetchLiveQueue(){
   const statusEl = document.getElementById('live-status');
   const dot = document.getElementById('live-dot');
   const dotText = document.getElementById('live-dot-text');
+  const queueId = PARKS[activePark]?.queueId;
+  if (!queueId){
+    statusEl.textContent = 'זמני המתנה חיים אינם זמינים לפארק הזה.';
+    dot.classList.remove('on'); dot.classList.add('off');
+    dotText.textContent = 'ללא זמני המתנה';
+    return;
+  }
+  const requestedPark = activePark;
   statusEl.textContent = '⏳ טוען זמני המתנה חיים...';
-  const target = 'https://queue-times.com/parks/334/queue_times.json';
+  const target = 'https://queue-times.com/parks/' + queueId + '/queue_times.json';
   for (const makeUrl of PROXIES){
     try {
       const res = await fetchWithTimeout(makeUrl(target), 9000);
       if (!res.ok) throw new Error('HTTP '+res.status);
-      const data = await res.json();
+      const data = parseProxyPayload(await res.text());
+      if (!data) throw new Error('unparseable payload');
+      // The user may have switched parks while this request was in flight.
+      if (activePark !== requestedPark) return;
       const map2 = {};
       (data.lands||[]).forEach(land => (land.rides||[]).forEach(r => { map2[r.id] = r; }));
       (data.rides||[]).forEach(r => { map2[r.id] = r; });
+      if (!Object.keys(map2).length) throw new Error('no rides in payload');
       liveQueueMap = map2;
       let latest = null;
       Object.values(map2).forEach(r => { if (r.last_updated && (!latest || r.last_updated > latest)) latest = r.last_updated; });
@@ -1404,7 +1431,7 @@ async function fetchLiveQueue(){
       dotText.textContent = 'זמני המתנה חיים';
       renderAll();
       return;
-    } catch(e){ console.warn('proxy failed', e); }
+    } catch(e){ /* proxy unavailable — fall through to the next one */ }
   }
   statusEl.textContent = '⚠️ לא ניתן לטעון זמני המתנה חיים כרגע. מוצגת מגמת עומס כללית בלבד.';
   dot.classList.add('off'); dot.classList.remove('on');
