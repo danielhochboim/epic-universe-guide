@@ -100,7 +100,9 @@
     #map{height:560px;min-height:0}
     .map-toolbar{top:8px;inset-inline-start:8px;inset-inline-end:8px;align-items:stretch;flex-wrap:wrap}
     .map-search{order:1;max-width:none;flex-basis:100%}
-    .map-toolbar-actions{order:2;margin-inline-start:auto}
+    .map-filter{order:2}
+    .map-filter button{padding:6px 8px;font-size:11px}
+    .map-toolbar-actions{order:3;margin-inline-start:auto}
     .map-toolbar-actions button span{display:none}
   }
 
@@ -269,10 +271,20 @@
   .map-search input{width:100%;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:inherit;font-size:12.5px;padding:5px}
   .map-search input::placeholder{color:var(--muted)}
   .map-zoom-hint{position:absolute;bottom:12px;inset-inline-start:12px;z-index:500;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:10px;padding:6px 9px;color:var(--muted);font-size:11px;box-shadow:0 4px 14px rgba(0,0,0,.12);pointer-events:none}
-  .ride-marker-wrap{width:180px;min-height:30px;display:flex;flex-direction:column;align-items:center;pointer-events:auto;cursor:pointer}
-  .ride-marker-dot{width:10px;height:10px;flex:0 0 10px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.3)}
-  .map-ride-label{display:none;margin-top:3px;color:#fff;font-size:10.5px;font-weight:800;line-height:1.2;white-space:nowrap;pointer-events:auto;cursor:pointer;text-shadow:0 1px 2px #000,1px 0 2px #000,-1px 0 2px #000}
+  .map-filter{display:flex;align-items:center;gap:2px;background:var(--head-bg);backdrop-filter:blur(8px);border:1px solid var(--border-strong);border-radius:10px;padding:3px;box-shadow:0 4px 14px rgba(0,0,0,.14)}
+  .map-filter button{background:transparent;border:0;border-radius:8px;padding:6px 10px;color:var(--muted);font:inherit;font-size:11.5px;font-weight:700;white-space:nowrap;cursor:pointer;touch-action:manipulation}
+  .map-filter button:hover{background:var(--surface-hover);color:var(--text)}
+  .map-filter button.is-active{background:var(--gold);color:#1a1400}
+  /* Marker wrap is a zero-size anchor so wide labels never block neighbouring pins. */
+  .ride-marker-wrap{position:relative;width:0;height:0;display:flex;flex-direction:column;align-items:center;pointer-events:none;cursor:pointer}
+  .ride-marker-dot{width:11px;height:11px;flex:0 0 11px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35),0 1px 3px rgba(0,0,0,.4);transform:translateY(-50%);pointer-events:auto;transition:transform .12s ease}
+  .ride-marker-wrap:hover .ride-marker-dot{transform:translateY(-50%) scale(1.25)}
+  .map-ride-label{position:absolute;top:9px;left:50%;transform:translateX(-50%);display:none;max-width:190px;padding:2px 7px;border-radius:7px;background:rgba(12,15,22,.82);border:1px solid rgba(255,255,255,.16);color:#fff;font-size:10.5px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:auto;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+  html[data-theme="light"] .map-ride-label{background:rgba(255,255,255,.94);border-color:rgba(0,0,0,.16);color:#14181f;box-shadow:0 2px 8px rgba(0,0,0,.18)}
   .ride-marker-wrap.is-visible .map-ride-label{display:block}
+  .ride-marker-wrap.is-dimmed .ride-marker-dot{opacity:.35}
+  .ride-marker-wrap.is-match .map-ride-label{background:var(--gold);color:#1a1400;border-color:rgba(0,0,0,.25);z-index:3}
+  .ride-marker-icon.is-show .ride-marker-dot{border-radius:3px}
   .user-location-puck{position:relative;width:34px;height:34px;border-radius:50%;background:rgba(61,220,151,.22);border:2px solid rgba(61,220,151,.95);box-shadow:0 0 0 5px rgba(61,220,151,.18);display:flex;align-items:center;justify-content:center}
   .user-location-puck:after{content:'';width:12px;height:12px;border-radius:50%;background:#16c784;border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.35)}
   .user-location-arrow{position:absolute;left:50%;top:-7px;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:15px solid #16c784;transform:translateX(-50%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.45));transform-origin:50% 24px}
@@ -484,6 +496,11 @@
           <span aria-hidden="true">🔎</span>
           <input id="map-search-input" type="search" placeholder="חיפוש מתקן או אזור במפה..." aria-label="חיפוש מתקן או אזור במפה">
         </div>
+        <div class="map-filter" role="group" aria-label="סינון תצוגת המפה">
+          <button type="button" class="is-active" data-mapcat="all" aria-pressed="true">הכל</button>
+          <button type="button" data-mapcat="rides" aria-pressed="false">🎢 מתקנים</button>
+          <button type="button" data-mapcat="shows" aria-pressed="false">🎭 הופעות</button>
+        </div>
         <div class="map-toolbar-actions">
           <button class="map-action-btn" id="map-fullscreen-btn" type="button" aria-label="פתיחת המפה במסך מלא">⛶ <span>מסך מלא</span></button>
           <button class="map-action-btn" id="map-compass-btn" type="button" aria-label="הפעלת סיבוב לפי המצפן">🧭 <span>מצפן</span></button>
@@ -491,12 +508,15 @@
         </div>
       </div>
       <div id="map"></div>
-      <div class="map-zoom-hint">🖐️ גררו · pinch לזום · שמות מופיעים בהתקרבות</div>
+      <div class="map-zoom-hint">🖐️ גררו · pinch לזום · התקרבו כדי לראות עוד שמות</div>
     </div>
     <div class="maplegend" id="map-legend">
-      <span><span class="dot" style="background:#ff5c8a"></span>Epic Universe (כניסה)</span>
+      <span><span class="dot" style="background:#ff5c6a"></span>מתקן חובה</span>
+      <span><span class="dot" style="background:#ffcf5c"></span>מומלץ</span>
+      <span><span class="dot" style="background:#3ddc97"></span>רגוע ומשפחתי</span>
+      <span><span class="dot" style="background:#b4a4ff;border-radius:3px"></span>הופעה</span>
+      <span><span class="dot" style="background:#ff5c8a"></span>כניסת הפארק</span>
       <span><span class="dot" style="background:#7c5cff"></span>המלון שלכם</span>
-      <span><span class="dot" style="background:#3ddc97"></span>המיקום שלכם</span>
     </div>
     <div id="nearby-panel" class="nearby-below-map"></div>
   </section>
@@ -1065,17 +1085,28 @@ L.marker(HOTEL, {icon: hotelIcon}).addTo(map).bindPopup('<b>המלון שלכם<
 
 /* The original Universal basemap already provides the park areas; no extra rectangular overlays. */
 const TIER_MARKER_COLOR = {top:'#ff5c6a', mid:'#ffcf5c', chill:'#3ddc97', show:'#b4a4ff'};
+/* Map-only category filter: 'all' | 'rides' | 'shows'. Independent of the
+   rides-tab filters so the map can be narrowed without touching the list. */
+let mapCategory = (() => {
+  try { const v = localStorage.getItem('epicMapCategory'); return ['all','rides','shows'].includes(v) ? v : 'all'; }
+  catch (_) { return 'all'; }
+})();
+function mapCatPasses(r){
+  if (mapCategory === 'shows') return r.tier === 'show';
+  if (mapCategory === 'rides') return r.tier !== 'show';
+  return true;
+}
 const rideMarkers = {};
 function createRideMarker(r){
   const color = TIER_MARKER_COLOR[r.tier] || '#9aa4b2';
-  const icon = L.divIcon({className:'ride-marker-icon', html:`<div class="ride-marker-wrap"><div class="ride-marker-dot" style="background:${color}"></div><div class="map-ride-label" role="button" tabindex="0" aria-label="פתיחת פרטי ${r.name}">${r.name}</div></div>`, iconSize:[180,30], iconAnchor:[90,7]});
+  const icon = L.divIcon({className:'ride-marker-icon' + (r.tier === 'show' ? ' is-show' : ''), html:`<div class="ride-marker-wrap"><div class="ride-marker-dot" style="background:${color}"></div><div class="map-ride-label" role="button" tabindex="0" aria-label="פתיחת פרטי ${r.name}">${r.name}</div></div>`, iconSize:[0,0], iconAnchor:[0,0]});
   const marker = L.marker([Number(r.lat), Number(r.lng)], {icon});
   marker.bindPopup(mapPopupHtml(r));
   marker.on('click', () => marker.openPopup());
   marker.on('add', () => {
     const wrap = marker.getElement()?.querySelector('.ride-marker-wrap');
     if (!wrap) return;
-    wrap.classList.toggle('is-visible', map.getZoom() >= 16);
+    // Visibility is decided centrally by updateRideLabels() (de-collision pass).
     wrap.addEventListener('click', ev => { ev.stopPropagation(); marker.openPopup(); });
     wrap.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); marker.openPopup(); } });
   });
@@ -1094,8 +1125,9 @@ function rebuildMapForPark(){
     const lat = Number(r.lat), lng = Number(r.lng);
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
     const marker = createRideMarker(r);
-    marker.addTo(rideLayer);
     rideMarkers[r.id] = marker;
+    // Only markers passing the current category filter join the layer.
+    if (mapCatPasses(r)) marker.addTo(rideLayer);
     bounds.push([lat, lng]);
   });
   if (!map.hasLayer(rideLayer)) map.addLayer(rideLayer);
@@ -1152,30 +1184,105 @@ async function toggleCompassMap(){
 }
 
 function updateRideLabels(){
-  const show = map.getZoom() >= 16;
+  const zoom = map.getZoom();
+  const query = (document.getElementById('map-search-input')?.value || '').trim().toLowerCase();
+
+  // Pass 1: decide which markers belong on the map at all, and reset state.
+  const candidates = [];
   RIDES.forEach(r => {
     const marker = rideMarkers[r.id];
     if (!marker) return;
     const wrap = marker.getElement()?.querySelector('.ride-marker-wrap');
-    if (wrap) wrap.classList.toggle('is-visible', show);
+    if (!wrap) return;
+    const label = wrap.querySelector('.map-ride-label');
+    if (label) label.style.visibility = '';
+    wrap.classList.remove('is-visible', 'is-match', 'is-dimmed');
+    if (!mapCatPasses(r)) return;
+    const matches = query && (r.name.toLowerCase().includes(query) || String(r.land||'').toLowerCase().includes(query));
+    if (query && !matches) { wrap.classList.add('is-dimmed'); return; }
+    if (matches) wrap.classList.add('is-match');
+    candidates.push({r, wrap, label, matches, point: map.latLngToContainerPoint([Number(r.lat), Number(r.lng)])});
+  });
+
+  // Below this zoom the park is too small on screen for labels to ever fit.
+  if (zoom < 15) return;
+
+  /* Pass 2: greedy de-collision. Search matches win, then must-do tiers, then
+     whatever sits highest on screen — anything whose label box would overlap an
+     already-placed one keeps its dot but drops its text. */
+  const priority = {top:0, mid:1, chill:2, show:1};
+  candidates.sort((a, b) => {
+    if (a.matches !== b.matches) return a.matches ? -1 : 1;
+    const pa = priority[a.r.tier] ?? 3, pb = priority[b.r.tier] ?? 3;
+    if (pa !== pb) return pa - pb;
+    return a.point.y - b.point.y;
+  });
+
+  const placed = [];
+  const LABEL_H = 17, GAP = 3;
+  candidates.forEach(c => {
+    if (!c.label) return;
+    // Estimate width from text length; cheaper than forcing a layout per marker.
+    const width = Math.min(190, 16 + c.r.name.length * 5.6);
+    // Keep labels off the very edge so names are never clipped by the viewport.
+    const size = map.getSize();
+    if (c.point.x - width / 2 < 4 || c.point.x + width / 2 > size.x - 4) {
+      c.label.style.visibility = 'hidden';
+      return;
+    }
+    const box = {
+      x1: c.point.x - width / 2 - GAP,
+      x2: c.point.x + width / 2 + GAP,
+      y1: c.point.y + 9 - GAP,
+      y2: c.point.y + 9 + LABEL_H + GAP,
+    };
+    const clash = placed.some(p => box.x1 < p.x2 && box.x2 > p.x1 && box.y1 < p.y2 && box.y2 > p.y1);
+    if (clash) { c.label.style.visibility = 'hidden'; return; }
+    placed.push(box);
+    c.wrap.classList.add('is-visible');
   });
 }
+function applyMapCategory(cat){
+  mapCategory = cat;
+  document.querySelectorAll('.map-filter button').forEach(b => {
+    const on = b.dataset.mapcat === cat;
+    b.classList.toggle('is-active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+  try { localStorage.setItem('epicMapCategory', cat); } catch (_) {}
+  // Re-add or detach markers so hidden categories cannot be clicked.
+  RIDES.forEach(r => {
+    const marker = rideMarkers[r.id];
+    if (!marker) return;
+    const shouldShow = mapCatPasses(r);
+    if (shouldShow && !rideLayer.hasLayer(marker)) rideLayer.addLayer(marker);
+    else if (!shouldShow && rideLayer.hasLayer(marker)) rideLayer.removeLayer(marker);
+  });
+  updateRideLabels();
+}
 map.on('zoomend', updateRideLabels);
+map.on('moveend', updateRideLabels);
 setTimeout(updateRideLabels, 0);
 
 
 document.getElementById('map-search-input').addEventListener('input', e => {
   const query = e.target.value.trim().toLowerCase();
-  if (!query){ RIDES.forEach(r => rideMarkers[r.id]?.setOpacity(1)); return; }
-  const matches = RIDES.filter(r => `${r.name} ${(LANDS[r.land]?.name || r.land)}`.toLowerCase().includes(query));
-  RIDES.forEach(r => rideMarkers[r.id]?.setOpacity(matches.includes(r) ? 1 : .12));
+  // Dimming/highlighting is handled by updateRideLabels via the CSS classes.
+  updateRideLabels();
+  if (!query) return;
+  const matches = RIDES.filter(r => mapCatPasses(r) && `${r.name} ${(LANDS[r.land]?.name || r.land)}`.toLowerCase().includes(query));
   if (matches.length === 1){
     map.setView([matches[0].lat, matches[0].lng], 17);
     rideMarkers[matches[0].id]?.openPopup();
   }
 });
+document.querySelectorAll('.map-filter button').forEach(btn => {
+  btn.addEventListener('click', () => applyMapCategory(btn.dataset.mapcat));
+});
 map.addLayer(rideLayer);
 map.addLayer(landLayer);
+// Restore the persisted map category and sync the toolbar buttons to it.
+applyMapCategory(mapCategory);
 
 function syncFullscreenButton(){
   const shell = document.getElementById('map-shell');
