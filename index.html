@@ -419,7 +419,6 @@
     <button class="tab-btn active" data-tab="map">🗺️ מפה</button>
     <button class="tab-btn" data-tab="navigation">🧭 ניווט</button>
     <button class="tab-btn" data-tab="planner">🧭 מתכנן מסלול</button>
-    <button class="tab-btn" data-tab="gallery">📸 גלריה</button>
   </div>
 </div>
 
@@ -585,19 +584,6 @@
     </details>
   </section>
 
-  <!-- ===== GALLERY TAB ===== -->
-  <section class="tab-panel" id="tab-gallery">
-    <h2>📸 גלריה</h2>
-    <div class="gallery">
-      <img src="assets/img/stardust-racers-twilight.jpg" alt="Stardust Racers בדמדומים" loading="lazy">
-      <img src="assets/img/celestial-park.jpg" alt="Celestial Park" loading="lazy">
-      <img src="assets/img/ministry-portal-night.jpg" alt="Ministry of Magic בלילה" loading="lazy">
-      <img src="assets/img/super-nintendo-world.jpg" alt="Super Nintendo World" loading="lazy">
-      <img src="assets/img/dark-universe-portal.jpg" alt="Dark Universe" loading="lazy">
-      <img src="assets/img/destinations-sign.jpg" alt="שילוט הפארק" loading="lazy">
-    </div>
-  </section>
-
 </div>
 
 <footer>
@@ -727,7 +713,7 @@ function selectPark(key){
   document.getElementById('site-title-btn').textContent=`מדריך חי — ${PARKS[key].name}`;
   document.querySelector('.status-row .status-chip:nth-child(2) b').textContent=PARKS[key].hours;
   document.querySelector('.progress-mini b').textContent=`${[...visited].filter(id=>RIDES.some(r=>r.id===id)).length}/${RIDES.length}`;
-  renderAll(); initMapMarkers(); updateNavSelect(); renderPlan();
+  renderAll(); rebuildMapForPark(); updateNavSelect(); renderPlan();
 }
 document.getElementById('park-switcher').addEventListener('click',e=>{const b=e.target.closest('[data-park]');if(b)selectPark(b.dataset.park);});
 
@@ -991,6 +977,16 @@ L.marker(HOTEL, {icon: hotelIcon}).addTo(map).bindPopup('<b>המלון שלכם<
 /* The original Universal basemap already provides the park areas; no extra rectangular overlays. */
 const TIER_MARKER_COLOR = {top:'#ff5c6a', mid:'#ffcf5c', chill:'#3ddc97', show:'#b4a4ff'};
 const rideMarkers = {};
+function rebuildMapForPark(){
+  Object.keys(rideMarkers).forEach(id => { rideLayer.removeLayer(rideMarkers[id]); delete rideMarkers[id]; });
+  RIDES.forEach(r => {
+    const color=TIER_MARKER_COLOR[r.tier];
+    const icon=L.divIcon({className:'ride-marker-icon',html:`<div class="ride-marker-wrap"><div class="ride-marker-dot" style="background:${color}"></div><div class="map-ride-label">${r.name}</div></div>`,iconSize:[180,30],iconAnchor:[90,7]});
+    const marker=L.marker([r.lat,r.lng],{icon}).addTo(rideLayer).bindPopup(mapPopupHtml(r));
+    marker.on('click',()=>marker.openPopup()); rideMarkers[r.id]=marker;
+  });
+  map.setView(PARK_ENTRANCE,15);
+}
 function miniStatsHtml(r){
   if (r.tier === 'show') return `<div class="mini-stats"><span class="mini-stat">🎭 חוויה ${r.exp}/5</span></div>`;
   return `<div class="mini-stats"><span class="mini-stat">🔥 ${r.extreme}/5</span><span class="mini-stat">✨ ${r.exp}/5</span></div>`;
