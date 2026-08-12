@@ -415,11 +415,6 @@
       <span class="progress-track"><span class="progress-fill" id="progress-fill" style="width:0%"></span></span>
     </span>
   </div>
-  <div class="park-switcher" id="park-switcher" role="tablist" aria-label="בחירת פארק">
-    <button class="chip active" data-park="epic">🌌 Epic Universe</button>
-    <button class="chip" data-park="studios">🎬 Universal Studios Florida</button>
-    <button class="chip" data-park="islands">🦖 Islands of Adventure</button>
-  </div>
   <div class="tabs" id="tabs">
     <button class="tab-btn" data-tab="overview">📋 סקירה</button>
     <button class="tab-btn" data-tab="rides">🎢 מתקנים</button>
@@ -468,8 +463,6 @@
         <button class="btn secondary small" id="view-tier-btn">לפי דירוג</button>
         <button class="btn secondary small" id="view-land-btn">לפי אזור</button>
       </div>
-      <div class="chip-row" id="land-chips" hidden></div>
-      <div class="chip-row" id="tier-chips" hidden></div>
     </div>
     <div id="live-status" class="lead"></div>
     <div class="count-note" id="count-note"></div>
@@ -756,11 +749,12 @@ function selectPark(key){
   if(!PARKS[key]) return;
   activePark=key; RIDES=PARKS[key].rides; PARK_ENTRANCE=PARKS[key].entrance; activeLand='all'; activeTier='all'; searchText='';
   refreshParkFilters();
-  buildChips();
   document.getElementById('search-input').value='';
   document.getElementById('land-filter').value='all'; document.getElementById('tier-filter').value='all';
  localStorage.setItem('universalActivePark',key);
-  document.querySelectorAll('#park-switcher [data-park]').forEach(b=>b.classList.toggle('active',b.dataset.park===key));
+  document.querySelectorAll('#park-menu [data-park]').forEach(b=>b.classList.toggle('active',b.dataset.park===key));
+  parkMenu?.classList.remove('open');
+  siteTitleBtn?.setAttribute('aria-expanded','false');
   document.querySelector('.kicker').textContent=PARKS[key].kicker;
   document.getElementById('site-title-btn').textContent=`מדריך חי — ${PARKS[key].name}`;
   document.querySelector('.status-row .status-chip:nth-child(2) b').textContent=PARKS[key].hours;
@@ -1521,6 +1515,7 @@ document.getElementById('pl-thrill').addEventListener('input', e => {
 
 /* ===================== TOOLBAR WIRING (Rides tab) ===================== */
 function buildChips(){
+  return; // פילטרים מהירים הוסרו; נשארו רק ה-dropdowns
   const landChips = document.getElementById('land-chips');
   const tierChips = document.getElementById('tier-chips');
   landChips.innerHTML=''; tierChips.innerHTML='';
