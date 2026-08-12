@@ -838,7 +838,7 @@ function openMapForRide(ride, zoom=17){
 function updateNavSelect(){
   const select = document.getElementById('nav-ride-select');
   if (!select) return;
-  select.innerHTML = RIDES.map(r => `<option value="${r.id}">${r.name} · ${r.land}</option>`).join('');
+  select.innerHTML = RIDES.map(r => `<option value="${r.id}">${r.name} · ${LANDS[r.land]?.name || r.land}</option>`).join('');
   selectedNavRideId = RIDES[0]?.id || null;
   select.value = selectedNavRideId || '';
   updateNavUI();
@@ -855,11 +855,18 @@ function updateNavUI(){
 function initNavigation(){
   const select = document.getElementById('nav-ride-select');
   if (!select) return;
-  select.innerHTML = RIDES.map(r => `<option value="${r.id}">${r.name} · ${LANDS[r.land].name}</option>`).join('');
+  updateNavSelect();
   select.value = selectedNavRideId;
   select.addEventListener('change', () => { selectedNavRideId = select.value; updateNavUI(); });
   document.getElementById('nav-mode').addEventListener('change', updateNavUI);
-  document.getElementById('nav-map-link').addEventListener('click', () => openMapForRide(RIDES.find(r => r.id === selectedNavRideId)));
+  document.getElementById('nav-map-link').addEventListener('pointerup', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const ride = RIDES.find(r => r.id === selectedNavRideId);
+    if (!ride) return;
+    rebuildMapForPark();
+    openMapForRide(ride);
+  });
   updateNavUI();
 }
 function bars(value, max, cls){
