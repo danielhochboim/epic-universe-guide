@@ -761,7 +761,7 @@ function selectPark(key){
   document.querySelector('.progress-mini b').textContent=`${[...visited].filter(id=>RIDES.some(r=>r.id===id)).length}/${RIDES.length}`;
   renderAll(); rebuildMapForPark(); updateNavSelect(); updateNavUI(); renderNearby(); renderPlan();
 }
-document.getElementById('park-switcher').addEventListener('click',e=>{const b=e.target.closest('[data-park]');if(b)selectPark(b.dataset.park);});
+// Park selection is handled by the title dropdown (#park-menu).
 
 /* Single Rider has two independent facts: configured support vs. live operational status. */
 const SINGLE_RIDER_RIDE_IDS = new Set([
@@ -1515,10 +1515,8 @@ document.getElementById('pl-thrill').addEventListener('input', e => {
 
 /* ===================== TOOLBAR WIRING (Rides tab) ===================== */
 function buildChips(){
-  return; // פילטרים מהירים הוסרו; נשארו רק ה-dropdowns
-  const landChips = document.getElementById('land-chips');
-  const tierChips = document.getElementById('tier-chips');
-  landChips.innerHTML=''; tierChips.innerHTML='';
+  // Quick chips were removed; filtering uses only the dropdowns.
+  return;
   const allLandChip = document.createElement('span');
   allLandChip.className='chip active'; allLandChip.textContent='הכל'; allLandChip.dataset.land='all';
   landChips.appendChild(allLandChip);
