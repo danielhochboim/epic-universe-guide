@@ -760,6 +760,7 @@ function refreshParkFilters(){
 function selectPark(key){
   if(!PARKS[key]) return;
   activePark=key; RIDES=PARKS[key].rides; PARK_ENTRANCE=PARKS[key].entrance; activeLand='all'; activeTier='all'; searchText='';
+  updateParkEntranceMarker();
   refreshParkFilters();
   document.getElementById('search-input').value='';
   document.getElementById('land-filter').value='all'; document.getElementById('tier-filter').value='all';
@@ -1026,6 +1027,7 @@ const mapOfficial = L.tileLayer('https://services.universalorlando.com/assets/Ma
   attribution: 'Universal Orlando', minZoom: 12, maxZoom: 18, tileSize: 512, zoomOffset: -1, tms: false
 });
 mapOfficial.addTo(map);
+const mapFallback = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap contributors', maxZoom:19});
 const rideLayer = L.layerGroup().addTo(map);
 const landLayer = L.layerGroup().addTo(map);
 const landmarkLayer = L.layerGroup().addTo(map);
@@ -1042,13 +1044,18 @@ let selectedNavRideId = RIDES[0]?.id || null;
 let locationWatchId = null;
 let locationRequestInFlight = false;
 
-L.marker(PARK_ENTRANCE, {icon: entranceIcon}).addTo(map).bindPopup('<b>Universal Epic Universe</b><br>כניסה ראשית — 1001 Epic Boulevard');
+const parkEntranceMarker = L.marker(PARK_ENTRANCE, {icon: entranceIcon}).addTo(map);
+function updateParkEntranceMarker(){ parkEntranceMarker.setLatLng(PARK_ENTRANCE).setPopupContent(`<b>${PARKS[activePark].name}</b><br>כניסה ראשית — ${PARKS[activePark].address}`); }
 L.marker(HOTEL, {icon: hotelIcon}).addTo(map).bindPopup('<b>המלון שלכם</b><br>7601 Canada Avenue, Orlando, FL');
 
 /* The original Universal basemap already provides the park areas; no extra rectangular overlays. */
 const TIER_MARKER_COLOR = {top:'#ff5c6a', mid:'#ffcf5c', chill:'#3ddc97', show:'#b4a4ff'};
 const rideMarkers = {};
 function rebuildMapForPark(){
+  const park = PARKS[activePark];
+  // Use a stable OSM basemap for the older parks; the Universal tile set is Epic-only.
+  if (activePark === 'epic') { if (!map.hasLayer(mapOfficial)) mapFallback.removeFrom(map), mapOfficial.addTo(map); }
+  else { if (!map.hasLayer(mapFallback)) mapOfficial.removeFrom(map), mapFallback.addTo(map); }
   // Remove every previous marker from the layer, including markers created during initial boot.
   rideLayer.clearLayers();
   Object.keys(rideMarkers).forEach(id => delete rideMarkers[id]);
