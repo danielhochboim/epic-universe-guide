@@ -40,8 +40,10 @@
   .title-strip{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px 6px;max-width:1100px;margin:0 auto;min-width:0}
   .title-strip > div:first-child{min-width:0}
   .title-strip h1{font-size:16.5px;margin:0;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .site-title-btn{background:none;border:0;color:var(--text);font:inherit;font-weight:800;padding:0;cursor:pointer;text-align:start}
-  .site-title-btn:hover{color:var(--gold)}
+  .site-title-btn{display:inline-flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--border-strong);color:var(--text);font:inherit;font-size:14px;font-weight:800;padding:7px 11px;border-radius:10px;cursor:pointer;text-align:start;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  .site-title-btn::after{content:'▾';font-size:15px;color:var(--gold);transition:transform .18s ease}
+  .site-title-btn[aria-expanded='true']::after{transform:rotate(180deg)}
+  .site-title-btn:hover,.site-title-btn:focus-visible{border-color:var(--accent);color:var(--gold);outline:none}
   .park-menu{position:absolute;top:calc(100% + 6px);inset-inline-start:16px;z-index:150;background:var(--panel);border:1px solid var(--border-strong);border-radius:13px;padding:6px;box-shadow:0 14px 35px rgba(0,0,0,.3);min-width:270px;display:none}
   .park-menu.open{display:block}
   .park-menu button{display:block;width:100%;text-align:start;background:transparent;border:0;color:var(--text);padding:10px 12px;border-radius:9px;cursor:pointer;font-weight:700}
@@ -178,6 +180,7 @@
   .summary-badges{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
   .summary-badges > span{font-size:10.5px}
   .ride-chevron{color:var(--muted);font-size:22px;line-height:1;flex:0 0 auto}
+  .ride-map-btn{position:absolute;inset-inline-start:8px;bottom:8px;z-index:2;background:var(--surface-soft);border:1px solid var(--border-strong);color:var(--text);border-radius:8px;padding:5px 8px;font-size:11px;font-weight:800;cursor:pointer}.ride-map-btn:hover{border-color:var(--accent);color:var(--gold)}
   .visit-toggle{position:absolute;top:10px;inset-inline-end:10px;background:var(--overlay);border:1.5px solid var(--border-strong);
      color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;z-index:1}
   .visit-toggle.on{background:var(--green);border-color:var(--green);color:#08351f}
@@ -419,6 +422,7 @@
     <button class="tab-btn" data-tab="overview">📋 סקירה</button>
     <button class="tab-btn" data-tab="rides">🎢 מתקנים</button>
     <button class="tab-btn active" data-tab="map">🗺️ מפה</button>
+    <button class="tab-btn" data-tab="nearby">📍 קרובים</button>
     <button class="tab-btn" data-tab="navigation">🧭 ניווט</button>
     <button class="tab-btn" data-tab="planner">🧭 מתכנן מסלול</button>
   </div>
@@ -495,6 +499,14 @@
       <span><span class="dot" style="background:#3ddc97"></span>המיקום שלכם</span>
     </div>
     <div id="nearby-panel" class="nearby-below-map"></div>
+  </section>
+
+  <!-- ===== NAVIGATION TAB ===== -->
+  <section class="tab-panel" id="tab-nearby">
+    <h2>📍 מתקנים קרובים</h2>
+    <p class="lead">המתקנים הקרובים אליכם בפארק הנבחר, לפי המיקום שלכם.</p>
+    <div class="map-status-line"><span id="nearby-tab-status">📍 בודק מיקום אוטומטית…</span><button class="map-inline-btn" id="nearby-locate-btn" type="button">עדכון מיקום</button></div>
+    <div id="nearby-tab-panel" class="nearby-below-map"></div>
   </section>
 
   <!-- ===== NAVIGATION TAB ===== -->
@@ -798,7 +810,7 @@ function switchTab(tab){
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+tab));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
   localStorage.setItem('epicActiveTab', tab);
-  if (tab==='map') setTimeout(() => { map.invalidateSize(); renderNearby(); }, 60);
+  if (tab==='map' || tab==='nearby') setTimeout(() => { map.invalidateSize(); renderNearby(); }, 60);
   window.scrollTo({top:0, behavior:'instant'});
 }
 const initialTab = localStorage.getItem('epicActiveTab');
@@ -1198,6 +1210,7 @@ function rideCardHtml(r){
       onclick="openRideModal('${r.id}', this)"
       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRideModal('${r.id}', this)}">
     <button class="visit-toggle ${isVisited?'on':''}" onclick="event.preventDefault();event.stopPropagation();toggleVisited('${r.id}')" title="סמנו הייתי כאן">${isVisited?'✓':'⭕'}</button>
+    <button class="ride-map-btn" onclick="event.preventDefault();event.stopPropagation();openMapForRide(RIDES.find(x=>x.id==='${r.id}'))" title="הראה במפה">🗺️ הראה במפה</button>
     <div class="ride-summary">
       <span class="ride-summary-media"><img src="${r.img}" alt="${r.name}" loading="lazy"></span>
       <span class="ride-summary-main">
@@ -1229,9 +1242,18 @@ function renderRides(){
   RIDES.forEach(r => rideMarkers[r.id].setOpacity(ridePasses(r) ? 1 : 0.15));
 }
 
+function nearbyHtml(){
+  if (!userLatLng) return '<p class="lead">📍 יש לאשר גישה למיקום כדי להציג מתקנים קרובים.</p>';
+  const withDist = RIDES.filter(r => ridePasses(r)).map(r => ({r, d: haversine(userLatLng[0], userLatLng[1], r.lat, r.lng)}));
+  withDist.sort((a,b) => a.d - b.d);
+  let html = '<div class="nearby-list">';
+  withDist.forEach(({r,d}) => { html += `<div class="nearby-item" onclick="openRideModal('${r.id}', this)"><img src="${r.img}" alt="${r.name}" loading="lazy"><div class="nb-body"><b>${r.name}</b><div class="n-land">${(LANDS[r.land]?.name || r.land)}</div>${miniStatsHtml(r)}<div class="dist">🚶 ${fmtDist(d)} · ${walkMinutes(d)} דק'</div></div></div>`; });
+  return html + '</div>';
+}
 function renderNearby(){
   const panel = document.getElementById('nearby-panel');
-  if (!userLatLng){ panel.innerHTML=''; return; }
+  const tabPanel = document.getElementById('nearby-tab-panel');
+  if (!userLatLng){ panel.innerHTML=''; if(tabPanel) tabPanel.innerHTML=nearbyHtml(); return; }
   const withDist = RIDES.filter(r => ridePasses(r)).map(r => ({r, d: haversine(userLatLng[0], userLatLng[1], r.lat, r.lng)}));
   withDist.sort((a,b) => a.d - b.d);
   let html = '<div class="lead" style="margin-bottom:6px">🚶 המתקנים הקרובים אליכם (לחיצה = popup עם כל הפרטים):</div><div class="nearby-list">';
@@ -1247,7 +1269,9 @@ function renderNearby(){
     </div>`;
   });
   panel.innerHTML = html + '</div>';
+  if (tabPanel) tabPanel.innerHTML = nearbyHtml();
 }
+
 
 function renderNextUp(){
   const pool = RIDES.filter(r => !visited.has(r.id));
@@ -1416,6 +1440,7 @@ function startLocationWatch(){
   locationWatchId = navigator.geolocation.watchPosition(pos => applyLocation(pos, false), handleLocationError, {enableHighAccuracy:true, maximumAge:30000, timeout:20000});
 }
 document.getElementById('locate-btn').addEventListener('click', () => locateMe(true));
+document.getElementById('nearby-locate-btn')?.addEventListener('click', () => locateMe(false));
 document.getElementById('nav-location-btn').addEventListener('click', () => locateMe(false));
 startLocationWatch();
 
