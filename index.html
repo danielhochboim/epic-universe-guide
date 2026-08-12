@@ -642,6 +642,15 @@ const LANDS = {
   'The Wizarding World of Harry Potter': {name:'Wizarding World', color:'#b48cff', lat:28.4728,lng:-81.470},
   'Skull Island': {name:'Skull Island', color:'#b48cff', lat:28.4742,lng:-81.4732},
   'Hogsmeade': {name:'Hogsmeade', color:'#5cc9ff', lat:28.4725,lng:-81.4698},
+  'Hollywood': {name:'Hollywood', color:'#ff8a5c', lat:28.4765,lng:-81.4685},
+  'San Francisco': {name:'San Francisco', color:'#5cc9ff', lat:28.4780,lng:-81.4700},
+  'Springfield': {name:'Springfield', color:'#ffcf5c', lat:28.4768,lng:-81.4667},
+  'DreamWorks Land': {name:'DreamWorks Land', color:'#b48cff', lat:28.4748,lng:-81.4638},
+  'Illumination’s Minion Land': {name:'Illumination’s Minion Land', color:'#ffcf5c', lat:28.4755,lng:-81.4696},
+  'Woody Woodpecker’s KidZone': {name:'Woody Woodpecker’s KidZone', color:'#3ddc97', lat:28.4750,lng:-81.4646},
+  'Toon Lagoon': {name:'Toon Lagoon', color:'#5cc9ff', lat:28.4719,lng:-81.4708},
+  'Seuss Landing': {name:'Seuss Landing', color:'#ffcf5c', lat:28.4735,lng:-81.4685},
+  'The Lost Continent': {name:'The Lost Continent', color:'#b48cff', lat:28.4735,lng:-81.4728},
 };
 
 let RIDES = [
@@ -669,12 +678,28 @@ let RIDES = [
 const PARKS = {
   epic: {name:'Universal Epic Universe', kicker:'🎢 UNIVERSAL EPIC UNIVERSE', address:'1001 Epic Boulevard, Orlando, FL', entrance:[28.4386432,-81.4457939], hours:'09:00–21:00', rides:RIDES},
   studios: {name:'Universal Studios Florida', kicker:'🎬 UNIVERSAL STUDIOS FLORIDA', address:'6000 Universal Boulevard, Orlando, FL', entrance:[28.4793,-81.4682], hours:'09:00–21:00', rides:[
-    {id:'usf-velocicoaster',name:'Hollywood Rip Ride Rockit',land:'Production Central',lat:28.4743,lng:-81.4698,tier:'top',extreme:5,exp:4,desc:'קואסטר אקסטרים עם עלייה אנכית ומוזיקה אישית.',img:'assets/img/stardust-racers-1.jpg'},
     {id:'usf-mummy',name:'Revenge of the Mummy',land:'New York',lat:28.4772,lng:-81.4708,tier:'top',extreme:4,exp:5,desc:'Dark ride מקורה ומהיר עם שיגורים ואש.',img:'assets/img/monsters-unchained.jpg'},
+    {id:'usf-hogwarts-express',name:'Hogwarts Express — King’s Cross Station',land:'Diagon Alley',lat:28.4794,lng:-81.4722,tier:'chill',extreme:1,exp:5,desc:'רכבת קסומה ל־Hogsmeade; נדרש כרטיס Park-to-Park.',img:'assets/img/ministry-of-magic.jpg'},
+    {id:'usf-trolls',name:'Trolls Trollercoaster',land:'DreamWorks Land',lat:28.4742,lng:-81.4640,tier:'chill',extreme:2,exp:4,desc:'קואסטר משפחתי קצר ומהנה.',img:'assets/img/super-nintendo-world.jpg'},
+    {id:'usf-kang-kodos',name:'Kang & Kodos’ Twirl ’n’ Hurl',land:'Springfield',lat:28.4764,lng:-81.4664,tier:'chill',extreme:1,exp:3,desc:'מתקן סיבובי משפחתי.',img:'assets/img/destinations-sign.jpg'},
     {id:'usf-potter',name:'Harry Potter and the Escape from Gringotts',land:'Diagon Alley',lat:28.4790,lng:-81.4718,tier:'top',extreme:3,exp:5,desc:'הרפתקת Harry Potter משולבת רכבת ו־3D.',img:'assets/img/ministry-of-magic.jpg'},
     {id:'usf-transformers',name:'TRANSFORMERS: The Ride-3D',land:'Production Central',lat:28.4750,lng:-81.4690,tier:'mid',extreme:3,exp:4,desc:'אקשן 3D משפחתי עם האוטובוטים.',img:'assets/img/destinations-sign.jpg'},
     {id:'usf-jurassic',name:'Jurassic Park River Adventure',land:'World Expo',lat:28.4755,lng:-81.4685,tier:'mid',extreme:3,exp:4,desc:'שיט מים עם דינוזאורים ונפילה גדולה.',img:'assets/img/isle-of-berk.jpg'},
-    {id:'usf-minions',name:'Despicable Me Minion Mayhem',land:'Production Central',lat:28.4757,lng:-81.4698,tier:'chill',extreme:1,exp:4,desc:'סימולטור מצחיק לכל המשפחה.',img:'assets/img/super-nintendo-world.jpg'},
+    {id:'usf-minions',name:'Despicable Me Minion Mayhem',land:'Illumination’s Minion Land',lat:28.4757,lng:-81.4698,tier:'chill',extreme:1,exp:4,desc:'סימולטור מצחיק לכל המשפחה.',img:'assets/img/super-nintendo-world.jpg'},
+    {id:'usf-villain-con',name:'Illumination’s Villain-Con Minion Blast',land:'Illumination’s Minion Land',lat:28.4752,lng:-81.4694,tier:'mid',extreme:2,exp:4,desc:'משחק ירי אינטראקטיבי בתנועה.',img:'assets/img/super-nintendo-world.jpg'},
+    {id:'usf-men-black',name:'MEN IN BLACK: Alien Attack',land:'World Expo',lat:28.4758,lng:-81.4678,tier:'mid',extreme:2,exp:4,desc:'משימת ירי אינטראקטיבית נגד חייזרים.',img:'assets/img/destinations-sign.jpg'},
+    {id:'usf-simpsons',name:'The Simpsons Ride',land:'Springfield',lat:28.4768,lng:-81.4667,tier:'mid',extreme:2,exp:4,desc:'סימולטור מצחיק בעולם של משפחת סימפסון.',img:'assets/img/destinations-sign.jpg'},
+    {id:'usf-et',name:'E.T. Adventure',land:'Woody Woodpecker’s KidZone',lat:28.4750,lng:-81.4646,tier:'chill',extreme:1,exp:4,desc:'רכיבה משפחתית קסומה ביער.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'usf-fast-furious',name:'Fast & Furious – Supercharged',land:'San Francisco',lat:28.4780,lng:-81.4700,tier:'mid',extreme:2,exp:3,desc:'אקשן מוטורי עם דמויות הסרט.',img:'assets/img/stardust-racers-1.jpg'},
+    {id:'usf-bourne',name:'The Bourne Stuntacular',land:'Hollywood',lat:28.4770,lng:-81.4688,tier:'show',extreme:0,exp:4,desc:'מופע פעלולים חי וקולנועי.',img:'assets/img/destinations-sign.jpg'},
+    {id:'usf-race-ny',name:'Race Through New York Starring Jimmy Fallon',land:'New York',lat:28.4777,lng:-81.4705,tier:'mid',extreme:2,exp:4,desc:'מרוץ סימולטור קומי ברחבי ניו יורק.',img:'assets/img/destinations-sign.jpg'},
+    {id:'usf-animal-actors',name:'Animal Actors on Location!',land:'Hollywood',lat:28.4760,lng:-81.4684,tier:'show',extreme:0,exp:3,desc:'מופע חיות לכל המשפחה.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'usf-dreamworks',name:'DreamWorks Imagination Celebration',land:'DreamWorks Land',lat:28.4748,lng:-81.4638,tier:'show',extreme:0,exp:4,desc:'חוויה צבעונית עם דמויות DreamWorks.',img:'assets/img/super-nintendo-world.jpg'},
+    {id:'usf-horror-makeup',name:'Universal Orlando’s Horror Make-Up Show',land:'Hollywood',lat:28.4760,lng:-81.4688,tier:'show',extreme:0,exp:4,desc:'מופע חי על אפקטים, איפור ואשליות קולנועיות.',img:'assets/img/monsters-unchained.jpg'},
+    {id:'usf-blues-brothers',name:'The Blues Brothers Show',land:'New York',lat:28.4778,lng:-81.4700,tier:'show',extreme:0,exp:4,desc:'מופע מוזיקלי חי ברחוב.',img:'assets/img/destinations-sign.jpg'},
+    {id:'usf-marilyn',name:'Marilyn and the Diamond Bellas',land:'Hollywood',lat:28.4765,lng:-81.4685,tier:'show',extreme:0,exp:3,desc:'מופע רחוב מוזיקלי.',img:'assets/img/destinations-sign.jpg'},
+    {id:'usf-po-live',name:'Po Live!',land:'DreamWorks Land',lat:28.4749,lng:-81.4640,tier:'show',extreme:0,exp:3,desc:'מפגש ומופע אינטראקטיבי עם Po.',img:'assets/img/super-nintendo-world.jpg'},
+    {id:'usf-mega-parade',name:'Universal Mega Movie Parade',land:'Hollywood',lat:28.4765,lng:-81.4685,tier:'show',extreme:0,exp:4,desc:'מצעד עונתי; יש לבדוק שעות פעילות באפליקציה הרשמית.',img:'assets/img/destinations-sign.jpg'},
   ]},
   islands: {name:'Universal Islands of Adventure', kicker:'🦖 UNIVERSAL ISLANDS OF ADVENTURE', address:'6000 Universal Boulevard, Orlando, FL', entrance:[28.4727,-81.4712], hours:'09:00–21:00', rides:[
     {id:'ioa-velocicoaster',name:'Jurassic World VelociCoaster',land:'Jurassic Park',lat:28.4720,lng:-81.4740,tier:'top',extreme:5,exp:5,desc:'אחד הקואסטרים האינטנסיביים והטובים בעולם.',img:'assets/img/stardust-racers-1.jpg'},
@@ -683,6 +708,25 @@ const PARKS = {
     {id:'ioa-spiderman',name:'The Amazing Adventures of Spider-Man',land:'Marvel Super Hero Island',lat:28.4715,lng:-81.4718,tier:'mid',extreme:2,exp:5,desc:'אקשן 3D מעולה לכל המשפחה.',img:'assets/img/destinations-sign.jpg'},
     {id:'ioa-kong',name:'Skull Island: Reign of Kong',land:'Skull Island',lat:28.4742,lng:-81.4732,tier:'mid',extreme:2,exp:4,desc:'מסע חשוך ומרשים אל האי של קונג.',img:'assets/img/dark-universe-portal.jpg'},
     {id:'ioa-hippogriff',name:'Flight of the Hippogriff',land:'Hogsmeade',lat:28.4725,lng:-81.4698,tier:'chill',extreme:1,exp:4,desc:'קואסטר משפחתי קצר עם נוף לטירה.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'ioa-popeye',name:'Popeye & Bluto’s Bilge-Rat Barges',land:'Toon Lagoon',lat:28.4719,lng:-81.4708,tier:'mid',extreme:2,exp:4,desc:'שיט מים רטוב ומשפחתי.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'ioa-dudley',name:'Dudley Do-Right’s Ripsaw Falls',land:'Toon Lagoon',lat:28.4723,lng:-81.4712,tier:'mid',extreme:2,exp:4,desc:'שיט מים עם נפילה גדולה.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'ioa-cat-hat',name:'The Cat in the Hat',land:'Seuss Landing',lat:28.4735,lng:-81.4685,tier:'chill',extreme:1,exp:4,desc:'רכיבה משפחתית בעולם של Dr. Seuss.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'ioa-seuss-trolley',name:'The High in the Sky Seuss Trolley Train Ride',land:'Seuss Landing',lat:28.4738,lng:-81.4681,tier:'chill',extreme:1,exp:3,desc:'רכבת עילית רגועה עם תצפית על הפארק.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'ioa-storm',name:'Storm Force Accelatron',land:'Marvel Super Hero Island',lat:28.4712,lng:-81.4720,tier:'mid',extreme:2,exp:3,desc:'מתקן סיבובי של Storm.',img:'assets/img/destinations-sign.jpg'},
+    {id:'ioa-journey',name:'The Mystic Fountain',land:'The Lost Continent',lat:28.4735,lng:-81.4728,tier:'show',extreme:0,exp:3,desc:'מזרקה אינטראקטיבית משעשעת.',img:'assets/img/destinations-sign.jpg'},
+    {id:'ioa-pteranodon',name:'Pteranodon Flyers',land:'Jurassic Park',lat:28.4728,lng:-81.4745,tier:'chill',extreme:1,exp:3,desc:'רכיבה אווירית משפחתית.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'ioa-river',name:'Jurassic Park River Adventure',land:'Jurassic Park',lat:28.4732,lng:-81.4741,tier:'mid',extreme:3,exp:4,desc:'שיט דינוזאורים עם נפילה גדולה.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'ioa-doom',name:'Doctor Doom’s Fearfall',land:'Marvel Super Hero Island',lat:28.4708,lng:-81.4728,tier:'top',extreme:4,exp:4,desc:'מגדל נפילה חופשית עוצמתי.',img:'assets/img/destinations-sign.jpg'},
+    {id:'ioa-caro',name:'Caro-Seuss-el',land:'Seuss Landing',lat:28.4730,lng:-81.4688,tier:'chill',extreme:1,exp:3,desc:'קרוסלה צבעונית לכל המשפחה.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'ioa-fish',name:'One Fish, Two Fish, Red Fish, Blue Fish',land:'Seuss Landing',lat:28.4732,lng:-81.4684,tier:'chill',extreme:1,exp:3,desc:'מתקן משפחתי אינטראקטיבי.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'ioa-hagrid',name:'Hagrid’s Magical Creatures Motorbike Adventure',land:'Hogsmeade',lat:28.4718,lng:-81.4692,tier:'top',extreme:4,exp:5,desc:'קואסטר הרפתקני עם שיגורים ויצורים קסומים.',img:'assets/img/ministry-of-magic.jpg'},
+    {id:'ioa-hogwarts-express',name:'Hogwarts Express — Hogsmeade Station',land:'Hogsmeade',lat:28.4728,lng:-81.4694,tier:'chill',extreme:1,exp:5,desc:'רכבת קסומה ל־King’s Cross; נדרש כרטיס Park-to-Park.',img:'assets/img/ministry-of-magic.jpg'},
+    {id:'ioa-raptor',name:'Raptor Encounter',land:'Jurassic Park',lat:28.4726,lng:-81.4742,tier:'show',extreme:0,exp:4,desc:'מפגש דינוזאורים אינטראקטיבי; השעות משתנות.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'ioa-ollivanders',name:'Ollivanders: Makers of Fine Wands',land:'Hogsmeade',lat:28.4726,lng:-81.4696,tier:'show',extreme:0,exp:4,desc:'חוויה אינטראקטיבית לבחירת שרביט.',img:'assets/img/ministry-of-magic.jpg'},
+    {id:'ioa-frog-choir',name:'Frog Choir',land:'Hogsmeade',lat:28.4724,lng:-81.4698,tier:'show',extreme:0,exp:3,desc:'מופע מוזיקלי חי; השעות משתנות.',img:'assets/img/ministry-of-magic.jpg'},
+    {id:'ioa-spirit-rally',name:'Triwizard Spirit Rally',land:'Hogsmeade',lat:28.4723,lng:-81.4700,tier:'show',extreme:0,exp:3,desc:'מופע חי של תלמידי בתי הספר לקוסמות.',img:'assets/img/ministry-of-magic.jpg'},
+    {id:'ioa-stories',name:'Oh! The Stories You’ll Hear!',land:'Seuss Landing',lat:28.4736,lng:-81.4682,tier:'show',extreme:0,exp:3,desc:'סיפורים ומפגשי דמויות.',img:'assets/img/isle-of-berk.jpg'},
+    {id:'ioa-dark-arts',name:'Dark Arts at Hogwarts Castle',land:'Hogsmeade',lat:28.4727,lng:-81.4699,tier:'show',extreme:0,exp:4,desc:'מופע הקרנות לילי עונתי; יש לבדוק תאריך ושעה.',img:'assets/img/ministry-of-magic.jpg'},
   ]}
 };
 let activePark = localStorage.getItem('universalActivePark') || 'epic';
@@ -712,6 +756,7 @@ function selectPark(key){
   if(!PARKS[key]) return;
   activePark=key; RIDES=PARKS[key].rides; PARK_ENTRANCE=PARKS[key].entrance; activeLand='all'; activeTier='all'; searchText='';
   refreshParkFilters();
+  buildChips();
   document.getElementById('search-input').value='';
   document.getElementById('land-filter').value='all'; document.getElementById('tier-filter').value='all';
  localStorage.setItem('universalActivePark',key);
@@ -779,7 +824,7 @@ function rideDetailsHtml(r){
   return `<div class="ride-modal-content">
     <div class="ride-modal-hero">
       <img src="${r.img}" alt="${r.name}">
-      <div><h3 id="ride-modal-title">${r.name}</h3><div class="land">${LANDS[r.land].name}</div><div class="summary-badges">${waitBadgeHtml(r)} ${srBadge}</div></div>
+      <div><h3 id="ride-modal-title">${r.name}</h3><div class="land">${(LANDS[r.land]?.name || r.land)}</div><div class="summary-badges">${waitBadgeHtml(r)} ${srBadge}</div></div>
     </div>
     <div class="scores">${extremeRow}<div class="score">חוויה<b>${r.exp}/5</b><div class="bars">${bars(Math.round(r.exp),5,'exp')}</div></div></div>
     <p class="note">${r.desc}</p>
@@ -1018,7 +1063,7 @@ function mapPopupHtml(r){
     <img src="${r.img}" alt="${r.name}" loading="lazy">
     <div class="mp-body">
       <b>${r.name}</b>
-      <div class="mp-land">${LANDS[r.land].name}</div>
+      <div class="mp-land">${(LANDS[r.land]?.name || r.land)}</div>
       ${miniStatsHtml(r)}
       <div class="mp-cta">👆 לפתיחת popup עם כל הפרטים</div>
     </div>
@@ -1085,7 +1130,7 @@ setTimeout(updateRideLabels, 0);
 document.getElementById('map-search-input').addEventListener('input', e => {
   const query = e.target.value.trim().toLowerCase();
   if (!query){ RIDES.forEach(r => rideMarkers[r.id].setOpacity(1)); return; }
-  const matches = RIDES.filter(r => `${r.name} ${LANDS[r.land].name}`.toLowerCase().includes(query));
+  const matches = RIDES.filter(r => `${r.name} ${(LANDS[r.land]?.name || r.land)}`.toLowerCase().includes(query));
   RIDES.forEach(r => rideMarkers[r.id].setOpacity(matches.includes(r) ? 1 : .12));
   if (matches.length === 1){
     map.setView([matches[0].lat, matches[0].lng], 17);
@@ -1146,7 +1191,7 @@ function ridePasses(r){
   if (activeLand !== 'all' && r.land !== activeLand) return false;
   if (activeTier !== 'all' && r.tier !== activeTier) return false;
   if (searchText){
-    const hay = (r.name + ' ' + LANDS[r.land].name + ' ' + r.desc).toLowerCase();
+    const hay = (r.name + ' ' + (LANDS[r.land]?.name || r.land) + ' ' + r.desc).toLowerCase();
     if (!hay.includes(searchText)) return false;
   }
   return true;
@@ -1163,7 +1208,7 @@ function rideCardHtml(r){
       <span class="ride-summary-media"><img src="${r.img}" alt="${r.name}" loading="lazy"></span>
       <span class="ride-summary-main">
         <h3>${r.name}</h3>
-        <span class="land">${LANDS[r.land].name}</span>
+        <span class="land">${(LANDS[r.land]?.name || r.land)}</span>
         <span class="summary-badges">${waitBadgeHtml(r)} ${srBadge}</span>
       </span>
       <span class="ride-chevron" aria-hidden="true">＋</span>
@@ -1201,7 +1246,7 @@ function renderNearby(){
       <img src="${r.img}" alt="${r.name}" loading="lazy">
       <div class="nb-body">
         <b>${r.name}</b>
-        <div class="n-land">${LANDS[r.land].name}</div>
+        <div class="n-land">${(LANDS[r.land]?.name || r.land)}</div>
         ${miniStatsHtml(r)}
         <div class="dist">🚶 ${fmtDist(d)} · ${walkMinutes(d)} דק'</div>
       </div>
@@ -1226,7 +1271,7 @@ function renderNextUp(){
   el.innerHTML = top3.map(r => {
     const li = liveInfo(r);
     const waitTxt = li.open===false ? '🔴 סגור' : (li.wait!=null ? `🟢 ${li.wait} דק'` : '');
-    return `<div class="next-item"><div><div class="n-name">${r.name}</div><div class="n-land">${LANDS[r.land].name}</div></div><div>${waitTxt}</div></div>`;
+    return `<div class="next-item"><div><div class="n-name">${r.name}</div><div class="n-land">${(LANDS[r.land]?.name || r.land)}</div></div><div>${waitTxt}</div></div>`;
   }).join('');
 }
 
@@ -1445,7 +1490,7 @@ function renderPlan(){
     const r = p.ride;
     html += `<li>
       <div class="time">${fmtClock(p.arrive)}–${fmtClock(p.done)}</div>
-      <h4>${r.name} <span class="badge-sr" style="font-size:10.5px">${LANDS[r.land].name}</span></h4>
+      <h4>${r.name} <span class="badge-sr" style="font-size:10.5px">${(LANDS[r.land]?.name || r.land)}</span></h4>
       <p>🚶 ${p.walkMin} דק' הליכה (${fmtDist(p.dist)}) · ⏱️ ${p.duration} דק' בפנים${r.tier!=='show' ? ' (כולל המתנה)' : ''}</p>
       <a class="plink" href="${gmapsLink(r.lat,r.lng)}" target="_blank" rel="noopener">🧭 ניווט ב-Google Maps</a>
     </li>`;
@@ -1477,10 +1522,13 @@ document.getElementById('pl-thrill').addEventListener('input', e => {
 /* ===================== TOOLBAR WIRING (Rides tab) ===================== */
 function buildChips(){
   const landChips = document.getElementById('land-chips');
+  const tierChips = document.getElementById('tier-chips');
+  landChips.innerHTML=''; tierChips.innerHTML='';
   const allLandChip = document.createElement('span');
   allLandChip.className='chip active'; allLandChip.textContent='הכל'; allLandChip.dataset.land='all';
   landChips.appendChild(allLandChip);
-  Object.entries(LANDS).forEach(([key, land]) => {
+  [...new Set(RIDES.map(r => r.land))].forEach(key => {
+    const land = LANDS[key] || {name:key};
     const chip = document.createElement('span');
     chip.className='chip'; chip.textContent=land.name; chip.dataset.land=key;
     landChips.appendChild(chip);
@@ -1492,7 +1540,6 @@ function buildChips(){
     renderRides();
   });
 
-  const tierChips = document.getElementById('tier-chips');
   const allTierChip = document.createElement('span');
   allTierChip.className='chip active'; allTierChip.textContent='הכל'; allTierChip.dataset.tier='all';
   tierChips.appendChild(allTierChip);
