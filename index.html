@@ -713,7 +713,7 @@ function selectPark(key){
   document.getElementById('site-title-btn').textContent=`מדריך חי — ${PARKS[key].name}`;
   document.querySelector('.status-row .status-chip:nth-child(2) b').textContent=PARKS[key].hours;
   document.querySelector('.progress-mini b').textContent=`${[...visited].filter(id=>RIDES.some(r=>r.id===id)).length}/${RIDES.length}`;
-  renderAll(); rebuildMapForPark(); updateNavSelect(); renderPlan();
+  renderAll(); rebuildMapForPark(); updateNavSelect(); updateNavUI(); renderNearby(); renderPlan();
 }
 document.getElementById('park-switcher').addEventListener('click',e=>{const b=e.target.closest('[data-park]');if(b)selectPark(b.dataset.park);});
 
