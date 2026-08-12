@@ -51,9 +51,9 @@
   .park-choice button{background:var(--panel2);border:1px solid var(--border-strong);color:var(--text);padding:13px;border-radius:11px;text-align:start;font-size:15px;font-weight:800;cursor:pointer}
   .park-choice button:hover{border-color:var(--accent);background:var(--surface-hover)}
   .title-strip{position:relative}
-  .site-tour{position:fixed;inset:0;z-index:350;background:rgba(3,7,18,.82);display:flex;align-items:center;justify-content:center;padding:18px}
+  .site-tour{position:fixed;inset:0;z-index:2000;background:rgba(3,7,18,.82);display:flex;align-items:center;justify-content:center;padding:18px}
   .site-tour.hidden{display:none}
-  .site-tour-card{width:min(600px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--border-strong);border-radius:20px;padding:24px;box-shadow:0 20px 70px rgba(0,0,0,.45)}
+  .site-tour-card{position:relative;z-index:2001;width:min(600px,100%);max-height:90vh;overflow:auto;background:var(--panel);border:1px solid var(--border-strong);border-radius:20px;padding:24px;box-shadow:0 20px 70px rgba(0,0,0,.45)}
   .site-tour-card h2{margin-top:0}.tour-list{display:grid;gap:10px;margin:18px 0;color:var(--muted)}
   .tour-item{display:flex;gap:10px;align-items:flex-start;background:var(--panel2);border-radius:11px;padding:11px 12px}.tour-item b{color:var(--text);display:block}
   .tour-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;flex-wrap:wrap}
