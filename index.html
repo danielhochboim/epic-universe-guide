@@ -772,7 +772,7 @@ function selectPark(key){
   document.getElementById('site-title-btn').textContent=`מדריך חי — ${PARKS[key].name}`;
   document.querySelector('.status-row .status-chip:nth-child(2) b').textContent=PARKS[key].hours;
   document.querySelector('.progress-mini b').textContent=`${[...visited].filter(id=>RIDES.some(r=>r.id===id)).length}/${RIDES.length}`;
-  renderAll(); rebuildMapForPark(); updateNavSelect(); updateNavUI(); renderNearby(); renderPlan();
+  rebuildMapForPark(); renderAll(); updateNavSelect(); updateNavUI(); renderNearby(); renderPlan();
 }
 // Park selection is handled by the title dropdown (#park-menu).
 
@@ -1051,23 +1051,42 @@ L.marker(HOTEL, {icon: hotelIcon}).addTo(map).bindPopup('<b>המלון שלכם<
 /* The original Universal basemap already provides the park areas; no extra rectangular overlays. */
 const TIER_MARKER_COLOR = {top:'#ff5c6a', mid:'#ffcf5c', chill:'#3ddc97', show:'#b4a4ff'};
 const rideMarkers = {};
+function createRideMarker(r){
+  const color = TIER_MARKER_COLOR[r.tier] || '#9aa4b2';
+  const icon = L.divIcon({className:'ride-marker-icon', html:`<div class="ride-marker-wrap"><div class="ride-marker-dot" style="background:${color}"></div><div class="map-ride-label" role="button" tabindex="0" aria-label="פתיחת פרטי ${r.name}">${r.name}</div></div>`, iconSize:[180,30], iconAnchor:[90,7]});
+  const marker = L.marker([Number(r.lat), Number(r.lng)], {icon});
+  marker.bindPopup(mapPopupHtml(r));
+  marker.on('click', () => marker.openPopup());
+  marker.on('add', () => {
+    const wrap = marker.getElement()?.querySelector('.ride-marker-wrap');
+    if (!wrap) return;
+    wrap.classList.toggle('is-visible', map.getZoom() >= 16);
+    wrap.addEventListener('click', ev => { ev.stopPropagation(); marker.openPopup(); });
+    wrap.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); marker.openPopup(); } });
+  });
+  return marker;
+}
 function rebuildMapForPark(){
-  const park = PARKS[activePark];
-  // Use a stable OSM basemap for the older parks; the Universal tile set is Epic-only.
-  if (activePark === 'epic') { if (!map.hasLayer(mapOfficial)) mapFallback.removeFrom(map), mapOfficial.addTo(map); }
-  else { if (!map.hasLayer(mapFallback)) mapOfficial.removeFrom(map), mapFallback.addTo(map); }
-  // Remove every previous marker from the layer, including markers created during initial boot.
+  // The Universal tile service only covers Epic Universe; the other two parks need OSM.
+  if (activePark === 'epic') { if (map.hasLayer(mapFallback)) map.removeLayer(mapFallback); if (!map.hasLayer(mapOfficial)) map.addLayer(mapOfficial); }
+  else { if (map.hasLayer(mapOfficial)) map.removeLayer(mapOfficial); if (!map.hasLayer(mapFallback)) map.addLayer(mapFallback); }
+  // Remove every previous marker from the layer so a park switch cannot keep stale pins.
   rideLayer.clearLayers();
   Object.keys(rideMarkers).forEach(id => delete rideMarkers[id]);
+  const bounds = [];
   RIDES.forEach(r => {
-    const color=TIER_MARKER_COLOR[r.tier];
-    const icon=L.divIcon({className:'ride-marker-icon',html:`<div class="ride-marker-wrap"><div class="ride-marker-dot" style="background:${color}"></div><div class="map-ride-label">${r.name}</div></div>`,iconSize:[180,30],iconAnchor:[90,7]});
-    const marker=L.marker([r.lat,r.lng],{icon}).addTo(rideLayer).bindPopup(mapPopupHtml(r));
-    marker.on('click',()=>marker.openPopup()); rideMarkers[r.id]=marker;
+    const lat = Number(r.lat), lng = Number(r.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const marker = createRideMarker(r);
+    marker.addTo(rideLayer);
+    rideMarkers[r.id] = marker;
+    bounds.push([lat, lng]);
   });
-  const bounds = RIDES.filter(r => Number.isFinite(Number(r.lat)) && Number.isFinite(Number(r.lng))).map(r => [Number(r.lat), Number(r.lng)]);
-  if (bounds.length) map.fitBounds(bounds, {padding:[36,36], maxZoom:16});
-  else map.setView(PARK_ENTRANCE,15);
+  if (!map.hasLayer(rideLayer)) map.addLayer(rideLayer);
+  if (bounds.length) map.fitBounds(bounds, {padding:[40,40], maxZoom:16});
+  else map.setView(PARK_ENTRANCE, 15);
+  map.invalidateSize();
+  updateRideLabels();
 }
 function miniStatsHtml(r){
   if (r.tier === 'show') return `<div class="mini-stats"><span class="mini-stat">🎭 חוויה ${r.exp}/5</span></div>`;
@@ -1131,12 +1150,12 @@ setTimeout(updateRideLabels, 0);
 
 document.getElementById('map-search-input').addEventListener('input', e => {
   const query = e.target.value.trim().toLowerCase();
-  if (!query){ RIDES.forEach(r => rideMarkers[r.id].setOpacity(1)); return; }
+  if (!query){ RIDES.forEach(r => rideMarkers[r.id]?.setOpacity(1)); return; }
   const matches = RIDES.filter(r => `${r.name} ${(LANDS[r.land]?.name || r.land)}`.toLowerCase().includes(query));
-  RIDES.forEach(r => rideMarkers[r.id].setOpacity(matches.includes(r) ? 1 : .12));
+  RIDES.forEach(r => rideMarkers[r.id]?.setOpacity(matches.includes(r) ? 1 : .12));
   if (matches.length === 1){
     map.setView([matches[0].lat, matches[0].lng], 17);
-    rideMarkers[matches[0].id].openPopup();
+    rideMarkers[matches[0].id]?.openPopup();
   }
 });
 map.addLayer(rideLayer);
@@ -1235,7 +1254,7 @@ function renderRides(){
     html += `</div></div>`;
   });
   container.innerHTML = html || '<p class="lead">לא נמצאו מתקנים תואמים לסינון.</p>';
-  RIDES.forEach(r => rideMarkers[r.id].setOpacity(ridePasses(r) ? 1 : 0.15));
+  RIDES.forEach(r => rideMarkers[r.id]?.setOpacity(ridePasses(r) ? 1 : 0.15));
 }
 
 function nearbyHtml(){
@@ -1591,8 +1610,7 @@ setInterval(fetchLiveWeather, 900000);
 setInterval(updateStatusBar, 30000);
 
 const savedTab = localStorage.getItem('epicActiveTab');
-if (savedTab && savedTab !== 'overview') switchTab(savedTab);
-else switchTab('map');
+switchTab(savedTab && document.getElementById('tab-' + savedTab) ? savedTab : 'map');
 </script>
 
 </body>
