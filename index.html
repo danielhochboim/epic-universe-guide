@@ -752,7 +752,7 @@ function switchTab(tab){
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+tab));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
   localStorage.setItem('epicActiveTab', tab);
-  if (tab==='map') setTimeout(() => map.invalidateSize(), 60);
+  if (tab==='map') setTimeout(() => { map.invalidateSize(); renderNearby(); }, 60);
   window.scrollTo({top:0, behavior:'instant'});
 }
 const initialTab = localStorage.getItem('epicActiveTab');
@@ -859,18 +859,18 @@ function initNavigation(){
   select.value = selectedNavRideId;
   select.addEventListener('change', () => { selectedNavRideId = select.value; updateNavUI(); });
   document.getElementById('nav-mode').addEventListener('change', updateNavUI);
-  // Bound once on the document so mobile browsers and dynamically refreshed UI cannot lose the handler.
-  document.addEventListener('pointerup', (e) => {
-    const button = e.target.closest('#nav-map-link');
-    if (!button) return;
+  const showOnMap = (e) => {
     e.preventDefault();
     e.stopPropagation();
     const ride = RIDES.find(r => r.id === selectedNavRideId);
     if (!ride) return;
     rebuildMapForPark();
     switchTab('map');
-    setTimeout(() => openMapForRide(ride), 100);
-  }, true);
+    setTimeout(() => openMapForRide(ride), 120);
+  };
+  const mapButton = document.getElementById('nav-map-link');
+  mapButton.onclick = showOnMap;
+  mapButton.ontouchend = showOnMap;
   updateNavUI();
 }
 function bars(value, max, cls){
@@ -991,7 +991,9 @@ L.marker(HOTEL, {icon: hotelIcon}).addTo(map).bindPopup('<b>המלון שלכם<
 const TIER_MARKER_COLOR = {top:'#ff5c6a', mid:'#ffcf5c', chill:'#3ddc97', show:'#b4a4ff'};
 const rideMarkers = {};
 function rebuildMapForPark(){
-  Object.keys(rideMarkers).forEach(id => { rideLayer.removeLayer(rideMarkers[id]); delete rideMarkers[id]; });
+  // Remove every previous marker from the layer, including markers created during initial boot.
+  rideLayer.clearLayers();
+  Object.keys(rideMarkers).forEach(id => delete rideMarkers[id]);
   RIDES.forEach(r => {
     const color=TIER_MARKER_COLOR[r.tier];
     const icon=L.divIcon({className:'ride-marker-icon',html:`<div class="ride-marker-wrap"><div class="ride-marker-dot" style="background:${color}"></div><div class="map-ride-label">${r.name}</div></div>`,iconSize:[180,30],iconAnchor:[90,7]});
