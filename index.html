@@ -193,10 +193,14 @@
   .search-row .btn:nth-of-type(1){grid-column:2}
   .search-row .btn:nth-of-type(2){grid-column:3}
   @media (max-width:560px){
-    /* Search gets its own full-width row; the two selects share the next one. */
+    /* Search gets its own full-width row; selects and buttons each share a 2-col row. */
     .search-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
     .search-row input[type=text]{grid-column:1 / -1}
-    .search-row .btn{font-size:var(--fs-2xs);padding:8px 6px}
+    .search-row .filter-select:nth-of-type(1){grid-column:1}
+    .search-row .filter-select:nth-of-type(2){grid-column:2}
+    .search-row .btn{font-size:var(--fs-2xs);padding:8px 6px;grid-column:auto}
+    .search-row .btn:nth-of-type(1){grid-column:1}
+    .search-row .btn:nth-of-type(2){grid-column:2}
   }
   .btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-weight:650;
        padding:10px 16px;border-radius:var(--r-md);cursor:pointer;font-size:var(--fs-sm);white-space:nowrap;min-height:40px;
