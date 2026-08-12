@@ -1065,7 +1065,9 @@ function rebuildMapForPark(){
     const marker=L.marker([r.lat,r.lng],{icon}).addTo(rideLayer).bindPopup(mapPopupHtml(r));
     marker.on('click',()=>marker.openPopup()); rideMarkers[r.id]=marker;
   });
-  map.setView(PARK_ENTRANCE,15);
+  const bounds = RIDES.filter(r => Number.isFinite(Number(r.lat)) && Number.isFinite(Number(r.lng))).map(r => [Number(r.lat), Number(r.lng)]);
+  if (bounds.length) map.fitBounds(bounds, {padding:[36,36], maxZoom:16});
+  else map.setView(PARK_ENTRANCE,15);
 }
 function miniStatsHtml(r){
   if (r.tier === 'show') return `<div class="mini-stats"><span class="mini-stat">🎭 חוויה ${r.exp}/5</span></div>`;
@@ -1082,20 +1084,7 @@ function mapPopupHtml(r){
     </div>
   </div>`;
 }
-RIDES.forEach(r => {
-  const color = TIER_MARKER_COLOR[r.tier];
-  const icon = L.divIcon({className:'ride-marker-icon', html:`<div class="ride-marker-wrap"><div class="ride-marker-dot" style="background:${color}"></div><div class="map-ride-label" role="button" tabindex="0" aria-label="פתיחת פרטי ${r.name}">${r.name}</div></div>`, iconSize:[180,30], iconAnchor:[90,7]});
-  const marker = L.marker([r.lat, r.lng], {icon}).addTo(rideLayer);
-  marker.bindPopup(mapPopupHtml(r));
-  marker.on('click', () => marker.openPopup());
-  marker.on('add', () => {
-    const wrap = marker.getElement()?.querySelector('.ride-marker-wrap');
-    if (!wrap) return;
-    wrap.addEventListener('click', ev => { ev.stopPropagation(); marker.openPopup(); });
-    wrap.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); marker.openPopup(); } });
-  });
-  rideMarkers[r.id] = marker;
-});
+// Markers are created only by rebuildMapForPark(), so park switching cannot retain stale markers.
 let userMarker = null;
 function updateUserMarkerIcon(){
   if (userMarker) userMarker.setIcon(makeUserIcon(userHeading));
