@@ -755,6 +755,8 @@ function switchTab(tab){
   if (tab==='map') setTimeout(() => map.invalidateSize(), 60);
   window.scrollTo({top:0, behavior:'instant'});
 }
+const initialTab = localStorage.getItem('epicActiveTab');
+if (initialTab && document.getElementById('tab-'+initialTab)) switchTab(initialTab);
 document.getElementById('tabs').addEventListener('click', e => {
   const btn = e.target.closest('.tab-btn');
   if (btn) switchTab(btn.dataset.tab);
@@ -1113,7 +1115,7 @@ document.getElementById('global-map-btn').addEventListener('click', () => {
   switchTab('map');
   toggleMapFullscreen();
 });
-document.getElementById('map-nav-btn').addEventListener('click', (e) => {
+document.getElementById('map-nav-btn').addEventListener('pointerup', (e) => {
   e.preventDefault(); e.stopPropagation();
   switchTab('navigation');
   requestAnimationFrame(() => document.getElementById('nav-ride-select')?.focus());
