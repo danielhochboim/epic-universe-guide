@@ -128,13 +128,20 @@
   .next-item .n-land{color:var(--muted);font-size:12px;white-space:nowrap}
 
   /* Toolbar (Rides tab) */
-  .toolbar{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:8px 10px;
-           display:flex;flex-direction:column;gap:6px;margin-bottom:12px;position:sticky;top:118px;z-index:10}
-  .search-row{display:flex;gap:5px;flex-wrap:wrap}
-  .search-row input[type=text]{flex:1;min-width:120px;max-width:360px;background:var(--panel2);border:1px solid var(--border-strong);
-       color:var(--text);padding:6px 9px;border-radius:8px;font-size:12px}
-  .filter-select{background:var(--panel2);border:1px solid var(--border-strong);color:var(--text);padding:6px 9px;border-radius:8px;font-size:12px;min-width:130px;max-width:190px}
-  .search-row input[type=text]:focus{outline:2px solid var(--accent)}
+  .toolbar{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:6px 8px;
+           display:flex;flex-direction:column;gap:5px;margin-bottom:10px;position:sticky;top:118px;z-index:10}
+  .search-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(112px,1fr) minmax(112px,1fr);gap:5px;align-items:center}
+  .search-row input[type=text],.filter-select{width:100%;min-width:0;max-width:none;box-sizing:border-box;background:var(--panel2);border:1px solid var(--border-strong);
+       color:var(--text);padding:6px 8px;border-radius:8px;font-size:12px;height:32px}
+  .filter-select{appearance:auto}
+  .search-row input[type=text]:focus,.filter-select:focus{outline:2px solid var(--accent);outline-offset:1px}
+  .search-row .btn{grid-column:span 1;padding:6px 8px;font-size:11px;height:30px}
+  .search-row .btn:nth-of-type(1){grid-column:2}
+  .search-row .btn:nth-of-type(2){grid-column:3}
+  @media (max-width:560px){
+    .search-row{grid-template-columns:minmax(0,1.35fr) minmax(96px,1fr) minmax(96px,1fr)}
+    .search-row .btn{font-size:10px;padding:5px 4px}
+  }
   .btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-weight:700;
        padding:9px 14px;border-radius:10px;cursor:pointer;font-size:13px;white-space:nowrap}
   .btn:hover{filter:brightness(1.08)}
